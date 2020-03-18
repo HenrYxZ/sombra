@@ -1,4 +1,4 @@
-class Scene(object):
+class Scene:
     """
     Scene for raytracer that manages the objects and cameras.
     """

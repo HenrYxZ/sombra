@@ -3,7 +3,7 @@ import numpy as np
 from object import OBJ_TYPE_SPHERE
 
 
-class Ray(object):
+class Ray:
     """
     Ray object that is used for raytracing. It has an intersect function to get
     the intersection of the ray and a given object.
@@ -14,7 +14,6 @@ class Ray(object):
     """
 
     def __init__(self, pr, nr):
-        super(Ray, self).__init__()
         self.pr = pr
         self.nr = nr
 

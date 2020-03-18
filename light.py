@@ -2,7 +2,7 @@ POINT_LIGHT = "point"
 DIRECTIONAL_LIGHT = "directional"
 
 
-class Light(object):
+class Light:
     """
     Light for a Scene
     """

@@ -4,7 +4,7 @@ from random import random
 import time
 # Local Modules
 from camera import Camera
-from light import Light, POINT_LIGHT
+from light import Light, POINT_LIGHT, DIRECTIONAL_LIGHT
 from object import Sphere, OBJ_TYPE_SPHERE
 from ray import Ray
 import shaders
@@ -65,7 +65,11 @@ def compute_color(ph, obj, lights):
             if light.type == POINT_LIGHT:
                 l = utils.normalize(light.position - ph)
                 color = shaders.diffuse(nh, l, material)
-            final_color += color
+                final_color += color
+            if light.type == DIRECTIONAL_LIGHT:
+                l = utils.normalize(light.position)
+                color = shaders.diffuse(nh, l, material)
+                final_color += color
         final_color = np.clip(final_color, 0, 255).astype(np.uint8)
         return final_color
     else:
@@ -82,12 +86,12 @@ def raytrace(ray, objects, lights):
     color = np.array([0, 0, 0], dtype=np.uint8)
     # Get closest intersection point
     tmin = np.inf
-    # The closest object hitted by the ray
+    # The closest object hit by the ray
     obj_h = None
     for obj in objects:
         t = ray.intersect(obj)
         print(t)
-        if t > 0 and t < tmin:
+        if 0 < t < tmin:
             tmin = t
             obj_h = obj
     if obj_h:

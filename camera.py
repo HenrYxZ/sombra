@@ -2,7 +2,7 @@ import numpy as np
 import utils
 
 
-class Camera(object):
+class Camera:
     """
     Camera object
     """

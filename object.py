@@ -1,14 +1,13 @@
 OBJ_TYPE_SPHERE = "sphere"
 
 
-class Object(object):
+class Object:
     """
     Represent a generic object inside the scene that has a specific position
     and intersect function
     """
 
     def __init__(self, position):
-        super(Object, self).__init__()
         self.position = position
 
 
