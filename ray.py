@@ -1,7 +1,6 @@
 import numpy as np
-# Local modules
-from object import OBJ_TYPE_SPHERE
-
+# Local Modules
+from object import Sphere
 
 class Ray:
     """
@@ -27,7 +26,7 @@ class Ray:
         """
         Find t of intersection, -1 value means no intersection.
         """
-        if obj.type == OBJ_TYPE_SPHERE:
+        if isinstance(obj, Sphere):
             # Sphere center point
             pc = obj.position
             dif = self.pr - pc
