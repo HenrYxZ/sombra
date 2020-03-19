@@ -1,5 +1,7 @@
 import numpy as np
 import utils
+# Local Modules
+from object import Sphere
 
 
 class Camera:
@@ -34,11 +36,22 @@ class Camera:
             pc - (self.scale_x / 2) * self.n0 - (self.scale_y / 2) * self.n1
         )
 
-    def spin(degrees):
+    def spin(self, degrees):
         pass
 
-    def pan(degrees):
+    def pan(self, degrees):
         pass
 
-    def tilt(degrees):
+    def tilt(self, degrees):
         pass
+
+    def inside(self, objects):
+        """
+        Returns true if the camera position is inside any of the objects.
+        """
+        for obj in objects:
+            if isinstance(obj, Sphere):
+                dif = self.position - obj.position
+                if np.dot(dif, dif) < (obj.radius ** 2):
+                    return True
+        return False

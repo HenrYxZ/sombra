@@ -41,18 +41,6 @@ def setup_scene():
     return scene
 
 
-def inside(camera, objects):
-    """
-    Returns true if the camera position is inside any of the objects.
-    """
-    for obj in objects:
-        if isinstance(obj, Sphere):
-            dif = camera.position - obj.position
-            if np.dot(dif, dif) < (obj.radius ** 2):
-                return True
-    return False
-
-
 def compute_color(ph, obj, lights):
     """
     Compute the color for the given object at the given point.
@@ -119,8 +107,8 @@ def render(scene, camera):
         numpy.array: The pixels with the raytraced colors.
     """
     output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
-    if not scene or not scene.objects or not camera or inside(
-        camera, scene.objects
+    if not scene or not scene.objects or not camera or camera.inside(
+        scene.objects
     ):
         print("Cannot generate an image")
         return output
