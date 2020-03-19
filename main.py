@@ -5,7 +5,9 @@ import time
 # Local Modules
 from camera import Camera
 from light import Light, POINT_LIGHT, DIRECTIONAL_LIGHT
-from object import Sphere, OBJ_TYPE_SPHERE
+from material import Material
+import material
+from object import Sphere
 from ray import Ray
 import shaders
 from scene import Scene
@@ -20,20 +22,21 @@ H_SAMPLES = 4
 PERCENTAGE_STEP = 5
 MAX_QUALITY = 95
 RGB_CHANNELS = 3
+MAX_COLOR_VALUE = 255
 OUTPUT_IMG_FILENAME = "output.jpg"
 
 
 def setup_scene():
     main_camera_pos = np.array([0, 0, -1])
-    # quizas esto tenga que ser negativo
     vview = np.array([0, 0, 1])
     vup = np.array([0, 1, 0])
     main_camera = Camera(main_camera_pos, vview, vup)
     light_pos = np.array([0, 1.2, 0.5])
     light = Light(light_pos, POINT_LIGHT)
     sphere_position = np.array([0, 0.25, 1])
+    sphere_material = Material(material.COLOR_BLUE, material.DIFFUSE)
     sphere_radius = 0.25
-    sphere = Sphere(sphere_position, sphere_radius)
+    sphere = Sphere(sphere_position, sphere_material, sphere_radius)
     scene = Scene([main_camera], [light], [sphere])
     return scene
 
@@ -43,7 +46,7 @@ def inside(camera, objects):
     Returns true if the camera position is inside any of the objects.
     """
     for obj in objects:
-        if obj.type == OBJ_TYPE_SPHERE:
+        if isinstance(obj, Sphere):
             dif = camera.position - obj.position
             if np.dot(dif, dif) < (obj.radius ** 2):
                 return True
@@ -57,20 +60,21 @@ def compute_color(ph, obj, lights):
     Returns:
         np.array: The color for this ray in numpy uint8 of 3 channels
     """
-    if obj.type == OBJ_TYPE_SPHERE:
-        nh = utils.normalize(ph - obj.position)
-        material = np.array([10, 10, 230], dtype=np.uint8)
+    if isinstance(obj, Sphere):
+        # This is the normal nh if ph is a point in the surface of the sphere
+        nh = (ph - obj.position) / obj.radius
         final_color = np.array([0, 0, 0])
         for light in lights:
             if light.type == POINT_LIGHT:
                 l = utils.normalize(light.position - ph)
-                color = shaders.diffuse(nh, l, material)
-                final_color += color
-            if light.type == DIRECTIONAL_LIGHT:
+            elif light.type == DIRECTIONAL_LIGHT:
                 l = utils.normalize(light.position)
-                color = shaders.diffuse(nh, l, material)
-                final_color += color
-        final_color = np.clip(final_color, 0, 255).astype(np.uint8)
+            else:
+                # Default unit vector looking to light up in the y direction
+                l = np.array([0, 1, 0])
+            color = shaders.diffuse(nh, l, obj.material.diffuse)
+            final_color += color
+        final_color = np.clip(final_color, 0, MAX_COLOR_VALUE).astype(np.uint8)
         return final_color
     else:
         return np.array([0, 0, 0], dtype=np.uint8)
@@ -90,7 +94,6 @@ def raytrace(ray, objects, lights):
     obj_h = None
     for obj in objects:
         t = ray.intersect(obj)
-        print(t)
         if 0 < t < tmin:
             tmin = t
             obj_h = obj
@@ -131,9 +134,9 @@ def render(scene, camera):
                 for m in range(H_SAMPLES):
                     x = i + (m / H_SAMPLES) + (random() / H_SAMPLES)
                     y = j + (n / V_SAMPLES) + (random() / V_SAMPLES)
-                    # Get x projected in view coords
+                    # Get x projected in view coord
                     xp = (x / WIDTH) * camera.scale_x
-                    # Get y projected in view coords
+                    # Get y projected in view coord
                     yp = (y / HEIGHT) * camera.scale_y
                     pp = camera.p00 + xp * camera.n0 + yp * camera.n1
                     npe = pp - camera.position

@@ -1,14 +1,12 @@
-OBJ_TYPE_SPHERE = "sphere"
-
-
 class Object:
     """
     Represent a generic object inside the scene that has a specific position
     and intersect function
     """
 
-    def __init__(self, position):
+    def __init__(self, position, material):
         self.position = position
+        self.material = material
 
 
 class Sphere(Object):
@@ -16,7 +14,6 @@ class Sphere(Object):
     Represent a Sphere object to be used in a scene.
     """
 
-    def __init__(self, position, radius):
-        super(Sphere, self).__init__(position)
+    def __init__(self, position, material, radius):
+        Object.__init__(self, position, material)
         self.radius = radius
-        self.type = OBJ_TYPE_SPHERE
