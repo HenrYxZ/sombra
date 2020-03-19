@@ -6,10 +6,10 @@ def normalize(arr):
     Normalize a vector using numpy.
 
     Args:
-        arr(numpy.array): Input vector
+        arr(darray): Input vector
 
     Returns:
-        array: Normalized input vector
+        darray: Normalized input vector
     """
     norm = np.linalg.norm(arr)
     if norm == 0:

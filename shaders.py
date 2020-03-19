@@ -8,8 +8,8 @@ def diffuse(n, l, material):
         n(numpy.array): Unit normal vector
         l(numpy.array): Unit vector in the direction to the light
     Returns:
-        numpy.uint8: The calculated color (grayscale 0-255)
+        numpy.array: The calculated color (grayscale 0-255)
     """
     diffuse_coef = np.dot(n, l)
-    color = np.uint8(np.maximum(0, diffuse_coef) * material)
+    color = np.maximum(0, diffuse_coef) * material
     return color
