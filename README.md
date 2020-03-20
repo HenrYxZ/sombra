@@ -6,7 +6,10 @@ you should probably use something like C++. The equations used are from the
 Image Synthesis class at Texas A&M University taught by professor Ergun Akleman 
 
 It creates a raytraced image of a scene with simple objects like spheres and
-planes
+planes. It's using a resolution of 200x200px by default and random jitter
+anti-aliasing.
+
+![output image](output.jpg)
 
 ## Usage
 
@@ -22,8 +25,9 @@ You will need to install
 And Python modules
 - numpy
 - pillow
+- progress
 
 You can install python modules, for example, by running:
-`python -m pip install numpy pillow`
+`python -m pip install numpy pillow progress`
 
 Developed by Jesús Henríquez

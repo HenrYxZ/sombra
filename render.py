@@ -1,13 +1,13 @@
 import numpy as np
+from progress.bar import Bar
 from random import random
 
 # Local Modules
-import constants
 import utils
 from ray import Ray
 from raytrace import raytrace
 
-PERCENTAGE_STEP = 5
+PERCENTAGE_STEP = 1
 RGB_CHANNELS = 3
 
 
@@ -28,9 +28,13 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     ):
         print("Cannot generate an image")
         return output
+    # This is for showing progress %
     iterations = HEIGHT * WIDTH * V_SAMPLES * H_SAMPLES
     step_size = np.ceil((iterations * PERCENTAGE_STEP) / 100).astype('int')
     counter = 0
+    bar = Bar('Raytracing', max=100/PERCENTAGE_STEP)
+    # This is needed to use it in Git Bash
+    bar.check_tty = False
     for j in range(HEIGHT):
         for i in range(WIDTH):
             color = np.array([0, 0, 0], dtype=np.uint8)
@@ -57,6 +61,8 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
                     counter += 1
                     if counter % step_size == 0:
                         percent_done = int((counter / float(iterations)) * 100)
-                        print("{}% done".format(percent_done))
+                        # print("{}% done".format(percent_done))
+                        bar.next()
             output[j][i] = color
+    bar.finish()
     return output
