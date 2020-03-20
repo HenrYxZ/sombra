@@ -1,7 +1,7 @@
 import numpy as np
 import utils
 # Local Modules
-from object import Sphere
+from object import Plane, Sphere
 
 
 class Camera:
@@ -59,6 +59,5 @@ class Camera:
         for obj in objects:
             if isinstance(obj, Sphere):
                 dif = self.position - obj.position
-                if np.dot(dif, dif) < (obj.radius ** 2):
-                    return True
+                return (np.dot(dif, dif) < (obj.radius ** 2))
         return False
