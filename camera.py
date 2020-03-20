@@ -60,4 +60,6 @@ class Camera:
             if isinstance(obj, Sphere):
                 dif = self.position - obj.position
                 return (np.dot(dif, dif) < (obj.radius ** 2))
+            if isinstance(obj, Plane):
+                return (np.dot(self.position - obj.position, obj.n) == 0)
         return False

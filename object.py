@@ -1,19 +1,57 @@
 class Object:
     """
-    Represent a generic object inside the scene that has a specific position
-    and intersect function
+    Represent a generic object inside the scene that has a specific position,
+    material and intersect function.
+
+    Attributes:
+        position(numpy.array): A 3D point that represents the position
+        material(Material): The material to be rendered for this object
     """
 
     def __init__(self, position, material):
         self.position = position
         self.material = material
 
+    def normal_at(self, p):
+        """
+        Get the normal at point p.
+        """
+        return None
+
 
 class Sphere(Object):
     """
     Represent a Sphere object to be used in a scene.
+
+    Attributes:
+        position(numpy.array): A 3D point inside the plane
+        material(Material): The material to be rendered for this object
+        radius(float): The radius of this sphere
     """
 
     def __init__(self, position, material, radius):
         Object.__init__(self, position, material)
         self.radius = radius
+
+    def normal_at(self, p):
+        # This doesn't validate that p is in the surface
+        return (p - self.position) / float(self.radius)
+
+
+class Plane(Object):
+    """
+    Represent a Plane object to be used in a scene.
+
+    Attributes:
+        position(numpy.array): A 3D point inside the plane
+        material(Material): The material to be rendered for this object
+        n(numpy.array): The normal for this plane
+    """
+
+    def __init__(self, position, material, n):
+       Object.__init__(self, position, material)
+       self.n = n
+
+    def normal_at(self, p):
+        # This doesn't validate that p is in the surface
+        return self.n

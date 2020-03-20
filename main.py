@@ -1,15 +1,12 @@
 import numpy as np
 from PIL import Image
-from random import random
 import time
 # Local Modules
 from camera import Camera
 from light import Light, POINT_LIGHT
 from material import Material
 import material
-from object import Sphere
-from ray import Ray
-import shaders
+from object import Plane, Sphere
 from render import render
 from scene import Scene
 import utils
@@ -31,11 +28,16 @@ def setup_scene():
     main_camera = Camera(main_camera_pos, vview, vup)
     light_pos = np.array([0, 50, 50])
     light = Light(light_pos, POINT_LIGHT)
+    plane_position = np.array([0, -25, 0])
+    plane_material = Material(material.COLOR_GRAY, material.DIFFUSE)
+    plane_normal = np.array([0, 1, 0])
+    plane = Plane(plane_position, plane_material, plane_normal)
     sphere_position = np.array([0, 0, 100])
     sphere_material = Material(material.COLOR_BLUE, material.DIFFUSE)
     sphere_radius = 25
     sphere = Sphere(sphere_position, sphere_material, sphere_radius)
-    scene = Scene([main_camera], [light], [sphere])
+    objects = [sphere, plane]
+    scene = Scene([main_camera], [light], objects)
     return scene
 
 
