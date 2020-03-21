@@ -7,7 +7,7 @@ from light import Light, POINT_LIGHT
 from material import Material
 import material
 from object import Plane, Sphere
-from render import render
+from render import render, render_no_aa
 from scene import Scene
 import utils
 
