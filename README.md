@@ -17,6 +17,12 @@ anti-aliasing.
 - Run `python -u main.py` (-u is for displaying print messages)
 - The output image will be stored in the project folder
 
+## Testing
+
+To run the tests use unittest in this way `python -m unittest -v tests`.
+This will run every test in the "_tests_" module, if you add new tests make sure to
+import them into the "_\_\_init\_\_.py_" file of the "_tests_" folder.
+
 ## Dependencies
 
 You will need to install
