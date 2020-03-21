@@ -14,7 +14,7 @@ anti-aliasing.
 ## Usage
 
 - Install all the dependencies required
-- Run `python main.py`
+- Run `python -u main.py` (-u is for displaying print messages)
 - The output image will be stored in the project folder
 
 ## Dependencies
