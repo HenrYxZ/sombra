@@ -22,19 +22,19 @@ OUTPUT_IMG_FILENAME = "output.jpg"
 
 
 def setup_scene():
-    main_camera_pos = np.array([0, 0, 0])
-    vview = np.array([0, 0, 1])
-    vup = np.array([0, 1, 0])
+    main_camera_pos = np.array([0, 0, 0], dtype=float)
+    vview = np.array([0, 0, 1], dtype=float)
+    vup = np.array([0, 1, 0], dtype=float)
     main_camera = Camera(main_camera_pos, vview, vup)
-    light_pos = np.array([0, 50, 50])
+    light_pos = np.array([0, 50, 50], dtype=float)
     light = Light(light_pos, POINT_LIGHT)
-    plane_position = np.array([0, -25, 0])
+    plane_position = np.array([0, -25, 0], dtype=float)
     plane_material = Material(material.COLOR_GRAY, material.DIFFUSE)
-    plane_normal = np.array([0, 1, 0])
+    plane_normal = np.array([0, 1, 0], dtype=float)
     plane = Plane(plane_position, plane_material, plane_normal)
-    sphere_position = np.array([0, 0, 100])
+    sphere_position = np.array([0, 0, 100], dtype=float)
     sphere_material = Material(material.COLOR_BLUE, material.DIFFUSE)
-    sphere_radius = 25
+    sphere_radius = 25.0
     sphere = Sphere(sphere_position, sphere_material, sphere_radius)
     objects = [sphere, plane]
     scene = Scene([main_camera], [light], objects)

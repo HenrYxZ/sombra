@@ -10,7 +10,7 @@ class Ray:
 
     Attr:
         pr: Origin point of the Ray
-        nr: Director vector for the ray.
+        nr: Director vector for the ray
     """
 
     def __init__(self, pr, nr):
@@ -19,7 +19,13 @@ class Ray:
 
     def at(self, t):
         """
-        Get the point in the ray at position t
+        Get the point in the ray at position t.
+
+        Args:
+            t(float): The scalar that multiplies the director vector in the ray
+
+        Returns:
+            np.array: The point in 3D that represent the ray at position t
         """
         return self.pr + t * self.nr
 

@@ -22,7 +22,7 @@ def compute_color(ph, obj, lights):
             l = utils.normalize(light.position)
         else:
             # Default unit vector looking to light up in the y direction
-            l = np.array([0, 1, 0])
+            l = np.array([0, 1, 0], dtype=float)
         nh = obj.normal_at(ph)
         if nh is None:
             return np.array([0, 0, 0], dtype=float)
@@ -38,7 +38,7 @@ def raytrace(ray, objects, lights):
     Use the given ray to calculate colors.
 
     Returns:
-        np.array: The color for this ray in 3 channels
+        np.array: The color for this ray in numpy uint8 of 3 channels
     """
     # Get closest intersection point
     tmin = np.inf
