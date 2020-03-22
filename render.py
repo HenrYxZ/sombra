@@ -79,7 +79,7 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     bar.check_tty = False
     for j in range(HEIGHT):
         for i in range(WIDTH):
-            color = np.array([0, 0, 0], dtype=np.uint8)
+            color = np.array([0, 0, 0], dtype=float)
             for n in range(V_SAMPLES):
                 for m in range(H_SAMPLES):
                     x = i + (float(m) / H_SAMPLES) + (random() / H_SAMPLES)
@@ -98,11 +98,11 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
                     total_samples = H_SAMPLES * V_SAMPLES
                     color += (
                         raytrace(ray, scene.objects, scene.lights)
-                        / total_samples
+                        / float(total_samples)
                     )
                     counter += 1
                     if counter % step_size == 0:
                         bar.next()
-            output[j][i] = color
+            output[j][i] = np.round(color)
     bar.finish()
     return output
