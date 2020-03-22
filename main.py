@@ -46,9 +46,13 @@ def main():
     print("Setting up...")
     scene = setup_scene()
     print("Raytracing...")
-    img_arr = render(
-        scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
-    )
+    debug_mode = True
+    if debug_mode:
+        img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
+    else:
+        img_arr = render(
+            scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
+        )
     img = Image.fromarray(img_arr)
     img.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
     print("Rendered image saved in {}".format(OUTPUT_IMG_FILENAME))
