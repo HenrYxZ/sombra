@@ -1,5 +1,6 @@
 import numpy as np
 from PIL import Image
+import sys, getopt
 import time
 # Local Modules
 from camera import Camera
@@ -41,12 +42,23 @@ def setup_scene():
     return scene
 
 
-def main():
+def main(argv):
+    debug_mode = False
+    try:
+        opts, args = getopt.getopt(argv, "hd", ["help", "debug"])
+    except getopt.GetoptError:
+        print 'usage: main.py [-d,-h|--debug,--help]'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt in ('-h', '--help'):
+            print 'usage: main.py [-d,-h|--debug,--help]'
+            sys.exit()
+        elif opt in ('-d', '--debug'):
+            debug_mode = True
     start = time.time()
     print("Setting up...")
     scene = setup_scene()
     print("Raytracing...")
-    debug_mode = True
     if debug_mode:
         img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
     else:
@@ -62,4 +74,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

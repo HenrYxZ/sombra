@@ -14,7 +14,8 @@ anti-aliasing.
 ## Usage
 
 - Install all the dependencies required
-- Run `python -u main.py` (-u is for displaying print messages)
+- Run `python -u main.py` or `python -u main.py -d` to use _debug mode_ which
+will not use Anti-Aliasing (-u is for displaying print messages in the console)
 - The output image will be stored in the project folder
 
 ## Testing
