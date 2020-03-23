@@ -4,7 +4,7 @@ import sys, getopt
 import time
 # Local Modules
 from camera import Camera
-from light import Light, DIRECTIONAL_LIGHT, POINT_LIGHT, SPOT_LIGHT
+from light import DirectionalLight, PointLight, SpotLight
 from material import Material
 import material
 from object import Plane, Sphere
@@ -23,27 +23,49 @@ MAX_QUALITY = 95
 OUTPUT_IMG_FILENAME = "output.jpg"
 
 
-def setup_scene():
+def setup_cameras():
     main_camera_pos = np.array([0, 0, 0], dtype=float)
     vview = np.array([0, 0, 1], dtype=float)
     vup = np.array([0, 1, 0], dtype=float)
     main_camera = Camera(main_camera_pos, vview, vup)
+    return [main_camera]
+
+
+def setup_lights():
+    # Directional Light
+    directional_light = DirectionalLight(np.array([-1, -1, 1]))
+    # Point Light
     light_pos = np.array([0, 50, 50], dtype=float)
+    point_light = PointLight(light_pos)
+    # Spot Light
     nl = utils.normalize(np.array([0, -0.5, 1]))
-    light = Light(light_pos, SPOT_LIGHT, utils.degree2radians(30), nl)
-    # Objects
+    theta = utils.degree2radians(30)
+    spot_light = SpotLight(light_pos, theta, nl)
+
+    return [spot_light]
+
+
+def setup_objects():
+    # Plane Object
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_mtl = Material(material.COLOR_GRAY, material.DIFFUSE)
-    plane_shader = shaders.TYPE_DIFFUSE_COLORS
+    plane_shader = shaders.TYPE_DIFFUSE_LIGHT
     plane_normal = np.array([0, 1, 0], dtype=float)
     plane = Plane(plane_pos, plane_mtl, plane_shader, plane_normal)
+    # Sphere Object
     sphere_pos = np.array([0, 0, 100], dtype=float)
     sphere_mtl = Material(material.COLOR_BLUE, material.DIFFUSE)
-    sphere_shader = shaders.TYPE_DIFF_SPECULAR
+    sphere_shader = shaders.TYPE_DIFFUSE_LIGHT
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    objects = [sphere, plane]
-    scene = Scene([main_camera], [light], objects)
+
+    return [sphere, plane]
+
+def setup_scene():
+    cameras = setup_cameras()
+    lights = setup_lights()
+    objects = setup_objects()
+    scene = Scene(cameras, lights, objects)
     return scene
 
 

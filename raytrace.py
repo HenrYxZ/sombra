@@ -3,10 +3,10 @@ import numpy as np
 from constants import MAX_COLOR_VALUE, RGB_CHANNELS
 import shaders
 import utils
-from light import DIRECTIONAL_LIGHT, POINT_LIGHT, SPOT_LIGHT
+from light import DirectionalLight, PointLight, SpotLight
 
-DARK_COLOR = np.array([15, 15, 15], dtype=float) / MAX_COLOR_VALUE
-LIGHT_COLOR = np.array([240, 240, 240], dtype=float) / MAX_COLOR_VALUE
+DARK_VALUE = np.array([15, 15, 15], dtype=float) / MAX_COLOR_VALUE
+LIGHT_VALUE = np.array([240, 240, 240], dtype=float) / MAX_COLOR_VALUE
 
 
 def compute_color(ph, eye, obj, lights):
@@ -24,11 +24,11 @@ def compute_color(ph, eye, obj, lights):
     """
     final_color = np.zeros(RGB_CHANNELS)
     for light in lights:
-        if light.type == POINT_LIGHT:
+        if isinstance(light, DirectionalLight):
+            l = utils.normalize(-1 * light.position)
+        elif isinstance(light, PointLight):
             l = utils.normalize(light.position - ph)
-        elif light.type == DIRECTIONAL_LIGHT:
-            l = utils.normalize(light.position)
-        elif light.type == SPOT_LIGHT:
+        elif isinstance(light, SpotLight):
             l = utils.normalize(light.position - ph)
             # This light won't illuminate if the point is outside the cone
             if np.dot(-1 * l, light.nl) < light.cos_theta:
@@ -39,8 +39,8 @@ def compute_color(ph, eye, obj, lights):
         nh = obj.normal_at(ph)
         if nh is None:
             return np.zeros(3)
-        dark = DARK_COLOR * obj.material.diffuse
-        light = LIGHT_COLOR * obj.material.diffuse
+        dark = DARK_VALUE * obj.material.diffuse
+        light = LIGHT_VALUE * obj.material.diffuse
         # Choose the corresponding one
         if obj.shader_type == shaders.TYPE_DIFFUSE_LIGHT:
             color = shaders.diffuse_light(nh, l)
