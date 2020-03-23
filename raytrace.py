@@ -31,7 +31,7 @@ def compute_color(ph, eye, obj, lights):
         elif light.type == SPOT_LIGHT:
             l = utils.normalize(light.position - ph)
             # This light won't illuminate if the point is outside the cone
-            if np.dot(l, light.nl) < light.cos_theta:
+            if np.dot(-1 * l, light.nl) < light.cos_theta:
                 continue
         else:
             # Default unit vector looking to light up in the y direction
