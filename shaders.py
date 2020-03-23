@@ -18,10 +18,10 @@ def diffuse_light(n, l):
         n(numpy.array): Unit normal vector
         l(numpy.array): Unit vector in the direction to the light
     Returns:
-        numpy.array: The calculated color (grayscale 0-255)
+        numpy.array: The calculated color in RGB (grayscale 0-255)
     """
     diffuse_coef = np.dot(n, l)
-    color = np.maximum(0, diffuse_coef)
+    color = np.maximum(0, diffuse_coef) * COLOR_FOR_LIGHT
     return color
 
 
