@@ -45,7 +45,9 @@ def render_no_aa(scene, camera, HEIGHT=100, WIDTH=100):
             pp = camera.p00 + xp * camera.n0 + yp * camera.n1
             npe = utils.normalize(pp - camera.position)
             ray = Ray(pp, npe)
-            output[j][i] = raytrace(ray, scene.objects, scene.lights)
+            output[j][i] = raytrace(
+                ray, camera.position, scene.objects, scene.lights
+            )
             counter += 1
             if counter % step_size == 0:
                 bar.next()
@@ -97,7 +99,9 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
                     ray = Ray(pp, npe)
                     total_samples = H_SAMPLES * V_SAMPLES
                     color += (
-                        raytrace(ray, scene.objects, scene.lights)
+                        raytrace(
+                            ray, camera.position, scene.objects, scene.lights
+                        )
                         / float(total_samples)
                     )
                     counter += 1
