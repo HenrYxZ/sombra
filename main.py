@@ -4,7 +4,7 @@ import sys, getopt
 import time
 # Local Modules
 from camera import Camera
-from light import Light, POINT_LIGHT
+from light import Light, SPOT_LIGHT
 from material import Material
 import material
 from object import Plane, Sphere
@@ -29,7 +29,8 @@ def setup_scene():
     vup = np.array([0, 1, 0], dtype=float)
     main_camera = Camera(main_camera_pos, vview, vup)
     light_pos = np.array([0, 50, 50], dtype=float)
-    light = Light(light_pos, POINT_LIGHT)
+    nl = utils.normalize(np.array([0, 0, 1]))
+    light = Light(light_pos, SPOT_LIGHT, utils.degree2radians(30), nl)
     # Objects
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_mtl = Material(material.COLOR_GRAY, material.DIFFUSE)

@@ -27,7 +27,7 @@ def humanize_time(secs):
 
 
 def degree2radians(degrees):
-    return (degrees / 360) * 2 * np.pi
+    return (degrees / float(360)) * 2 * np.pi
 
 
 # class Position(object):

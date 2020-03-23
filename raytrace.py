@@ -3,7 +3,7 @@ import numpy as np
 from constants import MAX_COLOR_VALUE, RGB_CHANNELS
 import shaders
 import utils
-from light import POINT_LIGHT, DIRECTIONAL_LIGHT
+from light import DIRECTIONAL_LIGHT, POINT_LIGHT, SPOT_LIGHT
 
 DARK_COLOR = np.array([15, 15, 15], dtype=float) / MAX_COLOR_VALUE
 LIGHT_COLOR = np.array([240, 240, 240], dtype=float) / MAX_COLOR_VALUE
@@ -28,6 +28,11 @@ def compute_color(ph, eye, obj, lights):
             l = utils.normalize(light.position - ph)
         elif light.type == DIRECTIONAL_LIGHT:
             l = utils.normalize(light.position)
+        elif light.type == SPOT_LIGHT:
+            l = utils.normalize(light.position - ph)
+            # This light won't illuminate if the point is outside the cone
+            if np.dot(l, light.nl) < light.cos_theta:
+                continue
         else:
             # Default unit vector looking to light up in the y direction
             l = np.array([0, 1, 0], dtype=float)
