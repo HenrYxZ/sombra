@@ -10,7 +10,7 @@ class Camera:
     """
 
     def __init__(
-        self, position, vview, vup, d=10, scale_x=10, scale_y=10
+        self, position, vview, vup, d=26, scale_x=35, scale_y=24
     ):
         self.position = position
         self.vview = vview

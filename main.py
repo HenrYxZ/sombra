@@ -14,8 +14,8 @@ import shaders
 import utils
 
 # Width and Height of the image window in pixels
-WIDTH = 200
-HEIGHT = 200
+WIDTH = 280
+HEIGHT = 192
 # Vertical and Horizontal Samples for Random Jitter Anti Aliasing
 V_SAMPLES = 4
 H_SAMPLES = 4
@@ -42,20 +42,20 @@ def setup_lights():
     theta = utils.degree2radians(30)
     spot_light = SpotLight(light_pos, theta, nl)
 
-    return [spot_light]
+    return [point_light]
 
 
 def setup_objects():
     # Plane Object
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_mtl = Material(material.COLOR_GRAY, material.DIFFUSE)
-    plane_shader = shaders.TYPE_DIFFUSE_LIGHT
+    plane_shader = shaders.TYPE_DIFFUSE_COLORS
     plane_normal = np.array([0, 1, 0], dtype=float)
     plane = Plane(plane_pos, plane_mtl, plane_shader, plane_normal)
     # Sphere Object
     sphere_pos = np.array([0, 0, 100], dtype=float)
     sphere_mtl = Material(material.COLOR_BLUE, material.DIFFUSE)
-    sphere_shader = shaders.TYPE_DIFFUSE_LIGHT
+    sphere_shader = shaders.TYPE_DIFF_SPECULAR
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
 

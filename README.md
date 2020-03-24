@@ -1,13 +1,14 @@
 # simple-raytracer
 
 Simple Raytracer written in pure Python. It's main purpose is to help
-understand how raytracing works. If you are looking for an efficient raytracer
-you should probably use something like C++. The equations used are from the
-Image Synthesis class at Texas A&M University taught by professor Ergun Akleman 
+understand how raytracing works with a clean code. If you are looking for an
+efficient raytracer you should probably use something like C++. The equations
+used are from the Image Synthesis class at Texas A&M University taught by
+professor Ergun Akleman. 
 
 It creates a raytraced image of a scene with simple objects like spheres and
-planes. It's using a resolution of 200x200px by default and random jitter
-anti-aliasing.
+planes. It's using a resolution of 280x192px by default and random jitter
+anti-aliasing with 4 samples per axis.
 
 ![output image](output.jpg)
 
@@ -17,6 +18,15 @@ anti-aliasing.
 - Run `python -u main.py` or `python -u main.py -d` to use _debug mode_ which
 will not use Anti-Aliasing (-u is for displaying print messages in the console)
 - The output image will be stored in the project folder
+
+## Features
+
+- Sphere and Plane objects
+- Diffuse, Specular and Border shaders
+- Directional, Point and Spot lights
+- Change Field of View of camera by changing d (distance) and scale x and y
+parameters
+- Anti-Aliasing 4x4 using Random Jitter
 
 ## Testing
 
@@ -29,7 +39,7 @@ import them into the "_\_\_init\_\_.py_" file of the "_tests_" folder.
 You will need to install
 - Python (currently working with python 2.7, it should work with 3 too)
 
-And Python modules
+And external Python modules
 - numpy
 - pillow
 - progress
