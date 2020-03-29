@@ -42,8 +42,31 @@ def compute_color(ph, eye, obj, lights):
             color = np.zeros(RGB_CHANNELS)
         final_color += color
     # Ensure the colors are between 0 and 255
+    # (probably it would be good to average the contributions of each light?)
     final_color = np.clip(final_color, 0, MAX_COLOR_VALUE)
     return final_color.astype(np.uint8)
+
+
+def compute_shadow(ph, objects, lights):
+    """
+    Get the shadow component for this hit point.
+
+    Args:
+        ph(numpy.array): 3D point of hit between ray and object
+        objects([Object]): The objects to check for shadow computation
+        lights([Light]): List of the lights in the scene
+
+    Returns:
+        np.array: The shadow for this ray in numpy uint8 of 3 channels
+    """
+    final_shadow = np.zeros(RGB_CHANNELS)
+    for light in lights:
+        l = light.get_l(ph)
+        dist_l = np.linalg.norm(light.position - ph)
+        shadow = shaders.hard_shadow(ph, objects, l, dist_l)
+        final_shadow += shadow
+    final_shadow = np.clip(final_shadow, 0, MAX_COLOR_VALUE)
+    return final_shadow.astype(np.uint8)
 
 
 def raytrace(ray, camera_pos, objects, lights):
@@ -74,7 +97,13 @@ def raytrace(ray, camera_pos, objects, lights):
         ph = ray.at(tmin)
         eye = utils.normalize(camera_pos - ph)
         color = compute_color(ph, eye, obj_h, lights)
-        return color
+        objects_to_check = [obj for obj in objects]
+        objects_to_check.remove(obj_h)
+        shadow = compute_shadow(ph, objects_to_check, lights)
+        final_color = (
+            color.astype(float) * (shadow.astype(float) / MAX_COLOR_VALUE)
+        ).round()
+        return final_color.astype(np.uint8)
     # No hit
     else:
         return np.array([0, 0, 0], dtype=np.uint8)

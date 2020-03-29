@@ -1,5 +1,6 @@
 import numpy as np
-
+# Local modules
+from ray import Ray
 
 TYPE_DIFFUSE_LIGHT = "diffuse_light"
 TYPE_DIFFUSE_COLORS = "diffuse_colors"
@@ -9,6 +10,7 @@ COLOR_FOR_LIGHT = np.array([255, 255, 255], dtype=float)
 COLOR_FOR_BORDER = np.array([185, 185, 185], dtype=float)
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
+SHADOW_STRENGTH = 0.87
 
 
 def diffuse_light(n, l):
@@ -106,4 +108,32 @@ def diffuse_specular_border(
         b = 1
     color = diffuse_with_specular(n, l, eye, dark, light, ks)
     color = color * (1 - b) + b * COLOR_FOR_BORDER
+    return color
+
+def hard_shadow(ph, objects, l, dist_l):
+    """
+    Determines if this point should have a shadow for the light in pl.
+
+    Args:
+        ph: 3D Point of hit
+        objects([Object]): list of objects that can be between the point and
+            the light
+        l(numpy.array): unit vector pointing to the light
+        dist_l(float): distance to the light
+
+    Returns:
+        numpy.array: The calculated color for this hard shadow (RGB)
+    """
+    shadow_coef = 0
+    r = Ray(ph, l)
+    for obj in objects:
+        # Cast ray from ph to the object with n = l and shadow if t < dist_l
+        t = r.intersect(obj)
+        if 0 < t < dist_l:
+            shadow_coef = 1
+            break
+    shadow_color = np.zeros(3)
+    # Use SHADOW_STRENGTH = 0 for no shadows and 1 for hard shadows
+    shadow_coef *= max(0, min(SHADOW_STRENGTH, 1))
+    color = COLOR_FOR_LIGHT * (1 - shadow_coef) + shadow_color * shadow_coef
     return color
