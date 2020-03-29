@@ -1,4 +1,7 @@
 import math
+import numpy as np
+# Local modules
+import utils
 
 
 class Light:
@@ -12,6 +15,19 @@ class Light:
     def __init__(self, position):
         self.position = position
 
+    def get_l(self, ph):
+        """
+        Get unit vector l that points to the light from hit point ph.
+
+        Args:
+            ph(numpy.array): 3D point of hit between ray and object
+
+        Returns:
+            numpy.array: unit vector pointing to the light
+        """
+        l = np.array([0, 1, 0], dtype=float)
+        return l
+
 
 class DirectionalLight(Light):
     """
@@ -20,7 +36,19 @@ class DirectionalLight(Light):
     Attributes:
         position(numpy.array): 3D direction of the light
     """
-    pass
+
+    def get_l(self, ph):
+        """
+        Get unit vector l that points to the light from hit point ph.
+
+        Args:
+            ph(numpy.array): 3D point of hit between ray and object
+
+        Returns:
+            numpy.array: unit vector pointing to the light
+        """
+        l = utils.normalize(-1 * self.position)
+        return l
 
 
 class PointLight(Light):
@@ -30,10 +58,22 @@ class PointLight(Light):
     Attributes:
         position(numpy.array): 3D position of the light
     """
-    pass
+
+    def get_l(self, ph):
+        """
+        Get unit vector l that points to the light from hit point ph.
+
+        Args:
+            ph(numpy.array): 3D point of hit between ray and object
+
+        Returns:
+            numpy.array: unit vector pointing to the light
+        """
+        l = utils.normalize(self.position - ph)
+        return l
 
 
-class SpotLight:
+class SpotLight(Light):
     """
     Spot Light for a Scene.
 
@@ -49,3 +89,19 @@ class SpotLight:
         self.theta = theta
         self.nl = nl
         self.cos_theta = math.cos(theta)
+
+    def get_l(self, ph):
+        """
+        Get unit vector l that points to the light from hit point ph.
+
+        Args:
+            ph(numpy.array): 3D point of hit between ray and object
+
+        Returns:
+            numpy.array: unit vector pointing to the light, 0 if outside cone
+        """
+        l = utils.normalize(self.position - ph)
+        # This light won't illuminate if the point is outside the cone
+        if np.dot(-1 * l, self.nl) < self.cos_theta:
+            l = np.zeros(3)
+        return l
