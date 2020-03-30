@@ -1,6 +1,7 @@
+import getopt
 import numpy as np
 from PIL import Image
-import sys, getopt
+import sys
 import time
 # Local Modules
 from camera import Camera
@@ -41,7 +42,6 @@ def setup_lights():
     nl = utils.normalize(np.array([0, -0.5, 1]))
     theta = utils.degree2radians(30)
     spot_light = SpotLight(light_pos, theta, nl)
-
     return [point_light]
 
 
@@ -60,6 +60,7 @@ def setup_objects():
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
 
     return [sphere, plane]
+
 
 def setup_scene():
     cameras = setup_cameras()

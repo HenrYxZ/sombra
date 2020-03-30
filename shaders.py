@@ -124,6 +124,9 @@ def hard_shadow(ph, objects, l, dist_l):
     Returns:
         numpy.array: The calculated color for this hard shadow (RGB)
     """
+    # Case outside of cone in SpotLight
+    if np.array_equal(l, np.zeros(3)):
+        return np.zeros(3)
     shadow_coef = 0
     r = Ray(ph, l)
     for obj in objects:

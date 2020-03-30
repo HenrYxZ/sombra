@@ -43,6 +43,7 @@ def compute_color(ph, eye, obj, lights):
         final_color += color
     # Ensure the colors are between 0 and 255
     # (probably it would be good to average the contributions of each light?)
+    final_color /= len(lights)
     final_color = np.clip(final_color, 0, MAX_COLOR_VALUE)
     return final_color.astype(np.uint8)
 
@@ -62,9 +63,10 @@ def compute_shadow(ph, objects, lights):
     final_shadow = np.zeros(RGB_CHANNELS)
     for light in lights:
         l = light.get_l(ph)
-        dist_l = np.linalg.norm(light.position - ph)
+        dist_l = light.get_dist(ph)
         shadow = shaders.hard_shadow(ph, objects, l, dist_l)
         final_shadow += shadow
+    final_shadow /= len(lights)
     final_shadow = np.clip(final_shadow, 0, MAX_COLOR_VALUE)
     return final_shadow.astype(np.uint8)
 

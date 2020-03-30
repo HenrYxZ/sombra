@@ -4,6 +4,9 @@ import numpy as np
 import utils
 
 
+MAX_DISTANCE_LIGHT = np.inf
+
+
 class Light:
     """
     Light for a Scene.
@@ -14,6 +17,19 @@ class Light:
 
     def __init__(self, position):
         self.position = position
+
+    def get_dist(self, ph):
+        """
+        Get distance from the light to the point ph.
+
+        Args:
+            ph(numpy.array): 3D point of hit between ray and object
+
+        Returns:
+            float: distance from the light to the point ph
+        """
+        dist = np.linalg.norm(self.position - ph)
+        return dist
 
     def get_l(self, ph):
         """
@@ -32,10 +48,19 @@ class Light:
 class DirectionalLight(Light):
     """
     Directional Light for a scene.
-
-    Attributes:
-        position(numpy.array): 3D direction of the light
     """
+
+    def get_dist(self, ph):
+        """
+        Get distance from the light to the point ph.
+
+        Args:
+            ph(numpy.array): 3D point of hit between ray and object
+
+        Returns:
+            float: distance from the light to the point ph
+        """
+        return MAX_DISTANCE_LIGHT
 
     def get_l(self, ph):
         """
@@ -54,9 +79,6 @@ class DirectionalLight(Light):
 class PointLight(Light):
     """
     Point Light for a scene.
-
-    Attributes:
-        position(numpy.array): 3D position of the light
     """
 
     def get_l(self, ph):
@@ -85,7 +107,7 @@ class SpotLight(Light):
     """
 
     def __init__(self, position, theta=0, nl=None):
-        self.position = position
+        Light.__init__(self, position)
         self.theta = theta
         self.nl = nl
         self.cos_theta = math.cos(theta)
