@@ -29,15 +29,21 @@ def compute_color(ph, eye, obj, lights):
             return np.zeros(3)
         dark = DARK_VALUE * obj.material.diffuse
         light = LIGHT_VALUE * obj.material.diffuse
+        ks = obj.material.specular
+        thickness = obj.material.border
         # Choose the corresponding one
         if obj.shader_type == shaders.TYPE_DIFFUSE_LIGHT:
             color = shaders.diffuse_light(nh, l)
         elif obj.shader_type == shaders.TYPE_DIFFUSE_COLORS:
             color = shaders.diffuse_colors(nh, l, dark, light)
         elif obj.shader_type == shaders.TYPE_DIFF_SPECULAR:
-            color = shaders.diffuse_with_specular(nh, l, eye, dark, light)
+            color = shaders.diffuse_with_specular(
+                nh, l, eye, dark, light, ks
+            )
         elif obj.shader_type == shaders.TYPE_DIFF_SPEC_BORDER:
-            color = shaders.diffuse_specular_border(nh, l, eye, dark, light)
+            color = shaders.diffuse_specular_border(
+                nh, l, eye, dark, light, ks, thickness
+            )
         else:
             color = np.zeros(RGB_CHANNELS)
         final_color += color

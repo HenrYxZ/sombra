@@ -8,8 +8,6 @@ TYPE_DIFF_SPECULAR = "diffuse_with_specular"
 TYPE_DIFF_SPEC_BORDER = "diffuse_specular_border"
 COLOR_FOR_LIGHT = np.array([255, 255, 255], dtype=float)
 COLOR_FOR_BORDER = np.array([185, 185, 185], dtype=float)
-DEFAULT_KS = 0.8
-DEFAULT_THICKNESS = 0.7
 SHADOW_STRENGTH = 0.87
 
 
@@ -46,7 +44,7 @@ def diffuse_colors(n, l, dark, light):
     return color
 
 
-def diffuse_with_specular(n, l, eye, dark, light, ks=DEFAULT_KS):
+def diffuse_with_specular(n, l, eye, dark, light, ks):
     """
     Shader calculation for normal and light vectors, dark and light colors and
     specular size ks.
@@ -81,9 +79,7 @@ def diffuse_with_specular(n, l, eye, dark, light, ks=DEFAULT_KS):
     return color
 
 
-def diffuse_specular_border(
-        n, l, eye, dark, light, ks=DEFAULT_KS, thickness=DEFAULT_THICKNESS
-):
+def diffuse_specular_border(n, l, eye, dark, light, ks, thickness):
     """
     Shader calculation for normal and light vectors, dark and light colors,
     and ks specular size and thickness of border parameters.
@@ -109,6 +105,7 @@ def diffuse_specular_border(
     color = diffuse_with_specular(n, l, eye, dark, light, ks)
     color = color * (1 - b) + b * COLOR_FOR_BORDER
     return color
+
 
 def hard_shadow(ph, objects, l, dist_l):
     """
@@ -137,6 +134,6 @@ def hard_shadow(ph, objects, l, dist_l):
             break
     shadow_color = np.zeros(3)
     # Use SHADOW_STRENGTH = 0 for no shadows and 1 for hard shadows
-    shadow_coef *= max(0, min(SHADOW_STRENGTH, 1))
+    shadow_coef *= max(0.0, min(SHADOW_STRENGTH, 1.0))
     color = COLOR_FOR_LIGHT * (1 - shadow_coef) + shadow_color * shadow_coef
     return color

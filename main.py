@@ -21,6 +21,8 @@ HEIGHT = 192
 V_SAMPLES = 4
 H_SAMPLES = 4
 MAX_QUALITY = 95
+DEFAULT_KS = 0.8
+DEFAULT_THICKNESS = 0.7
 OUTPUT_IMG_FILENAME = "output.jpg"
 
 
@@ -54,7 +56,9 @@ def setup_objects():
     plane = Plane(plane_pos, plane_mtl, plane_shader, plane_normal)
     # Sphere Object
     sphere_pos = np.array([0, 0, 100], dtype=float)
-    sphere_mtl = Material(material.COLOR_BLUE, material.DIFFUSE)
+    sphere_mtl = Material(
+        material.COLOR_BLUE, material.DIFFUSE, DEFAULT_KS, DEFAULT_THICKNESS
+    )
     sphere_shader = shaders.TYPE_DIFF_SPECULAR
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)

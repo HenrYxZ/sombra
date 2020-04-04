@@ -8,6 +8,8 @@ COLOR_GRAY = np.array([135, 135, 135], dtype=float)
 
 
 class Material:
-    def __init__(self, diffuse, type):
+    def __init__(self, diffuse=COLOR_GRAY, type=DIFFUSE, specular=1, border=1):
         self.diffuse = diffuse
         self.type = type
+        self.specular = specular
+        self.border = border
