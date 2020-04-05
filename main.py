@@ -12,6 +12,7 @@ from object import Plane, Sphere
 from render import render, render_no_aa
 from scene import Scene
 import shaders
+from texture import ImageTexture
 import utils
 
 # Width and Height of the image window in pixels
@@ -23,6 +24,7 @@ H_SAMPLES = 4
 MAX_QUALITY = 95
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
+PLANE_TEXTURE_FILENAME = "textures/checkers.png"
 OUTPUT_IMG_FILENAME = "output.jpg"
 
 
@@ -50,14 +52,30 @@ def setup_lights():
 def setup_objects():
     # Plane Object
     plane_pos = np.array([0, -25, 0], dtype=float)
-    plane_mtl = Material(material.COLOR_GRAY, material.DIFFUSE)
+    plane_p1 = np.array([1, -25, 0], dtype=float)
+    plane_mtl = Material(material.COLOR_GRAY, material.TYPE_TEXTURED)
     plane_shader = shaders.TYPE_DIFFUSE_COLORS
     plane_normal = np.array([0, 1, 0], dtype=float)
-    plane = Plane(plane_pos, plane_mtl, plane_shader, plane_normal)
+    plane_texture = ImageTexture(PLANE_TEXTURE_FILENAME)
+    plane_mtl.add_texture(plane_texture)
+    plane_sx = 1000
+    plane_sy = 1000
+    plane = Plane(
+        plane_pos,
+        plane_mtl,
+        plane_shader,
+        plane_normal,
+        plane_p1,
+        plane_sx,
+        plane_sy
+    )
     # Sphere Object
     sphere_pos = np.array([0, 0, 100], dtype=float)
     sphere_mtl = Material(
-        material.COLOR_BLUE, material.DIFFUSE, DEFAULT_KS, DEFAULT_THICKNESS
+        material.COLOR_BLUE,
+        material.TYPE_DIFFUSE,
+        DEFAULT_KS,
+        DEFAULT_THICKNESS
     )
     sphere_shader = shaders.TYPE_DIFF_SPECULAR
     sphere_r = 25.0
