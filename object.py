@@ -66,7 +66,7 @@ class Sphere(Object):
         local_v = (p - self.position) / self.radius
         n0 = np.array([0, 0, -1])
         n1 = np.array([1, 0, 0])
-        n2 = np.array([0, 1, 0])
+        n2 = np.array([0, -1, 0])
         x = np.dot(n0, local_v)
         y = np.dot(n1, local_v)
         z = np.dot(n2, local_v)
