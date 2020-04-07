@@ -1,13 +1,15 @@
 import numpy as np
 # Local Modules
 from constants import MAX_COLOR_VALUE, RGB_CHANNELS
+from env_map import env_map
 import material
-from object import Sphere, Plane
 import shaders
+from texture import ImageTexture
 import utils
 
 DARK_VALUE = np.array([15, 15, 15], dtype=float) / MAX_COLOR_VALUE
 LIGHT_VALUE = np.array([240, 240, 240], dtype=float) / MAX_COLOR_VALUE
+ENV_MAP_TEXTURE = ImageTexture("textures/garage_1k.jpg")
 
 
 def get_dark_and_light(ph, obj):
@@ -137,4 +139,7 @@ def raytrace(ray, camera_pos, objects, lights):
         return final_color.astype(np.uint8)
     # No hit
     else:
-        return np.array([0, 0, 0], dtype=np.uint8)
+        # Use unit director vector of ray for the Env Map
+        u, v = env_map(ray.nr)
+        color = ENV_MAP_TEXTURE.get_color(u, v)
+        return color
