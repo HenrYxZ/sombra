@@ -45,10 +45,12 @@ class ImageTexture(Texture):
                 pixels
         """
         # Use tiling
-        u = u - np.floor(u)
+        if u < 0 or u > 1:
+            u = u - np.floor(u)
         if u < 0:
             u = 1 - u
-        v = v - np.floor(v)
+        if v < 0 or v > 1:
+            v = v - np.floor(v)
         if v < 0:
             v = 1 - v
         x = u * self.w
@@ -64,14 +66,14 @@ class ImageTexture(Texture):
                 I -= 1
             if J == self.h:
                 J -= 1
-            return self.img[I][J]
+            return self.img[J][I]
         # t and s are interpolation parameters that go from 0 to 1
         t = x - I + 0.5
         s = y - J + 0.5
         color = (
-            self.img[J - 1][I - 1] * (1 - t) * (1 - s)
-            + self.img[J - 1][I] * t * (1 - s)
-            + self.img[J][I - 1] * (1 - t) * s
-            + self.img[J][I] * t * s
+                self.img[J - 1][I - 1] * (1 - t) * (1 - s)
+                + self.img[J - 1][I] * t * (1 - s)
+                + self.img[J][I - 1] * (1 - t) * s
+                + self.img[J][I] * t * s
         )
         return color

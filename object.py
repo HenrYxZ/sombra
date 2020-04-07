@@ -50,6 +50,34 @@ class Sphere(Object):
         # This doesn't validate that p is in the surface
         return (p - self.position) / float(self.radius)
 
+    def uvmap(self, p):
+        """
+        Map this point into texture coordinates u, v.
+
+        Args:
+            p(numpy.array): Point inside this object that will be transformed
+                into texture coordinates (u, v)
+
+        Returns:
+            tuple: Point (u, v) in texture coordinates
+        """
+        # local_v is the unit vector that goes in the direction from the center
+        # of the sphere to the position p
+        local_v = (p - self.position) / self.radius
+        n0 = np.array([0, 0, -1])
+        n1 = np.array([1, 0, 0])
+        n2 = np.array([0, 1, 0])
+        x = np.dot(n0, local_v)
+        y = np.dot(n1, local_v)
+        z = np.dot(n2, local_v)
+        phi = np.arccos(z)
+        v = phi / np.pi
+        theta = np.arccos((y / np.sin(phi)).round(4))
+        if x < 0:
+            theta = 2 * np.pi - theta
+        u = theta / (2 * np.pi)
+        return u, v
+
 
 class Plane(Object):
     """
@@ -78,17 +106,16 @@ class Plane(Object):
 
     def uvmap(self, p):
         """
-        Map this point into texture coordinates u, v for this Plane.
+        Map this point into texture coordinates u, v.
 
         Args:
-            p(numpy.array): Point inside this Plane that will be transformed
+            p(numpy.array): Point inside this object that will be transformed
                 into texture coordinates (u, v)
 
         Returns:
-            numpy.array: Point (u, v) in texture coordinates
+            tuple: Point (u, v) in texture coordinates
         """
         dif_vector = p - self.position
         u = np.dot(dif_vector, self.n0) / self.sx
         v = np.dot(dif_vector, self.n1) / self.sy
-        texture_coord = np.array([u, v])
-        return texture_coord
+        return u, v

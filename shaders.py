@@ -67,7 +67,7 @@ def diffuse_with_specular(n, l, eye, dark, light, ks):
     s = np.dot(eye, r)
     s = np.maximum(0, s)
     # try smooth step
-    step_min = 0.73
+    step_min = 0.78
     step_max = 1
     s = (s - step_min) / (step_max - step_min)
     if s < 0:
@@ -75,6 +75,7 @@ def diffuse_with_specular(n, l, eye, dark, light, ks):
     elif s > 1:
         s = 1
     s = -2 * (s ** 3) + 3 * (s ** 2)
+    s = s ** 4
     color = color * (1 - s * ks) + s * ks * COLOR_FOR_LIGHT
     return color
 

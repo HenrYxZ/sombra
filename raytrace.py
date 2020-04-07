@@ -2,6 +2,7 @@ import numpy as np
 # Local Modules
 from constants import MAX_COLOR_VALUE, RGB_CHANNELS
 import material
+from object import Sphere, Plane
 import shaders
 import utils
 
@@ -15,6 +16,10 @@ def get_dark_and_light(ph, obj):
         light = LIGHT_VALUE * obj.material.diffuse
     else:
         u, v = obj.uvmap(ph)
+        # if isinstance(obj, Sphere):
+        #     texture_color = obj.material.texture.get_color(u, v)
+        # else:
+        #     texture_color = obj.material.texture.get_color_tiling(u, v)
         texture_color = obj.material.texture.get_color(u, v)
         dark = DARK_VALUE * texture_color
         light = LIGHT_VALUE * texture_color

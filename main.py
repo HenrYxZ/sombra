@@ -24,6 +24,7 @@ H_SAMPLES = 4
 MAX_QUALITY = 95
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
+EARTH_TEXTURE_FILENAME = "textures/earth.jpg"
 PLANE_TEXTURE_FILENAME = "textures/checkers.png"
 OUTPUT_IMG_FILENAME = "output.jpg"
 
@@ -58,8 +59,8 @@ def setup_objects():
     plane_normal = np.array([0, 1, 0], dtype=float)
     plane_texture = ImageTexture(PLANE_TEXTURE_FILENAME)
     plane_mtl.add_texture(plane_texture)
-    plane_sx = 1000
-    plane_sy = 1000
+    plane_sx = 500
+    plane_sy = 500
     plane = Plane(
         plane_pos,
         plane_mtl,
@@ -73,10 +74,12 @@ def setup_objects():
     sphere_pos = np.array([0, 0, 100], dtype=float)
     sphere_mtl = Material(
         material.COLOR_BLUE,
-        material.TYPE_DIFFUSE,
+        material.TYPE_TEXTURED,
         DEFAULT_KS,
         DEFAULT_THICKNESS
     )
+    sphere_texture = ImageTexture(EARTH_TEXTURE_FILENAME)
+    sphere_mtl.add_texture(sphere_texture)
     sphere_shader = shaders.TYPE_DIFF_SPECULAR
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
