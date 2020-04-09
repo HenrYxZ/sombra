@@ -12,7 +12,7 @@ from object import Plane, Sphere
 from render import render, render_no_aa
 from scene import Scene
 import shaders
-from texture import ImageTexture
+from texture import ImageTexture, SolidImageTexture, Box
 import utils
 
 # Width and Height of the image window in pixels
@@ -26,6 +26,7 @@ DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
 EARTH_TEXTURE_FILENAME = "textures/earth.jpg"
 PLANE_TEXTURE_FILENAME = "textures/checkers.png"
+MICKEY_TEXTURE_FILENAME = "textures/mickey.jpg"
 OUTPUT_IMG_FILENAME = "output.jpg"
 
 
@@ -83,8 +84,22 @@ def setup_objects():
     sphere_shader = shaders.TYPE_DIFF_SPECULAR
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-
-    return [sphere, plane]
+    # El Mickey Shhiiino
+    mickey_pos = np.array([-50, 0, 100], dtype=float)
+    mickey_r = 20.0
+    mickey_mtl = Material(material.COLOR_BLUE, material.TYPE_TEXTURED)
+    mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
+    mickey_p0 = mickey_pos - np.array([mickey_r, mickey_r, mickey_r])
+    mickey_s = mickey_r * 2
+    n0 = np.array([0, 0, 1])
+    n1 = np.array([0, 1, 0])
+    n2 = np.array([-1, 0, 0])
+    mickey_box = Box(mickey_p0, mickey_s, mickey_s, mickey_s, n0, n1, n2)
+    mickey_texture = SolidImageTexture(mickey_img_texture, mickey_box)
+    mickey_mtl.add_texture(mickey_texture)
+    mickey_shader = shaders.TYPE_DIFF_SPECULAR
+    mickey = Sphere(mickey_pos, mickey_mtl, mickey_shader, mickey_r)
+    return [sphere, plane, mickey]
 
 
 def setup_scene():

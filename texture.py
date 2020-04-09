@@ -41,18 +41,18 @@ class ImageTexture(Texture):
             v(float): vertical coordinate of the point
 
         Returns:
-            numpy.array: color for this point, interpolating the 4 closest
+            numpy.array: RGB color for this point, interpolating the 4 closest
                 pixels
         """
         # Use tiling
         if u < 0 or u > 1:
             u = u - np.floor(u)
-        if u < 0:
-            u = 1 - u
+            if u < 0:
+                u = 1 - u
         if v < 0 or v > 1:
             v = v - np.floor(v)
-        if v < 0:
-            v = 1 - v
+            if v < 0:
+                v = 1 - v
         x = u * self.w
         y = v * self.h
         # Flip y value to go from bottom to top
@@ -76,4 +76,46 @@ class ImageTexture(Texture):
                 + self.img[J][I - 1] * (1 - t) * s
                 + self.img[J][I] * t * s
         )
+        return color
+
+
+class Box:
+    def __init__(self, p0, s0, s1, s2, n0, n1, n2):
+        self.p0 = p0
+        self.s0 = s0
+        self.s1 = s1
+        self.s2 = s2
+        self.n0 = n0
+        self.n1 = n1
+        self.n2 = n2
+
+
+class SolidImageTexture(Texture):
+    """
+    Represents a texture defined by a solid box.
+
+    Attributes:
+        img_texture(ImageTexture): The object that stores the image and can get
+            the texture for a given (u, v)
+        box(Box): The spatial representation of this solid texture
+    """
+    def __init__(self, img_texture, box):
+        Texture.__init__(self)
+        self.img_texture = img_texture
+        self.box = box
+
+    def get_color(self, p):
+        """
+        Get the color for a solid image texture that repeats the same image
+        along the n2 axis.
+
+        Args:
+            p(numpy.array): 3D point in world coordinates
+
+        Returns:
+            numpy.array: RGB value calculated using the texture
+        """
+        u = np.dot(self.box.n0, p - self.box.p0) / self.box.s0
+        v = np.dot(self.box.n1, p - self.box.p0) / self.box.s1
+        color = self.img_texture.get_color(u, v)
         return color

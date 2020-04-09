@@ -17,12 +17,12 @@ def get_dark_and_light(ph, obj):
         dark = DARK_VALUE * obj.material.diffuse
         light = LIGHT_VALUE * obj.material.diffuse
     else:
-        u, v = obj.uvmap(ph)
-        # if isinstance(obj, Sphere):
-        #     texture_color = obj.material.texture.get_color(u, v)
-        # else:
-        #     texture_color = obj.material.texture.get_color_tiling(u, v)
-        texture_color = obj.material.texture.get_color(u, v)
+        if isinstance(obj.material.texture, ImageTexture):
+            u, v = obj.uvmap(ph)
+            texture_color = obj.material.texture.get_color(u, v)
+        else:
+            # Case for solid image texture
+            texture_color = obj.material.texture.get_color(ph)
         dark = DARK_VALUE * texture_color
         light = LIGHT_VALUE * texture_color
     return dark, light
