@@ -10,6 +10,7 @@ from raytrace import raytrace
 PERCENTAGE_STEP = 1
 RGB_CHANNELS = 3
 
+
 def render_no_aa(scene, camera, HEIGHT=100, WIDTH=100):
     """
     Render the image for the given scene an camera using raytracing.
@@ -45,9 +46,7 @@ def render_no_aa(scene, camera, HEIGHT=100, WIDTH=100):
             pp = camera.p00 + xp * camera.n0 + yp * camera.n1
             npe = utils.normalize(pp - camera.position)
             ray = Ray(pp, npe)
-            output[j][i] = raytrace(
-                ray, camera.position, scene.objects, scene.lights
-            )
+            output[j][i] = raytrace(ray, camera.position, scene)
             counter += 1
             if counter % step_size == 0:
                 bar.next()
@@ -88,7 +87,7 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
                     y = (
                         HEIGHT - 1 - j
                         + (float(n) / V_SAMPLES)
-                        +(random() / V_SAMPLES)
+                        + (random() / V_SAMPLES)
                     )
                     # Get x projected in view coord
                     xp = (x / float(WIDTH)) * camera.scale_x
@@ -99,9 +98,7 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
                     ray = Ray(pp, npe)
                     total_samples = H_SAMPLES * V_SAMPLES
                     color += (
-                        raytrace(
-                            ray, camera.position, scene.objects, scene.lights
-                        )
+                        raytrace(ray, camera.position, scene)
                         / float(total_samples)
                     )
                     counter += 1

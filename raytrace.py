@@ -1,7 +1,6 @@
 import numpy as np
 # Local Modules
 from constants import MAX_COLOR_VALUE, RGB_CHANNELS
-from env_map import env_map
 import material
 import shaders
 from texture import ImageTexture
@@ -9,7 +8,6 @@ import utils
 
 DARK_VALUE = np.array([15, 15, 15], dtype=float) / MAX_COLOR_VALUE
 LIGHT_VALUE = np.array([240, 240, 240], dtype=float) / MAX_COLOR_VALUE
-ENV_MAP_TEXTURE = ImageTexture("textures/garage_1k.jpg")
 
 
 def get_dark_and_light(ph, obj):
@@ -102,7 +100,7 @@ def compute_shadow(ph, objects, lights):
     return final_shadow.astype(np.uint8)
 
 
-def raytrace(ray, camera_pos, objects, lights):
+def raytrace(ray, camera_pos, scene):
     """
     Trace the ray to the closest intersection point with an object and get the
     color at that point.
@@ -110,8 +108,7 @@ def raytrace(ray, camera_pos, objects, lights):
     Args:
         ray(Ray): The ray to be traced
         camera_pos(numpy.array): 3D position of the camera
-        objects([Object]): Objects that are going to be checked for hit
-        lights([Light]): Lights that will lid the object at hit point
+        scene(Scene): This object contains things like objects, lights, etc
 
     Returns:
         np.array: The color for this ray in numpy uint8 of 3 channels
@@ -120,6 +117,9 @@ def raytrace(ray, camera_pos, objects, lights):
     tmin = np.inf
     # The closest object hit by the ray
     obj_h = None
+    objects = scene.objects
+    lights = scene.lights
+    env_map = scene.env_map
     for obj in objects:
         t = ray.intersect(obj)
         if 0 < t < tmin:
@@ -130,6 +130,7 @@ def raytrace(ray, camera_pos, objects, lights):
         ph = ray.at(tmin)
         eye = utils.normalize(camera_pos - ph)
         color = compute_color(ph, eye, obj_h, lights)
+        # Objects to check for occlusion
         objects_to_check = [obj for obj in objects]
         objects_to_check.remove(obj_h)
         shadow = compute_shadow(ph, objects_to_check, lights)
@@ -138,8 +139,9 @@ def raytrace(ray, camera_pos, objects, lights):
         ).round()
         return final_color.astype(np.uint8)
     # No hit
-    else:
+    elif env_map:
         # Use unit director vector of ray for the Env Map
-        u, v = env_map(ray.nr)
-        color = ENV_MAP_TEXTURE.get_color(u, v)
-        return color
+        color = env_map.get_color(ray.nr)
+        return color.astype(np.uint8)
+    else:
+        return np.zeros(3, dtype=np.uint8)

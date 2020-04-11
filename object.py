@@ -64,18 +64,24 @@ class Sphere(Object):
         # local_v is the unit vector that goes in the direction from the center
         # of the sphere to the position p
         local_v = (p - self.position) / self.radius
-        n0 = np.array([0, 0, -1])
-        n1 = np.array([1, 0, 0])
-        n2 = np.array([0, -1, 0])
+        # n0 = np.array([0, 0, -1])
+        # n1 = np.array([1, 0, 0])
+        # n2 = np.array([0, 1, 0])
+        n0 = np.array([1, 0, 0])
+        n1 = np.array([0, 1, 0])
+        n2 = np.array([0, 0, 1])
         x = np.dot(n0, local_v)
         y = np.dot(n1, local_v)
         z = np.dot(n2, local_v)
-        phi = np.arccos(z)
-        v = phi / np.pi
-        theta = np.arccos((y / np.sin(phi)).round(4))
-        if x < 0:
-            theta = 2 * np.pi - theta
-        u = theta / (2 * np.pi)
+        # phi = np.arccos(z)
+        # v = phi / np.pi
+        # theta = np.arccos((y / np.sin(phi)).round(4))
+        # if x < 0:
+        #     theta = 2 * np.pi - theta
+        # u = theta / (2 * np.pi)
+        u = 0.5 + np.arctan2(z, x) / (2 * np.pi)
+        v = 0.5 - np.arcsin(y) / np.pi
+        v = 1 - v
         return u, v
 
 
@@ -87,17 +93,19 @@ class Plane(Object):
         position(numpy.array): A 3D point inside the plane
         material(Material): The material to be rendered for this object
         n(numpy.array): The unit normal for this plane
-        p1(numpy.array): Another point inside this plane
+        n0(numpy.array): One of the unit directors inside the plane
+        sx(float): Scale in x of the plane
+        sy(float): Scale in y of the plane
     """
 
-    def __init__(self, position, material, shader_type, n, p1, sx=1, sy=1):
+    def __init__(self, position, material, shader_type, n, n0, sx=1, sy=1):
         Object.__init__(self, position, material, shader_type)
         # Making sure n is normalized
         self.n = utils.normalize(n)
-        self.p1 = p1
+        # Make sure n0 is normalized
+        self.n0 = utils.normalize(n0)
         self.sx = sx
         self.sy = sy
-        self.n0 = utils.normalize(p1 - position)
         self.n1 = np.cross(self.n0, n)
 
     def normal_at(self, p):

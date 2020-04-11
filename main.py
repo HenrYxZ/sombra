@@ -5,6 +5,7 @@ import sys
 import time
 # Local Modules
 from camera import Camera
+from env_map import EnvironmentMap
 from light import DirectionalLight, PointLight, SpotLight
 from material import Material
 import material
@@ -25,8 +26,9 @@ MAX_QUALITY = 95
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
 EARTH_TEXTURE_FILENAME = "textures/earth.jpg"
-PLANE_TEXTURE_FILENAME = "textures/checkers.png"
+CHECKERS_TEXTURE_FILENAME = "textures/checkers.png"
 MICKEY_TEXTURE_FILENAME = "textures/mickey.jpg"
+PARK_TEXTURE_FILENAME= "textures/autumn_park.jpg"
 OUTPUT_IMG_FILENAME = "output.jpg"
 
 
@@ -54,20 +56,20 @@ def setup_lights():
 def setup_objects():
     # Plane Object
     plane_pos = np.array([0, -25, 0], dtype=float)
-    plane_p1 = np.array([1, -25, 0], dtype=float)
+    plane_n0 = np.array([1, 0, 0], dtype=float)
     plane_mtl = Material(material.COLOR_GRAY, material.TYPE_TEXTURED)
     plane_shader = shaders.TYPE_DIFFUSE_COLORS
     plane_normal = np.array([0, 1, 0], dtype=float)
-    plane_texture = ImageTexture(PLANE_TEXTURE_FILENAME)
+    plane_texture = ImageTexture(CHECKERS_TEXTURE_FILENAME)
     plane_mtl.add_texture(plane_texture)
-    plane_sx = 500
-    plane_sy = 500
+    plane_sx = 250
+    plane_sy = 250
     plane = Plane(
         plane_pos,
         plane_mtl,
         plane_shader,
         plane_normal,
-        plane_p1,
+        plane_n0,
         plane_sx,
         plane_sy
     )
@@ -93,19 +95,21 @@ def setup_objects():
     mickey_s = mickey_r * 2
     n0 = np.array([0, 0, 1])
     n1 = np.array([0, 1, 0])
-    n2 = np.array([-1, 0, 0])
+    n2 = np.array([1, 0, 0])
     mickey_box = Box(mickey_p0, mickey_s, mickey_s, mickey_s, n0, n1, n2)
     mickey_texture = SolidImageTexture(mickey_img_texture, mickey_box)
     mickey_mtl.add_texture(mickey_texture)
     mickey_shader = shaders.TYPE_DIFF_SPECULAR
     mickey = Sphere(mickey_pos, mickey_mtl, mickey_shader, mickey_r)
-    return [sphere, plane, mickey]
+    return [sphere, plane]
 
 
 def setup_scene():
     cameras = setup_cameras()
     lights = setup_lights()
     objects = setup_objects()
+    # env_map = EnvironmentMap(PARK_TEXTURE_FILENAME)
+    # scene = Scene(cameras, lights, objects, env_map)
     scene = Scene(cameras, lights, objects)
     return scene
 

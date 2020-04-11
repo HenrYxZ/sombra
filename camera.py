@@ -18,8 +18,8 @@ class Camera:
         self.d = float(d)
         self.scale_x = float(scale_x)
         self.scale_y = float(scale_y)
-        self.n0 = utils.normalize(np.cross(self.vview, self.vup))
-        self.n1 = utils.normalize(np.cross(self.n0, self.vview))
+        self.n0 = utils.normalize(np.cross(self.vup, self.vview))
+        self.n1 = utils.normalize(np.cross(self.vview, self.n0))
         self.n2 = utils.normalize(self.vview)
         # Point in the center of the screen of the camera window
         pc = self.position + self.d * self.n2
@@ -34,8 +34,8 @@ class Camera:
         This information allows for projecting a point in the camera window
         into the world coordinates.
         """
-        self.n0 = utils.normalize(np.cross(self.vview, self.vup))
-        self.n1 = utils.normalize(np.cross(self.n0, self.vview))
+        self.n0 = utils.normalize(np.cross(self.vup, self.vview))
+        self.n1 = utils.normalize(np.cross(self.vview, self.n0))
         self.n2 = utils.normalize(self.vview)
         # Point in the center of the screen of the camera window
         pc = self.position + self.d * self.n2
@@ -59,7 +59,7 @@ class Camera:
         for obj in objects:
             if isinstance(obj, Sphere):
                 dif = self.position - obj.position
-                return (np.dot(dif, dif) < (obj.radius ** 2))
+                return np.dot(dif, dif) < (obj.radius ** 2)
             if isinstance(obj, Plane):
-                return (np.dot(self.position - obj.position, obj.n) == 0)
+                return np.dot(self.position - obj.position, obj.n) == 0
         return False
