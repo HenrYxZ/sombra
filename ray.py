@@ -1,6 +1,6 @@
 import numpy as np
 # Local Modules
-from object import Plane, Sphere
+from object import Plane, Sphere, Triangle
 
 
 class Ray:
@@ -58,6 +58,14 @@ class Ray:
         t = -1 * b - np.sqrt(discriminant)
         return t
 
+    def intersect_triangle(self, triangle):
+        t = self.intersect_plane(triangle)
+        p_in_plane = self.at(t)
+        s, t = triangle.get_barycentric_coord(p_in_plane)
+        if not 0 < s < 1 or not 0 < t < 1 or not 0 < (1 - s - t) < 1:
+            return -1
+        return t
+
     def intersect(self, obj):
         """
         Find t of intersection, -1 value means no intersection.
@@ -66,5 +74,7 @@ class Ray:
             return self.intersect_sphere(obj)
         elif isinstance(obj, Plane):
             return self.intersect_plane(obj)
+        elif isinstance(obj, Triangle):
+            return self.intersect_triangle(obj)
         else:
             return -1

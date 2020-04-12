@@ -39,6 +39,7 @@ class Sphere(Object):
     Attributes:
         position(numpy.array): A 3D point inside the plane
         material(Material): The material to be rendered for this object
+        shader_type(string): The type of shader to use for this object
         radius(float): The radius of this sphere
     """
 
@@ -92,6 +93,7 @@ class Plane(Object):
     Attributes:
         position(numpy.array): A 3D point inside the plane
         material(Material): The material to be rendered for this object
+        shader_type(string): The type of shader to use for this object
         n(numpy.array): The unit normal for this plane
         n0(numpy.array): One of the unit directors inside the plane
         sx(float): Scale in x of the plane
@@ -126,4 +128,56 @@ class Plane(Object):
         dif_vector = p - self.position
         u = np.dot(dif_vector, self.n0) / self.sx
         v = np.dot(dif_vector, self.n1) / self.sy
+        return u, v
+
+
+class Triangle(Object):
+    """
+    Represents a single triangle object to be used inside a scene.
+
+    Attributes:
+        v0(Vertex): First of the vertices of this triangle
+        v1(Vertex): Second of the vertices of this triangle
+        v2(Vertex): Second of the vertices of this triangle
+        area(float): The area of this triangle
+        n(numpy.array): Geometrical normal calculated using the vertices
+    """
+
+    def __init__(self, material, shader_type, v0, v1, v2):
+        # Set object position as the center of the triangle
+        position = 0.34 * v0.position + 0.33 * v1.position + 0.33 * v2.position
+        Object.__init__(self, position, material, shader_type)
+        self.v0 = v0
+        self.v1 = v1
+        self.v2 = v2
+        A = np.cross(v1.position - v0.position, v2.position - v1.position) / 2
+        self.area = np.linalg.norm(A)
+        self.n = A / self.area
+
+    def get_barycentric_coord(self, ph):
+        """
+        Get the barycentric coordinates s and t for a point ph in world coord.
+
+        Args:
+            ph(numpy.array): 3D point in world coordinates.
+
+        Returns:
+            (float, float): Barycentric coordinates s and t for point ph
+        """
+        A1 = np.cross(ph - self.v0.position, self.v2.position - ph)
+        A2 = np.cross(ph - self.v1.position, self.v0.position - ph)
+        s = np.dot(self.n, A1) / self.area
+        t = np.dot(self.n, A2) / self.area
+        return s, t
+
+    def normal_at(self, p, s=None, t=None):
+        if s is None or t is None:
+            s, t = self.get_barycentric_coord(p)
+        return (1 - s - t) * self.v0.n + s * self.v1.n + t * self.v2.n
+
+    def uvmap(self, p, s=None, t=None):
+        if s is None or t is None:
+            s, t = self.get_barycentric_coord(p)
+        u = (1 - s - t) * self.v0.u + s * self.v1.u + t * self.v2.u
+        v = (1 - s - t) * self.v0.v + s * self.v1.v + t * self.v2.v
         return u, v
