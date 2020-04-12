@@ -4,6 +4,8 @@ import unittest
 from ray import Ray
 from object import Plane, Sphere
 
+SHADER_TYPE = "mockup_shader_type"
+
 
 class RayTestCase(unittest.TestCase):
     def setUp(self):
@@ -16,27 +18,27 @@ class RayTestCase(unittest.TestCase):
         sphere_position = np.array([0, 0, 4])
         material = None
         radius = 1
-        sphere = Sphere(sphere_position, material, radius)
+        sphere = Sphere(sphere_position, material, SHADER_TYPE, radius)
         t = self.ray.intersect(sphere)
         self.assertEqual(t, 2)
         # cases object is behind
         sphere_position = np.array([0, 0, -4])
         material = None
         radius = 2
-        sphere = Sphere(sphere_position, material, radius)
+        sphere = Sphere(sphere_position, material, SHADER_TYPE, radius)
         t = self.ray.intersect(sphere)
         self.assertEqual(t, -1)
         sphere_position = np.array([3, 24, -1])
         material = None
         radius = 0.4
-        sphere = Sphere(sphere_position, material, radius)
+        sphere = Sphere(sphere_position, material, SHADER_TYPE, radius)
         t = self.ray.intersect(sphere)
         self.assertEqual(t, -1)
         # case is not in the ray line
         sphere_position = np.array([-3.3, 12.6, 5.2])
         material = None
         radius = 0.4
-        sphere = Sphere(sphere_position, material, radius)
+        sphere = Sphere(sphere_position, material, SHADER_TYPE, radius)
         t = self.ray.intersect(sphere)
         self.assertEqual(t, -1)
 
@@ -44,20 +46,21 @@ class RayTestCase(unittest.TestCase):
         # Case there is intersection
         p0 = np.array([0, 0, 3])
         n = np.array([0, 0, -1])
+        n0 = np.array([1, 0, 0])
         material = None
-        plane = Plane(p0, material, n)
+        plane = Plane(p0, material, SHADER_TYPE, n, n0)
         t = self.ray.intersect(plane)
         self.assertEqual(t, 2)
         # Case there is not because it's parallel to the ray
         p0 = np.array([0, -1, 0])
         n = np.array([0, 1, 0])
-        plane = Plane(p0, material, n)
+        plane = Plane(p0, material, SHADER_TYPE, n, n0)
         t = self.ray.intersect(plane)
         self.assertEqual(t, -1)
         # Case there is not because it is behind
         p0 = np.array([0, 0, -1])
         n = np.array([0, 0, 1])
-        plane = Plane(p0, material, n)
+        plane = Plane(p0, material, SHADER_TYPE, n, n0)
         t = self.ray.intersect(plane)
         self.assertEqual(t, -1)
 
