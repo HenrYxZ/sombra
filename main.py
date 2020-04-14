@@ -9,12 +9,13 @@ from env_map import EnvironmentMap
 from light import DirectionalLight, PointLight, SpotLight
 from material import Material
 import material
-from object import Plane, Sphere
+from object import Plane, Sphere, Triangle
 from render import render, render_no_aa
 from scene import Scene
 import shaders
 from texture import ImageTexture, SolidImageTexture, Box
 import utils
+from vertex import Vertex
 
 # Width and Height of the image window in pixels
 WIDTH = 280
@@ -30,6 +31,10 @@ CHECKERS_TEXTURE_FILENAME = "textures/checkers.png"
 MICKEY_TEXTURE_FILENAME = "textures/mickey.jpg"
 PARK_TEXTURE_FILENAME= "textures/autumn_park.jpg"
 OUTPUT_IMG_FILENAME = "output.jpg"
+
+
+def default_vertex(p, n):
+    return Vertex(p, material.COLOR_BLUE, shaders.TYPE_DIFFUSE_COLORS, n)
 
 
 def setup_cameras():
@@ -50,7 +55,7 @@ def setup_lights():
     nl = utils.normalize(np.array([0, -0.5, 1]))
     theta = utils.degree2radians(30)
     spot_light = SpotLight(light_pos, theta, nl)
-    return [point_light]
+    return [directional_light]
 
 
 def setup_objects():
@@ -101,7 +106,15 @@ def setup_objects():
     mickey_mtl.add_texture(mickey_texture)
     mickey_shader = shaders.TYPE_DIFF_SPECULAR
     mickey = Sphere(mickey_pos, mickey_mtl, mickey_shader, mickey_r)
-    return [sphere, plane]
+    # Triangle
+    n = np.array([0, 0, -1])
+    v0 = default_vertex(np.array([-30, -15, 55]), n)
+    v1 = default_vertex(np.array([30, -15, 55]), n)
+    v2 = default_vertex(np.array([0, 35, 55]), n)
+    triangle = Triangle(
+        utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2
+    )
+    return [triangle, plane]
 
 
 def setup_scene():

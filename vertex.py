@@ -12,10 +12,12 @@ class Vertex:
         u(float): Value for u texture coordinate at this vertex
         v(float): Value for u texture coordinate at this vertex
     """
-    def __init__(self, position, material, shader_type, normal, u, v):
+    def __init__(
+            self, position, material, shader_type, n=None, u=None, v=None
+    ):
         self.position = position
         self.material = material
         self.shader_type = shader_type
-        self.normal = normal
+        self.n = n
         self.u = u
         self.v = v

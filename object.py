@@ -173,7 +173,14 @@ class Triangle(Object):
     def normal_at(self, p, s=None, t=None):
         if s is None or t is None:
             s, t = self.get_barycentric_coord(p)
-        return (1 - s - t) * self.v0.n + s * self.v1.n + t * self.v2.n
+        if (
+            self.v0.n is not None
+            and self.v1.n is not None
+            and self.v2.n is not None
+        ):
+            return (1 - s - t) * self.v0.n + s * self.v1.n + t * self.v2.n
+        else:
+            return self.n
 
     def uvmap(self, p, s=None, t=None):
         if s is None or t is None:

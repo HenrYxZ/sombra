@@ -1,4 +1,10 @@
 import numpy as np
+# Local imports
+from material import Material
+import material
+
+
+MTL_DIFFUSE_BLUE = Material(material.COLOR_BLUE, material.TYPE_DIFFUSE)
 
 
 def normalize(arr):
