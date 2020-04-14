@@ -138,7 +138,7 @@ class Triangle(Object):
     Attributes:
         v0(Vertex): First of the vertices of this triangle
         v1(Vertex): Second of the vertices of this triangle
-        v2(Vertex): Second of the vertices of this triangle
+        v2(Vertex): Third of the vertices of this triangle
         area(float): The area of this triangle
         n(numpy.array): Geometrical normal calculated using the vertices
     """
@@ -159,7 +159,7 @@ class Triangle(Object):
         Get the barycentric coordinates s and t for a point ph in world coord.
 
         Args:
-            ph(numpy.array): 3D point in world coordinates.
+            ph(numpy.array): 3D point in world coordinates
 
         Returns:
             (float, float): Barycentric coordinates s and t for point ph
@@ -169,6 +169,22 @@ class Triangle(Object):
         s = np.dot(self.n, A1) / self.area
         t = np.dot(self.n, A2) / self.area
         return s, t
+
+    def is_inside(self, p):
+        """
+        Checks if the point p is inside the triangle.
+
+        Args:
+            p(numpy.array): Point in world coordinates
+
+        Returns:
+            boolean: whether the point is inside
+        """
+        s, t = self.get_barycentric_coord(p)
+        if 0 <= s <= 1 and 0 <= t <= 1 and s + t <= 1:
+            return True
+        else:
+            return False
 
     def normal_at(self, p, s=None, t=None):
         if s is None or t is None:
@@ -188,3 +204,43 @@ class Triangle(Object):
         u = (1 - s - t) * self.v0.u + s * self.v1.u + t * self.v2.u
         v = (1 - s - t) * self.v0.v + s * self.v1.v + t * self.v2.v
         return u, v
+
+
+class Tetrahedron(Object):
+    """
+     Represents a tetrahedron object to be used inside a scene.
+
+    Attributes:
+        mtl(Material): The material for this object
+        shd_type(str): The shader type for this object
+        tr0(Triangle): First of the triangles of this tetrahedron
+        tr1(Triangle): Second of the triangles of this tetrahedron
+        tr2(Triangle): Third of the triangles of this tetrahedron
+        tr3(Triangle): Fourth of the triangles of this tetrahedron
+    """
+    def __init__(self,mtl, shd_type, v0, v1, v2, v3):
+        position = (
+            0.25 * v0.position
+            + 0.25 * v1.position
+            + 0.25 * v2.position
+            + 0.25 * v3.position
+        )
+        Object.__init__(self, position, mtl, shd_type)
+        self.tr0 = Triangle(mtl, shd_type, v0, v1, v2)
+        self.tr1 = Triangle(mtl, shd_type, v3, v2, v1)
+        self.tr2 = Triangle(mtl, shd_type, v0, v2, v3)
+        self.tr3 = Triangle(mtl, shd_type, v3, v1, v0)
+
+    def normal_at(self, p):
+        if self.tr0.is_inside(p):
+            return self.tr0.n
+        if self.tr1.is_inside(p):
+            return self.tr1.n
+        if self.tr2.is_inside(p):
+            return self.tr2.n
+        if self.tr3.is_inside(p):
+            return self.tr3.n
+        return np.zeros(3)
+
+    def get_triangles(self):
+        return [self.tr0, self.tr1, self.tr2, self.tr3]

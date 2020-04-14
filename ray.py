@@ -1,6 +1,6 @@
 import numpy as np
 # Local Modules
-from object import Plane, Sphere, Triangle
+from object import Plane, Sphere, Tetrahedron, Triangle
 
 
 class Ray:
@@ -59,12 +59,23 @@ class Ray:
         return t
 
     def intersect_triangle(self, triangle):
-        t = self.intersect_plane(triangle)
-        p_in_plane = self.at(t)
+        ray_t = self.intersect_plane(triangle)
+        p_in_plane = self.at(ray_t)
         s, t = triangle.get_barycentric_coord(p_in_plane)
-        if not 0 < s < 1 or not 0 < t < 1 or not 0 < (1 - s - t) < 1:
+        if not 0 <= s <= 1 or not 0 <= t <= 1 or not 0 <= s + t <= 1:
             return -1
-        return t
+        return ray_t
+
+    def intersect_tetrahedron(self, tetrahedron):
+        triangles = tetrahedron.get_triangles()
+        min_t = np.inf
+        for tr in triangles:
+            t = self.intersect_triangle(tr)
+            if 0 < t < min_t:
+                min_t = t
+        if min_t == np.inf:
+            return -1
+        return min_t
 
     def intersect(self, obj):
         """
@@ -74,6 +85,8 @@ class Ray:
             return self.intersect_sphere(obj)
         elif isinstance(obj, Plane):
             return self.intersect_plane(obj)
+        elif isinstance(obj, Tetrahedron):
+            return self.intersect_tetrahedron(obj)
         elif isinstance(obj, Triangle):
             return self.intersect_triangle(obj)
         else:

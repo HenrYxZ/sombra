@@ -9,7 +9,7 @@ from env_map import EnvironmentMap
 from light import DirectionalLight, PointLight, SpotLight
 from material import Material
 import material
-from object import Plane, Sphere, Triangle
+from object import Plane, Sphere, Tetrahedron, Triangle
 from render import render, render_no_aa
 from scene import Scene
 import shaders
@@ -55,7 +55,7 @@ def setup_lights():
     nl = utils.normalize(np.array([0, -0.5, 1]))
     theta = utils.degree2radians(30)
     spot_light = SpotLight(light_pos, theta, nl)
-    return [directional_light]
+    return [point_light]
 
 
 def setup_objects():
@@ -114,7 +114,15 @@ def setup_objects():
     triangle = Triangle(
         utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2
     )
-    return [triangle, plane]
+    # Tetrahedron
+    v0 = Vertex(np.array([-30, 0, 80], dtype=float))
+    v1 = Vertex(np.array([0, 0, 52], dtype=float))
+    v2 = Vertex(np.array([30, 0, 80], dtype=float))
+    v3 = Vertex(np.array([0, 50, 80], dtype=float))
+    tetrahedron = Tetrahedron(
+        utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
+    )
+    return [tetrahedron, plane]
 
 
 def setup_scene():
