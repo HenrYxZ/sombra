@@ -18,16 +18,9 @@ class Camera:
         self.d = float(d)
         self.scale_x = float(scale_x)
         self.scale_y = float(scale_y)
-        self.n0 = utils.normalize(np.cross(self.vup, self.vview))
-        self.n1 = utils.normalize(np.cross(self.vview, self.n0))
-        self.n2 = utils.normalize(self.vview)
-        # Point in the center of the screen of the camera window
-        pc = self.position + self.d * self.n2
-        self.p00 = (
-            pc - (self.scale_x / 2) * self.n0 - (self.scale_y / 2) * self.n1
-        )
+        self.set_view_coord()
 
-    def recalculate_view_coord(self):
+    def set_view_coord(self):
         """
         This are the unit vectors that form the view coordinates of the camera.
         Including the starting point of the view window on world coordinates.
