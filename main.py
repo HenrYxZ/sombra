@@ -1,6 +1,7 @@
 import getopt
 import numpy as np
 from PIL import Image
+import pprint
 import sys
 import time
 # Local Modules
@@ -29,7 +30,7 @@ DEFAULT_THICKNESS = 0.7
 EARTH_TEXTURE_FILENAME = "textures/earth.jpg"
 CHECKERS_TEXTURE_FILENAME = "textures/checkers.png"
 MICKEY_TEXTURE_FILENAME = "textures/mickey.jpg"
-PARK_TEXTURE_FILENAME= "textures/autumn_park.jpg"
+PARK_TEXTURE_FILENAME = "textures/autumn_park.jpg"
 OUTPUT_IMG_FILENAME = "output.jpg"
 
 
@@ -79,49 +80,50 @@ def setup_objects():
         plane_sy
     )
     # Sphere Object
-    sphere_pos = np.array([0, 0, 100], dtype=float)
-    sphere_mtl = Material(
-        material.COLOR_BLUE,
-        material.TYPE_TEXTURED,
-        DEFAULT_KS,
-        DEFAULT_THICKNESS
-    )
-    sphere_texture = ImageTexture(EARTH_TEXTURE_FILENAME)
-    sphere_mtl.add_texture(sphere_texture)
-    sphere_shader = shaders.TYPE_DIFF_SPECULAR
-    sphere_r = 25.0
-    sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
+    # sphere_pos = np.array([0, 0, 100], dtype=float)
+    # sphere_mtl = Material(
+    #     material.COLOR_BLUE,
+    #     material.TYPE_TEXTURED,
+    #     DEFAULT_KS,
+    #     DEFAULT_THICKNESS
+    # )
+    # sphere_texture = ImageTexture(EARTH_TEXTURE_FILENAME)
+    # sphere_mtl.add_texture(sphere_texture)
+    # sphere_shader = shaders.TYPE_DIFF_SPECULAR
+    # sphere_r = 25.0
+    # sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
     # El Mickey Shhiiino
-    mickey_pos = np.array([-50, 0, 100], dtype=float)
-    mickey_r = 20.0
-    mickey_mtl = Material(material.COLOR_BLUE, material.TYPE_TEXTURED)
-    mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
-    mickey_p0 = mickey_pos - np.array([mickey_r, mickey_r, mickey_r])
-    mickey_s = mickey_r * 2
-    n0 = np.array([0, 0, 1])
-    n1 = np.array([0, 1, 0])
-    n2 = np.array([1, 0, 0])
-    mickey_box = Box(mickey_p0, mickey_s, mickey_s, mickey_s, n0, n1, n2)
-    mickey_texture = SolidImageTexture(mickey_img_texture, mickey_box)
-    mickey_mtl.add_texture(mickey_texture)
-    mickey_shader = shaders.TYPE_DIFF_SPECULAR
-    mickey = Sphere(mickey_pos, mickey_mtl, mickey_shader, mickey_r)
+    # mickey_pos = np.array([-50, 0, 100], dtype=float)
+    # mickey_r = 20.0
+    # mickey_mtl = Material(material.COLOR_BLUE, material.TYPE_TEXTURED)
+    # mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
+    # mickey_p0 = mickey_pos - np.array([mickey_r, mickey_r, mickey_r])
+    # mickey_s = mickey_r * 2
+    # n0 = np.array([0, 0, 1])
+    # n1 = np.array([0, 1, 0])
+    # n2 = np.array([1, 0, 0])
+    # mickey_box = Box(mickey_p0, mickey_s, mickey_s, mickey_s, n0, n1, n2)
+    # mickey_texture = SolidImageTexture(mickey_img_texture, mickey_box)
+    # mickey_mtl.add_texture(mickey_texture)
+    # mickey_shader = shaders.TYPE_DIFF_SPECULAR
+    # mickey = Sphere(mickey_pos, mickey_mtl, mickey_shader, mickey_r)
     # Triangle
-    n = np.array([0, 0, -1])
-    v0 = default_vertex(np.array([-30, -15, 55]), n)
-    v1 = default_vertex(np.array([30, -15, 55]), n)
-    v2 = default_vertex(np.array([0, 35, 55]), n)
-    triangle = Triangle(
-        utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2
-    )
+    # n = np.array([0, 0, -1])
+    # v0 = default_vertex(np.array([-30, -15, 55]), n)
+    # v1 = default_vertex(np.array([30, -15, 55]), n)
+    # v2 = default_vertex(np.array([0, 35, 55]), n)
+    # triangle = Triangle(
+    #     utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2
+    # )
     # Tetrahedron
-    v0 = Vertex(np.array([-30, 0, 80], dtype=float))
-    v1 = Vertex(np.array([0, 0, 52], dtype=float))
-    v2 = Vertex(np.array([30, 0, 80], dtype=float))
-    v3 = Vertex(np.array([0, 50, 80], dtype=float))
+    v0 = Vertex(np.array([-30, -10, 80], dtype=float))
+    v1 = Vertex(np.array([0, 20, 80], dtype=float))
+    v2 = Vertex(np.array([30, -10, 80], dtype=float))
+    v3 = Vertex(np.array([0, -10, 52], dtype=float))
     tetrahedron = Tetrahedron(
-        utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
+        utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_NO_LIGHT, v0, v1, v2, v3
     )
+    print(tetrahedron)
     return [tetrahedron, plane]
 
 
