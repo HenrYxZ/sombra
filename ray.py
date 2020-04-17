@@ -62,9 +62,9 @@ class Ray:
         ray_t = self.intersect_plane(triangle)
         p_in_plane = self.at(ray_t)
         s, t = triangle.get_barycentric_coord(p_in_plane)
-        if not 0 <= s <= 1 or not 0 <= t <= 1 or not 0 <= s + t <= 1:
-            return -1
-        return ray_t
+        if 0 <= s <= 1 and 0 <= t <= 1 and 0 <= s + t <= 1:
+            return ray_t
+        return -1
 
     def intersect_tetrahedron(self, tetrahedron):
         triangles = tetrahedron.get_triangles()
