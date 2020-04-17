@@ -47,6 +47,9 @@ class Sphere(Object):
         Object.__init__(self, position, material, shader_type)
         self.radius = radius
 
+    def __str__(self):
+        return "r: {}, pc: {}".format(self.radius, self.position)
+
     def normal_at(self, p):
         # This doesn't validate that p is in the surface
         return (p - self.position) / float(self.radius)
@@ -154,6 +157,11 @@ class Triangle(Object):
         self.area = np.linalg.norm(A)
         self.n = A / self.area
 
+    def __str__(self):
+        return "v0: {}\nv1: {}\nv2: {}".format(
+            self.v0.position, self.v1.position, self.v2.position
+        )
+
     def get_barycentric_coord(self, ph):
         """
         Get the barycentric coordinates s and t for a point ph in world coord.
@@ -231,6 +239,11 @@ class Tetrahedron(Object):
         self.tr2 = Triangle(mtl, shd_type, v0, v2, v3)
         self.tr3 = Triangle(mtl, shd_type, v3, v1, v0)
 
+    def __str__(self):
+        return "tr0:\n{}\ntr1:\n{}\ntr2:\n{}\ntr3:\n{}".format(
+            self.tr0, self.tr1, self.tr2, self.tr3
+        )
+
     def normal_at(self, p):
         if self.tr0.is_inside(p):
             return self.tr0.n
@@ -240,7 +253,11 @@ class Tetrahedron(Object):
             return self.tr2.n
         if self.tr3.is_inside(p):
             return self.tr3.n
-        return np.zeros(3)
+        raise ValueError(
+            "Point {} doesn't belong to Tetrahedron {}".format(
+                p, self
+            )
+        )
 
     def get_triangles(self):
         return [self.tr0, self.tr1, self.tr2, self.tr3]
