@@ -1,7 +1,6 @@
 import getopt
 import numpy as np
 from PIL import Image
-import pprint
 import sys
 import time
 # Local Modules
@@ -48,14 +47,14 @@ def setup_cameras():
 
 def setup_lights():
     # Directional Light
-    directional_light = DirectionalLight(np.array([-1, -1, 1]))
+    # directional_light = DirectionalLight(np.array([-1, -1, 1]))
     # Point Light
     light_pos = np.array([0, 50, 50], dtype=float)
     point_light = PointLight(light_pos)
     # Spot Light
-    nl = utils.normalize(np.array([0, -0.5, 1]))
-    theta = utils.degree2radians(30)
-    spot_light = SpotLight(light_pos, theta, nl)
+    # nl = utils.normalize(np.array([0, -0.5, 1]))
+    # theta = utils.degree2radians(30)
+    # spot_light = SpotLight(light_pos, theta, nl)
     return [point_light]
 
 
@@ -63,11 +62,11 @@ def setup_objects():
     # Plane Object
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_n0 = np.array([1, 0, 0], dtype=float)
-    plane_mtl = Material(material.COLOR_GRAY, material.TYPE_TEXTURED)
+    plane_mtl = Material(material.COLOR_GRAY, material.TYPE_DIFFUSE)
     plane_shader = shaders.TYPE_DIFFUSE_COLORS
     plane_normal = np.array([0, 1, 0], dtype=float)
-    plane_texture = ImageTexture(CHECKERS_TEXTURE_FILENAME)
-    plane_mtl.add_texture(plane_texture)
+    # plane_texture = ImageTexture(CHECKERS_TEXTURE_FILENAME)
+    # plane_mtl.add_texture(plane_texture)
     plane_sx = 250
     plane_sy = 250
     plane = Plane(
@@ -119,11 +118,10 @@ def setup_objects():
     v0 = Vertex(np.array([-30, -10, 80], dtype=float))
     v1 = Vertex(np.array([0, 20, 80], dtype=float))
     v2 = Vertex(np.array([30, -10, 80], dtype=float))
-    v3 = Vertex(np.array([0, -10, 52], dtype=float))
+    v3 = Vertex(np.array([0, 0, 60], dtype=float))
     tetrahedron = Tetrahedron(
-        utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_NO_LIGHT, v0, v1, v2, v3
+        utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
     )
-    print(tetrahedron)
     return [tetrahedron, plane]
 
 
