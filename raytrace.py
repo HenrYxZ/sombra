@@ -41,8 +41,6 @@ def use_shader_type(
         color = shaders.diffuse_specular_border(
             nh, l, eye, dark, light, ks, thickness
         )
-    elif shader_type == shaders.TYPE_DIFFUSE_NO_LIGHT:
-        color = diffuse
     else:
         color = np.zeros(RGB_CHANNELS)
     return color
@@ -61,6 +59,8 @@ def compute_color(ph, eye, obj, lights):
     Returns:
         np.array: The color for this ray in numpy uint8 of 3 channels
     """
+    if obj.shader_type == shaders.TYPE_DIFFUSE_NO_LIGHT:
+        return obj.material.diffuse
     final_color = np.zeros(RGB_CHANNELS)
     for light in lights:
         l = light.get_l(ph)
