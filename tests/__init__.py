@@ -1,1 +1,2 @@
 from test_ray import RayTestCase
+from test_triangle import TriangleTestCase
