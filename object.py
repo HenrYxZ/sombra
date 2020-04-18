@@ -172,8 +172,8 @@ class Triangle(Object):
         Returns:
             (float, float): Barycentric coordinates s and t for point ph
         """
-        A1 = np.cross(ph - self.v0.position, self.v2.position - ph)
-        A2 = np.cross(ph - self.v1.position, self.v0.position - ph)
+        A1 = np.cross(ph - self.v0.position, self.v2.position - ph) / 2
+        A2 = np.cross(ph - self.v1.position, self.v0.position - ph) / 2
         s = np.dot(self.n, A1) / self.area
         t = np.dot(self.n, A2) / self.area
         return s, t
