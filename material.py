@@ -17,8 +17,9 @@ class Material:
         material_type(str): the type of material like diffuse, textured, etc
         specular(float): parameter for how specular is this material (use
             values between 0 and 1)
-        border(float):  parameter for how thick the border is in this material
+        border(float): parameter for how thick the border is in this material
             (use values between 0 and 1)
+        kr(float): parameter for how much the surface reflects (between 0 - 1)
 
     """
     def __init__(
@@ -26,12 +27,14 @@ class Material:
         diffuse=COLOR_GRAY,
         material_type=TYPE_DIFFUSE,
         specular=1.0,
-        border=1.0
+        border=1.0,
+        kr=0.0
     ):
         self.diffuse = diffuse
         self.material_type = material_type
         self.specular = specular
         self.border = border
+        self.kr = kr
         self.texture = None
 
     def add_texture(self, texture):

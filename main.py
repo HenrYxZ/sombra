@@ -62,11 +62,11 @@ def setup_objects():
     # Plane Object
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_n0 = np.array([1, 0, 0], dtype=float)
-    plane_mtl = Material(material.COLOR_GRAY, material.TYPE_DIFFUSE)
+    plane_mtl = Material(material.COLOR_GRAY, material.TYPE_TEXTURED)
     plane_shader = shaders.TYPE_DIFFUSE_COLORS
     plane_normal = np.array([0, 1, 0], dtype=float)
-    # plane_texture = ImageTexture(CHECKERS_TEXTURE_FILENAME)
-    # plane_mtl.add_texture(plane_texture)
+    plane_texture = ImageTexture(CHECKERS_TEXTURE_FILENAME)
+    plane_mtl.add_texture(plane_texture)
     plane_sx = 250
     plane_sy = 250
     plane = Plane(
@@ -79,18 +79,16 @@ def setup_objects():
         plane_sy
     )
     # Sphere Object
-    # sphere_pos = np.array([0, 0, 100], dtype=float)
-    # sphere_mtl = Material(
-    #     material.COLOR_BLUE,
-    #     material.TYPE_TEXTURED,
-    #     DEFAULT_KS,
-    #     DEFAULT_THICKNESS
-    # )
-    # sphere_texture = ImageTexture(EARTH_TEXTURE_FILENAME)
-    # sphere_mtl.add_texture(sphere_texture)
-    # sphere_shader = shaders.TYPE_DIFF_SPECULAR
-    # sphere_r = 25.0
-    # sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
+    sphere_pos = np.array([0, 0, 100], dtype=float)
+    sphere_mtl = Material(
+        material.COLOR_BLUE,
+        material.TYPE_DIFFUSE,
+        specular=DEFAULT_KS,
+        kr=0.2
+    )
+    sphere_shader = shaders.TYPE_DIFF_SPECULAR
+    sphere_r = 25.0
+    sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
     # El Mickey Shhiiino
     # mickey_pos = np.array([-50, 0, 100], dtype=float)
     # mickey_r = 20.0
@@ -115,14 +113,14 @@ def setup_objects():
     #     utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2
     # )
     # Tetrahedron
-    v0 = Vertex(np.array([-30, -10, 80], dtype=float))
-    v1 = Vertex(np.array([0, 20, 80], dtype=float))
-    v2 = Vertex(np.array([30, -10, 80], dtype=float))
-    v3 = Vertex(np.array([0, 0, 60], dtype=float))
-    tetrahedron = Tetrahedron(
-        utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
-    )
-    return [tetrahedron, plane]
+    # v0 = Vertex(np.array([-30, -10, 80], dtype=float))
+    # v1 = Vertex(np.array([0, 20, 80], dtype=float))
+    # v2 = Vertex(np.array([30, -10, 80], dtype=float))
+    # v3 = Vertex(np.array([0, 0, 60], dtype=float))
+    # tetrahedron = Tetrahedron(
+    #     utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
+    # )
+    return [sphere, plane]
 
 
 def setup_scene():
