@@ -28,13 +28,15 @@ class Material:
         material_type=TYPE_DIFFUSE,
         specular=1.0,
         border=1.0,
-        kr=0.0
+        kr=0.0,
+        ior=1.0
     ):
         self.diffuse = diffuse
         self.material_type = material_type
         self.specular = specular
         self.border = border
         self.kr = kr
+        self.ior = ior
         self.texture = None
 
     def add_texture(self, texture):

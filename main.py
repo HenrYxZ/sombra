@@ -9,6 +9,7 @@ from env_map import EnvironmentMap
 from light import DirectionalLight, PointLight, SpotLight
 from material import Material
 import material
+from normal_map import NormalMap
 from object import Plane, Sphere, Tetrahedron, Triangle
 from render import render, render_no_aa
 from scene import Scene
@@ -26,9 +27,12 @@ H_SAMPLES = 4
 MAX_QUALITY = 95
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
-EARTH_TEXTURE_FILENAME = "textures/earth.jpg"
 CHECKERS_TEXTURE_FILENAME = "textures/checkers.png"
+COIN_TEXTURE_FILENAME = "textures/ten pence heads normal.png"
+EARTH_TEXTURE_FILENAME = "textures/earth.jpg"
+GARAGE_TEXTURE_FILENAME = "textures/garage_1k.jpg"
 MICKEY_TEXTURE_FILENAME = "textures/mickey.jpg"
+NORMAL_TEXTURE_FILENAME = "textures/normal.jpg"
 PARK_TEXTURE_FILENAME = "textures/autumn_park.jpg"
 OUTPUT_IMG_FILENAME = "output.jpg"
 
@@ -84,11 +88,23 @@ def setup_objects():
         material.COLOR_BLUE,
         material.TYPE_DIFFUSE,
         specular=DEFAULT_KS,
-        kr=0.2
+        kr=0.4,
+        ior=1.5
     )
     sphere_shader = shaders.TYPE_DIFF_SPECULAR
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
+    sphere_p0 = sphere_pos - np.array([sphere_r, sphere_r, sphere_r])
+    sphere_s = 2 * sphere_r
+    n0 = np.array([1, 0, 0])
+    n1 = np.array([0, 1, 0])
+    n2 = np.array([0, 0, 1])
+    normal_box = Box(sphere_p0, sphere_s, sphere_s, sphere_s, n0, n1, n2)
+    normal_img_text = ImageTexture(NORMAL_TEXTURE_FILENAME)
+    sphere_normal_texture = SolidImageTexture(
+        normal_img_text, normal_box
+    )
+    # sphere.add_normal_map(sphere_normal_texture)
     # El Mickey Shhiiino
     # mickey_pos = np.array([-50, 0, 100], dtype=float)
     # mickey_r = 20.0
@@ -113,23 +129,24 @@ def setup_objects():
     #     utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2
     # )
     # Tetrahedron
-    # v0 = Vertex(np.array([-30, -10, 80], dtype=float))
-    # v1 = Vertex(np.array([0, 20, 80], dtype=float))
-    # v2 = Vertex(np.array([30, -10, 80], dtype=float))
-    # v3 = Vertex(np.array([0, 0, 60], dtype=float))
-    # tetrahedron = Tetrahedron(
-    #     utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
-    # )
-    return [sphere, plane]
+    v0 = Vertex(np.array([-30, -10, 80], dtype=float))
+    v1 = Vertex(np.array([0, 20, 80], dtype=float))
+    v2 = Vertex(np.array([30, -10, 80], dtype=float))
+    v3 = Vertex(np.array([0, 0, 60], dtype=float))
+    tetra_mtl = Material(kr=0.6)
+    tetrahedron = Tetrahedron(
+        tetra_mtl, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
+    )
+    return [tetrahedron, plane]
 
 
 def setup_scene():
     cameras = setup_cameras()
     lights = setup_lights()
     objects = setup_objects()
-    # env_map = EnvironmentMap(PARK_TEXTURE_FILENAME)
-    # scene = Scene(cameras, lights, objects, env_map)
-    scene = Scene(cameras, lights, objects)
+    env_map = EnvironmentMap(GARAGE_TEXTURE_FILENAME)
+    scene = Scene(cameras, lights, objects, env_map)
+    # scene = Scene(cameras, lights, objects)
     return scene
 
 

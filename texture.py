@@ -70,12 +70,13 @@ class ImageTexture(Texture):
         # t and s are interpolation parameters that go from 0 to 1
         t = x - I + 0.5
         s = y - J + 0.5
+        # Ensure this only gives RGB and not A
         color = (
                 self.img[J - 1][I - 1] * (1 - t) * (1 - s)
                 + self.img[J - 1][I] * t * (1 - s)
                 + self.img[J][I - 1] * (1 - t) * s
                 + self.img[J][I] * t * s
-        )
+        )[:3]
         return color
 
 

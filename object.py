@@ -1,5 +1,6 @@
 import numpy as np
 # Local modules
+from normal_map import NormalMap
 import utils
 
 
@@ -12,12 +13,15 @@ class Object:
         position(numpy.array): A 3D point that represents the position
         material(Material): The material to be rendered for this object
         shader_type(string): The type of shader to use for this object
+        normal_map(NormalMap): An object that allows you to get normals mapping
+            points of the object to a texture
     """
 
     def __init__(self, position, material, shader_type):
         self.position = position
         self.material = material
         self.shader_type = shader_type
+        self.normal_map = None
 
     def normal_at(self, p):
         """
@@ -30,6 +34,9 @@ class Object:
         Map point p into texture coordinates u, v for this object.
         """
         pass
+
+    def add_normal_map(self, texture):
+        self.normal_map = NormalMap(texture, self)
 
 
 class Sphere(Object):
@@ -52,6 +59,11 @@ class Sphere(Object):
 
     def normal_at(self, p):
         # This doesn't validate that p is in the surface
+        if self.normal_map:
+            return self.normal_map.get_normal(p)
+        return (p - self.position) / float(self.radius)
+
+    def physical_normal_at(self, p):
         return (p - self.position) / float(self.radius)
 
     def uvmap(self, p):
