@@ -35,6 +35,12 @@ def humanize_time(secs):
 def degree2radians(degrees):
     return (degrees / float(360)) * 2 * np.pi
 
+def random_unit_vector():
+    # 3D random vector
+    v = np.random.rand(3)
+    v_unit = normalize(v)
+    return v_unit
+
 
 # class Position(object):
 #     """Position in 3D space"""

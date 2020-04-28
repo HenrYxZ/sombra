@@ -145,46 +145,16 @@ def raytrace(ray, scene, depth=DEFAULT_RAYTRACER_DEPTH, kr=1):
         final_color = (
             color.astype(float) * (shadow.astype(float) / MAX_COLOR_VALUE)
         ).round()
+        # Reflections
         if obj_h.material.kr > 0 and depth > 0 and kr > MIN_KR:
             n = obj_h.normal_at(ph)
             C = np.dot(n, eye)
-            # term = ((C ** 2 - 1) / obj_h.material.ior ** 2) + 1
-            # if term < 0:
-            #     fresnel = 1
-            # else:
-            #     sin_theta = np.sqrt((1 - C ** 2))
-            #     x1 = np.sin(utils.degree2radians(56))
-            #     x2 = np.sin(utils.degree2radians(90))
-            #     y0 = 0.05
-            #     if sin_theta < x1:
-            #         fresnel = y0 * (1 - (sin_theta / x1))
-            #     elif sin_theta < x2:
-            #         fresnel = (sin_theta - x1) / (x2 - x1)
-            #     else:
-            #         fresnel = 1
-            # r = -1 * eye + 2 * C * n
-            # reflected_ray = Ray(ph, utils.normalize(r))
-            # new_kr = kr * obj_h.material.kr
-            # fresnel = 1
-            # if fresnel < 1:
-            #     ior = obj_h.material.ior
-            #     t = (-1 / ior) * eye + np.dot(((C / ior) - np.sqrt(term)), n)
-            #     transmitted_ray = Ray(ph, utils.normalize(t))
-            #     reflection = raytrace(
-            #         reflected_ray, scene, depth - 1, new_kr
-            #     )
-            #     refraction = raytrace(
-            #         transmitted_ray, scene, depth - 1, new_kr
-            #     )
-            #     fresnel = 0.2
-            #     reflection_color = (
-            #         reflection * fresnel + refraction * (1 - fresnel)
-            #     )
-            # else:
-            #     reflection_color = raytrace(
-            #         reflected_ray, scene, depth - 1, new_kr
-            #     )
             r = -1 * eye + 2 * C * n
+            # Adding glossiness
+            if obj_h.material.glossiness > 0:
+                r = utils.normalize(
+                    r + obj_h.material.glossiness**2 * np.random.rand(3)
+                )
             reflected_ray = Ray(ph, utils.normalize(r))
             new_kr = kr * obj_h.material.kr
             reflection_color = raytrace(
