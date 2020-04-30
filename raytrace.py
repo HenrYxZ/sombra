@@ -150,10 +150,12 @@ def raytrace(ray, scene, depth=DEFAULT_RAYTRACER_DEPTH, kr=1):
             n = obj_h.normal_at(ph)
             C = np.dot(n, eye)
             r = -1 * eye + 2 * C * n
-            # Adding glossiness
-            if obj_h.material.glossiness > 0:
+            # Adding roughness
+            if obj_h.material.roughness > 0:
+                # Random vector with 3 values between [-1, 1]
+                random_vector = 2 * np.random.random_sample(3) - 1
                 r = utils.normalize(
-                    r + obj_h.material.glossiness**2 * np.random.rand(3)
+                    r + obj_h.material.roughness**2 * random_vector
                 )
             reflected_ray = Ray(ph, utils.normalize(r))
             new_kr = kr * obj_h.material.kr

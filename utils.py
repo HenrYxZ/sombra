@@ -37,7 +37,7 @@ def degree2radians(degrees):
 
 def random_unit_vector():
     # 3D random vector
-    v = np.random.rand(3)
+    v = np.random.random_sample(3)
     v_unit = normalize(v)
     return v_unit
 

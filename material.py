@@ -21,7 +21,7 @@ class Material:
             (use values between 0 and 1)
         kr(float): parameter for how much the surface reflects (between 0 - 1)
         ior(float): parameter for index of refraction (between 0 - 1)
-        glossiness(float): parameter for how smooth is the surface of reflection
+        roughness(float): parameter for how smooth is the surface of reflection
     """
     def __init__(
         self,
@@ -31,7 +31,7 @@ class Material:
         border=1.0,
         kr=0.0,
         ior=1.0,
-        glossiness=0.3
+        roughness=0.0
     ):
         self.diffuse = diffuse
         self.material_type = material_type
@@ -40,7 +40,7 @@ class Material:
         self.kr = kr
         self.ior = ior
         self.texture = None
-        self.glossiness = glossiness
+        self.roughness = roughness
 
     def add_texture(self, texture):
         self.texture = texture

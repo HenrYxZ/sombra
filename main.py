@@ -67,7 +67,7 @@ def setup_objects():
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_n0 = np.array([1, 0, 0], dtype=float)
     plane_mtl = Material(
-        material.COLOR_GRAY, material.TYPE_TEXTURED, kr=0.4, glossiness=0.05
+        material.COLOR_GRAY, material.TYPE_TEXTURED, kr=0.4, roughness=0.05
     )
     plane_shader = shaders.TYPE_DIFFUSE_COLORS
     plane_normal = np.array([0, 1, 0], dtype=float)
@@ -92,7 +92,7 @@ def setup_objects():
         specular=DEFAULT_KS,
         kr=0.4,
         ior=1.5,
-        glossiness=0.23
+        roughness=0.23
     )
     sphere_shader = shaders.TYPE_DIFF_SPECULAR
     sphere_r = 25.0
