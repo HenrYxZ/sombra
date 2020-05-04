@@ -133,3 +133,6 @@ dmypy.json
 
 # Output Image
 output.jpg
+
+# Output Animation
+animation_out/

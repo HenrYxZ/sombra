@@ -153,9 +153,9 @@ def setup_scene():
     lights = setup_lights()
     objects = setup_objects()
     set_objects_id(objects)
-    env_map = EnvironmentMap(GARAGE_TEXTURE_FILENAME)
-    scene = Scene(cameras, lights, objects, env_map)
-    # scene = Scene(cameras, lights, objects)
+    # env_map = EnvironmentMap(GARAGE_TEXTURE_FILENAME)
+    # scene = Scene(cameras, lights, objects, env_map)
+    scene = Scene(cameras, lights, objects)
     return scene
 
 def animate(debug_mode):

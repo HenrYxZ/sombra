@@ -9,7 +9,7 @@ from state import State, SystemState
 
 
 MAX_QUALITY = 95
-V0 = np.array([25, 0, 0], dtype=float)
+V0 = np.array([35, 0, 0], dtype=float)
 
 class Transform:
     def __init__(self, translate=None, rotate=None, scale=None):
@@ -91,7 +91,11 @@ class Animation:
         time_step = 1.0 / self.fps
         rigid_bodies = [SphereBody(sphere)]
         v = V0
-        w = v / sphere.radius
+        vx, vy, vz = v[0], v[1], v[2]
+        wz = -1 * ((vx + vy) / sphere.radius)
+        wx = (vz + vy) / sphere.radius
+        wy = 0
+        w = np.array([wx, wy, wz])
         body_initial_state = State(sphere.position, sphere.rotation, v, w)
         initial_state.add(body_initial_state)
         simulation = Simulation(

@@ -79,12 +79,32 @@ class Sphere(Object):
 
     def rotate_x(self, v):
         theta = self.rotation[0]
-        rot_mat_x = np.array([
+        rot_mat = np.array([
+            [1, 0, 0],
+            [0, np.cos(theta), -np.sin(theta)],
+            [0, np.sin(theta), np.cos(theta)]
+        ])
+        rotated_v = np.dot(rot_mat, v)
+        return rotated_v
+
+    def rotate_y(self, v):
+        theta = self.rotation[1]
+        rot_mat = np.array([
+            [np.cos(theta), 0, np.sin(theta)],
+            [0, 1, 0],
+            [-np.sin(theta), 0, np.cos(theta)]
+        ])
+        rotated_v = np.dot(rot_mat, v)
+        return rotated_v
+
+    def rotate_z(self, v):
+        theta = self.rotation[2]
+        rot_mat = np.array([
             [np.cos(theta), -np.sin(theta), 0],
             [np.sin(theta), np.cos(theta), 0],
             [0, 0, 1]
         ])
-        rotated_v = np.dot(rot_mat_x, v)
+        rotated_v = np.dot(rot_mat, v)
         return rotated_v
 
     def get_orientation(self):
@@ -96,9 +116,9 @@ class Sphere(Object):
         n1 = np.array([0, 1, 0])
         n2 = np.array([0, 0, 1])
         # Only work with rotation around x by now
-        if self.rotation[0] != 0.0:
-            n1 = self.rotate_x(n1)
-            n2 = self.rotate_x(n2)
+        if self.rotation[2] != 0.0:
+            n0 = self.rotate_z(n0)
+            n1 = self.rotate_z(n1)
         return n0, n1, n2
 
     def uvmap(self, p):
