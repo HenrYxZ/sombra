@@ -4,9 +4,11 @@ from PIL import Image
 import sys
 import time
 # Local Modules
+from animation import Animation
 from camera import Camera
 from env_map import EnvironmentMap
 from light import DirectionalLight, PointLight, SpotLight
+import log
 from material import Material
 import material
 from normal_map import NormalMap
@@ -85,28 +87,27 @@ def setup_objects():
         plane_sy
     )
     # Sphere Object
-    sphere_pos = np.array([0, 0, 100], dtype=float)
+    sphere_pos = np.array([-50, 0, 100], dtype=float)
     sphere_mtl = Material(
         material.COLOR_BLUE,
-        material.TYPE_DIFFUSE,
-        specular=DEFAULT_KS,
-        kr=0.4,
-        ior=1.5,
-        roughness=0.23
+        material.TYPE_TEXTURED,
+        # specular=DEFAULT_KS,
+        # kr=0.4,
+        # ior=1.5,
+        # roughness=0.23
     )
+    sphere_mtl.add_texture(ImageTexture(EARTH_TEXTURE_FILENAME))
     sphere_shader = shaders.TYPE_DIFF_SPECULAR
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    sphere_p0 = sphere_pos - np.array([sphere_r, sphere_r, sphere_r])
-    sphere_s = 2 * sphere_r
-    n0 = np.array([1, 0, 0])
-    n1 = np.array([0, 1, 0])
-    n2 = np.array([0, 0, 1])
-    normal_box = Box(sphere_p0, sphere_s, sphere_s, sphere_s, n0, n1, n2)
-    normal_img_text = ImageTexture(NORMAL_TEXTURE_FILENAME)
-    sphere_normal_texture = SolidImageTexture(
-        normal_img_text, normal_box
-    )
+    # sphere_p0 = sphere_pos - np.array([sphere_r, sphere_r, sphere_r])
+    # sphere_s = 2 * sphere_r
+    # n0, n1,n2 = sphere.get_orientation()
+    # normal_box = Box(sphere_p0, sphere_s, sphere_s, sphere_s, n0, n1, n2)
+    # normal_img_text = ImageTexture(NORMAL_TEXTURE_FILENAME)
+    # sphere_normal_texture = SolidImageTexture(
+    #     normal_img_text, normal_box
+    # )
     # sphere.add_normal_map(sphere_normal_texture)
     # El Mickey Shhiiino
     # mickey_pos = np.array([-50, 0, 100], dtype=float)
@@ -142,15 +143,32 @@ def setup_objects():
     )
     return [sphere, plane]
 
+def set_objects_id(objects):
+    for i in range(len(objects)):
+        objects[i].set_id(i)
+
 
 def setup_scene():
     cameras = setup_cameras()
     lights = setup_lights()
     objects = setup_objects()
+    set_objects_id(objects)
     env_map = EnvironmentMap(GARAGE_TEXTURE_FILENAME)
     scene = Scene(cameras, lights, objects, env_map)
     # scene = Scene(cameras, lights, objects)
     return scene
+
+def animate(debug_mode):
+    # duration in seconds
+    duration = 4
+    screen_size = (WIDTH, HEIGHT)
+    fps = 4
+    scene = setup_scene()
+    render_function = render_no_aa if debug_mode else render
+    animation = Animation(duration, screen_size, fps, scene, render_function)
+    sphere = scene.objects[0]
+    main_camera = scene.cameras[0]
+    animation.create(sphere, main_camera)
 
 
 def main(argv):
@@ -167,18 +185,21 @@ def main(argv):
         elif opt in ('-d', '--debug'):
             debug_mode = True
     start = time.time()
-    print("Setting up...")
-    scene = setup_scene()
-    print("Raytracing...")
-    if debug_mode:
-        img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
-    else:
-        img_arr = render(
-            scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
-        )
-    img = Image.fromarray(img_arr)
-    img.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
-    print("Rendered image saved in {}".format(OUTPUT_IMG_FILENAME))
+    # print("Setting up...")
+    # scene = setup_scene()
+    # print("Raytracing...")
+    # if debug_mode:
+    #     img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
+    # else:
+    #     img_arr = render(
+    #         scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
+    #     )
+    # img = Image.fromarray(img_arr)
+    # img.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
+    # print("Rendered image saved in {}".format(OUTPUT_IMG_FILENAME))
+    log.start_of_animation()
+    animate(debug_mode)
+    log.end_of_animation()
     end = time.time()
     time_spent = utils.humanize_time(end - start)
     print("Total time spent: {}".format(time_spent))

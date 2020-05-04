@@ -13,6 +13,7 @@ class Object:
         position(numpy.array): A 3D point that represents the position
         material(Material): The material to be rendered for this object
         shader_type(string): The type of shader to use for this object
+        ID(int): The index inside the scene
         normal_map(NormalMap): An object that allows you to get normals mapping
             points of the object to a texture
     """
@@ -21,7 +22,11 @@ class Object:
         self.position = position
         self.material = material
         self.shader_type = shader_type
+        self.ID = None
         self.normal_map = None
+
+    def set_id(self, id):
+        self.ID = id
 
     def normal_at(self, p):
         """
@@ -48,14 +53,20 @@ class Sphere(Object):
         material(Material): The material to be rendered for this object
         shader_type(string): The type of shader to use for this object
         radius(float): The radius of this sphere
+        rotation(numpy.array) Rotation in x, y and z (in grads?).
     """
 
-    def __init__(self, position, material, shader_type, radius):
+    def __init__(
+            self, position, material, shader_type, radius, rotation=np.zeros(3)
+    ):
         Object.__init__(self, position, material, shader_type)
         self.radius = radius
+        self.rotation = rotation
 
     def __str__(self):
-        return "r: {}, pc: {}".format(self.radius, self.position)
+        return "r: {}, pc: {}, rot: {}".format(
+            self.radius, self.position, self.rotation
+        )
 
     def normal_at(self, p):
         # This doesn't validate that p is in the surface
@@ -65,6 +76,30 @@ class Sphere(Object):
 
     def physical_normal_at(self, p):
         return (p - self.position) / float(self.radius)
+
+    def rotate_x(self, v):
+        theta = self.rotation[0]
+        rot_mat_x = np.array([
+            [np.cos(theta), -np.sin(theta), 0],
+            [np.sin(theta), np.cos(theta), 0],
+            [0, 0, 1]
+        ])
+        rotated_v = np.dot(rot_mat_x, v)
+        return rotated_v
+
+    def get_orientation(self):
+        """
+        Get the perpendicular unit vectors n0, n1, n2 that define the
+        orientation of this object
+        """
+        n0 = np.array([1, 0, 0])
+        n1 = np.array([0, 1, 0])
+        n2 = np.array([0, 0, 1])
+        # Only work with rotation around x by now
+        if self.rotation[0] != 0.0:
+            n1 = self.rotate_x(n1)
+            n2 = self.rotate_x(n2)
+        return n0, n1, n2
 
     def uvmap(self, p):
         """
@@ -80,12 +115,7 @@ class Sphere(Object):
         # local_v is the unit vector that goes in the direction from the center
         # of the sphere to the position p
         local_v = (p - self.position) / self.radius
-        # n0 = np.array([0, 0, -1])
-        # n1 = np.array([1, 0, 0])
-        # n2 = np.array([0, 1, 0])
-        n0 = np.array([1, 0, 0])
-        n1 = np.array([0, 1, 0])
-        n2 = np.array([0, 0, 1])
+        n0, n1, n2 = self.get_orientation()
         x = np.dot(n0, local_v)
         y = np.dot(n1, local_v)
         z = np.dot(n2, local_v)
