@@ -11,6 +11,7 @@ class Camera:
 
     def __init__(
         self, position, vview, vup, d=26, scale_x=35, scale_y=24
+        # self, position, vview, vup, d=1.6, scale_x=4, scale_y=3
     ):
         self.position = position
         self.vview = vview

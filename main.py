@@ -24,8 +24,8 @@ from vertex import Vertex
 WIDTH = 280
 HEIGHT = 192
 # Vertical and Horizontal Samples for Random Jitter Anti Aliasing
-V_SAMPLES = 4
-H_SAMPLES = 4
+V_SAMPLES = 3
+H_SAMPLES = 3
 MAX_QUALITY = 95
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
@@ -33,7 +33,9 @@ CHECKERS_TEXTURE_FILENAME = "textures/checkers.png"
 COIN_TEXTURE_FILENAME = "textures/ten pence heads normal.png"
 EARTH_TEXTURE_FILENAME = "textures/earth.jpg"
 GARAGE_TEXTURE_FILENAME = "textures/garage_1k.jpg"
+HALL_TEXTURE_FILENAME = "textures/music_hall_01.jpg"
 MICKEY_TEXTURE_FILENAME = "textures/mickey.jpg"
+MOON_TEXTURE_FILENAME = "textures/024-night-time-lighting-moonsky-03.jpg"
 NORMAL_TEXTURE_FILENAME = "textures/normal.jpg"
 PARK_TEXTURE_FILENAME = "textures/autumn_park.jpg"
 OUTPUT_IMG_FILENAME = "output.jpg"
@@ -91,10 +93,7 @@ def setup_objects():
     sphere_mtl = Material(
         material.COLOR_BLUE,
         material.TYPE_TEXTURED,
-        # specular=DEFAULT_KS,
-        # kr=0.4,
-        # ior=1.5,
-        # roughness=0.23
+        specular=DEFAULT_KS
     )
     sphere_mtl.add_texture(ImageTexture(EARTH_TEXTURE_FILENAME))
     sphere_shader = shaders.TYPE_DIFF_SPECULAR
@@ -133,14 +132,14 @@ def setup_objects():
     #     utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2
     # )
     # Tetrahedron
-    v0 = Vertex(np.array([-30, -10, 80], dtype=float))
-    v1 = Vertex(np.array([0, 20, 80], dtype=float))
-    v2 = Vertex(np.array([30, -10, 80], dtype=float))
-    v3 = Vertex(np.array([0, 0, 60], dtype=float))
-    tetra_mtl = Material(kr=0.6)
-    tetrahedron = Tetrahedron(
-        tetra_mtl, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
-    )
+    # v0 = Vertex(np.array([-30, -10, 80], dtype=float))
+    # v1 = Vertex(np.array([0, 20, 80], dtype=float))
+    # v2 = Vertex(np.array([30, -10, 80], dtype=float))
+    # v3 = Vertex(np.array([0, 0, 60], dtype=float))
+    # tetra_mtl = Material(kr=0.6)
+    # tetrahedron = Tetrahedron(
+    #     tetra_mtl, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
+    # )
     return [sphere, plane]
 
 def set_objects_id(objects):
@@ -153,17 +152,13 @@ def setup_scene():
     lights = setup_lights()
     objects = setup_objects()
     set_objects_id(objects)
-    # env_map = EnvironmentMap(GARAGE_TEXTURE_FILENAME)
-    # scene = Scene(cameras, lights, objects, env_map)
-    scene = Scene(cameras, lights, objects)
+    env_map = EnvironmentMap(HALL_TEXTURE_FILENAME)
+    scene = Scene(cameras, lights, objects, env_map)
+    # scene = Scene(cameras, lights, objects)
     return scene
 
-def animate(debug_mode):
+def animate(debug_mode, duration, screen_size, fps, scene):
     # duration in seconds
-    duration = 4
-    screen_size = (WIDTH, HEIGHT)
-    fps = 4
-    scene = setup_scene()
     render_function = render_no_aa if debug_mode else render
     animation = Animation(duration, screen_size, fps, scene, render_function)
     sphere = scene.objects[0]
@@ -185,8 +180,9 @@ def main(argv):
         elif opt in ('-d', '--debug'):
             debug_mode = True
     start = time.time()
-    # print("Setting up...")
-    # scene = setup_scene()
+    print("Setting up...")
+    scene = setup_scene()
+    # Raytrace one image
     # print("Raytracing...")
     # if debug_mode:
     #     img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
@@ -197,8 +193,12 @@ def main(argv):
     # img = Image.fromarray(img_arr)
     # img.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
     # print("Rendered image saved in {}".format(OUTPUT_IMG_FILENAME))
+    # Create an animation
+    duration = 4 if debug_mode else float(input("Enter duration="))
+    screen_size = (WIDTH, HEIGHT)
+    fps = 2 if debug_mode else int(input("Enter fps="))
     log.start_of_animation()
-    animate(debug_mode)
+    animate(debug_mode, duration, screen_size, fps, scene)
     log.end_of_animation()
     end = time.time()
     time_spent = utils.humanize_time(end - start)
