@@ -1,5 +1,6 @@
 import numpy as np
 # Local modules
+from constants import DEFAULT_N0, DEFAULT_N1, DEFAULT_N2
 from normal_map import NormalMap
 import utils
 
@@ -288,7 +289,7 @@ class Tetrahedron(Object):
         tr2(Triangle): Third of the triangles of this tetrahedron
         tr3(Triangle): Fourth of the triangles of this tetrahedron
     """
-    def __init__(self,mtl, shd_type, v0, v1, v2, v3):
+    def __init__(self, mtl, shd_type, v0, v1, v2, v3):
         position = (
             0.25 * v0.position
             + 0.25 * v1.position
@@ -323,3 +324,66 @@ class Tetrahedron(Object):
 
     def get_triangles(self):
         return [self.tr0, self.tr1, self.tr2, self.tr3]
+
+# THIS IS NOT WORKING
+class Cube(Object):
+    def __init__(
+            self, mtl, shd_type, v1, side_length,
+            n0=DEFAULT_N0, n1=DEFAULT_N1, n2=DEFAULT_N2
+    ):
+        position = v1 + (n0 + n1 + n2) * (side_length / 2)
+        Object.__init__(self, position, mtl, shd_type)
+        self.v1 = v1
+        self.n0 = n0
+        self.n1 = n1
+        self.n2 = n2
+        self.s = side_length
+        self.define_vertices()
+        self.define_triangles()
+
+    def define_vertices(self):
+        self.v2 = self.v1 + self.n2 * self.s
+        self.v3 = self.v1 + self.n1 * self.s
+        self.v4 = self.v1 + self.n1 * self.s + self.n2 * self.s
+        self.v5 = self.v1 + self.n0 * self.s
+        self.v6 = self.v1 + self.n0 * self.s + self.n2 * self.s
+        self.v7 = self.v1 + self.n0 * self.s + self.n1 * self.s
+        self.v8 = self.v7 + self.n2 * self.s
+
+    def define_triangles(self):
+        mtl = self.material
+        shd_type = self.shader_type
+        self.t1 = Triangle(mtl, shd_type, self.v1, self.v7, self.v5)
+        self.t2 = Triangle(mtl, shd_type, self.v1, self.v3, self.v7)
+        self.t3 = Triangle(mtl, shd_type, self.v1, self.v4, self.v3)
+        self.t4 = Triangle(mtl, shd_type, self.v1, self.v2, self.v4)
+        self.t5 = Triangle(mtl, shd_type, self.v3, self.v8, self.v7)
+        self.t6 = Triangle(mtl, shd_type, self.v3, self.v4, self.v8)
+        self.t7 = Triangle(mtl, shd_type, self.v5, self.v7, self.v8)
+        self.t8 = Triangle(mtl, shd_type, self.v5, self.v8, self.v6)
+        self.t9 = Triangle(mtl, shd_type, self.v1, self.v5, self.v6)
+        self.t10 = Triangle(mtl, shd_type, self.v1, self.v6, self.v2)
+        self.t11 = Triangle(mtl, shd_type, self.v2, self.v6, self.v8)
+        self.t12 = Triangle(mtl, shd_type, self.v2, self.v8, self.v4)
+
+    def __str__(self):
+        return "Cube: v1={} s={} n0={} n1={} n2={}".format(
+            self.v1, self.s, self.n0, self.n1, self.n2
+        )
+
+    def get_triangles(self):
+        return [
+            self.t1, self.t2, self.t3, self.t4, self.t5, self.t6, self.t7,
+            self.t8, self.t9, self.t10, self.t11, self.t12
+        ]
+
+    def normal_at(self, p):
+        triangles = self.get_triangles()
+        for triangle in triangles:
+            if triangle.is_inside(p):
+                return triangle.n
+        raise ValueError(
+            "Point {} doesn't belong to Cube {}".format(
+                p, self
+            )
+        )

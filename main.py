@@ -12,7 +12,7 @@ import log
 from material import Material
 import material
 from normal_map import NormalMap
-from object import Plane, Sphere, Tetrahedron, Triangle
+from object import Cube, Plane, Sphere, Tetrahedron, Triangle
 from render import render, render_no_aa
 from scene import Scene
 import shaders
@@ -24,8 +24,8 @@ from vertex import Vertex
 WIDTH = 280
 HEIGHT = 192
 # Vertical and Horizontal Samples for Random Jitter Anti Aliasing
-V_SAMPLES = 3
-H_SAMPLES = 3
+V_SAMPLES = 4
+H_SAMPLES = 4
 MAX_QUALITY = 95
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
@@ -67,6 +67,7 @@ def setup_lights():
 
 
 def setup_objects():
+    default_material = Material()
     # Plane Object
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_n0 = np.array([1, 0, 0], dtype=float)
@@ -136,11 +137,16 @@ def setup_objects():
     # v1 = Vertex(np.array([0, 20, 80], dtype=float))
     # v2 = Vertex(np.array([30, -10, 80], dtype=float))
     # v3 = Vertex(np.array([0, 0, 60], dtype=float))
-    # tetra_mtl = Material(kr=0.6)
+    # tetra_mtl = Material()
     # tetrahedron = Tetrahedron(
     #     tetra_mtl, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
     # )
+    # Cube
+    # v1 = Vertex(np.array([-15, -15, 38], dtype=float))
+    # s = 30.0
+    # cube = Cube(default_material, shaders.TYPE_DIFFUSE_COLORS, v1, s)
     return [sphere, plane]
+
 
 def set_objects_id(objects):
     for i in range(len(objects)):
@@ -156,6 +162,7 @@ def setup_scene():
     scene = Scene(cameras, lights, objects, env_map)
     # scene = Scene(cameras, lights, objects)
     return scene
+
 
 def animate(debug_mode, duration, screen_size, fps, scene):
     # duration in seconds
@@ -183,23 +190,26 @@ def main(argv):
     print("Setting up...")
     scene = setup_scene()
     # Raytrace one image
-    # print("Raytracing...")
-    # if debug_mode:
-    #     img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
-    # else:
-    #     img_arr = render(
-    #         scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
-    #     )
-    # img = Image.fromarray(img_arr)
-    # img.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
-    # print("Rendered image saved in {}".format(OUTPUT_IMG_FILENAME))
+    # -------------------------------------------------------------------------
+    print("Raytracing...")
+    if debug_mode:
+        img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
+    else:
+        img_arr = render(
+            scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
+        )
+    img = Image.fromarray(img_arr)
+    img.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
+    print("Rendered image saved in {}".format(OUTPUT_IMG_FILENAME))
     # Create an animation
-    duration = 4 if debug_mode else float(input("Enter duration="))
-    screen_size = (WIDTH, HEIGHT)
-    fps = 2 if debug_mode else int(input("Enter fps="))
-    log.start_of_animation()
-    animate(debug_mode, duration, screen_size, fps, scene)
-    log.end_of_animation()
+    # --------------------------------------------------------------------------
+    # duration = 4 if debug_mode else float(input("Enter duration="))
+    # screen_size = (WIDTH, HEIGHT)
+    # fps = 2 if debug_mode else int(input("Enter fps="))
+    # log.start_of_animation()
+    # animate(debug_mode, duration, screen_size, fps, scene)
+    # log.end_of_animation()
+    # --------------------------------------------------------------------------
     end = time.time()
     time_spent = utils.humanize_time(end - start)
     print("Total time spent: {}".format(time_spent))

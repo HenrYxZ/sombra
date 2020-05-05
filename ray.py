@@ -1,6 +1,6 @@
 import numpy as np
 # Local Modules
-from object import Plane, Sphere, Tetrahedron, Triangle
+from object import Cube, Plane, Sphere, Tetrahedron, Triangle
 
 
 class Ray:
@@ -66,8 +66,8 @@ class Ray:
             return ray_t
         return -1
 
-    def intersect_tetrahedron(self, tetrahedron):
-        triangles = tetrahedron.get_triangles()
+    def intersect_triangular_mesh(self, mesh):
+        triangles = mesh.get_triangles()
         min_t = np.inf
         for tr in triangles:
             t = self.intersect_triangle(tr)
@@ -85,8 +85,8 @@ class Ray:
             return self.intersect_sphere(obj)
         elif isinstance(obj, Plane):
             return self.intersect_plane(obj)
-        elif isinstance(obj, Tetrahedron):
-            return self.intersect_tetrahedron(obj)
+        elif isinstance(obj, Tetrahedron) or isinstance(obj, Cube):
+            return self.intersect_triangular_mesh(obj)
         elif isinstance(obj, Triangle):
             return self.intersect_triangle(obj)
         else:

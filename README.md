@@ -10,7 +10,7 @@ It creates a raytraced image of a scene with simple objects like spheres and
 planes. It's using a resolution of 280x192px by default and random jitter
 anti-aliasing with 4 samples per axis.
 
-![output image](output.jpg)
+![showcase image](showcase.jpg)
 
 ## Usage
 
