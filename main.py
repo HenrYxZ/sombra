@@ -139,11 +139,11 @@ def main(argv):
             argv, "hdam", ["help", "debug", "animation", "multi"]
         )
     except getopt.GetoptError:
-        print 'usage: main.py [-d,-h,-a, m|--debug,--help,--animation, --multi]'
+        print('usage: main.py [-d,-h,-a, m|--debug,--help,--animation, --multi]')
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-h', '--help'):
-            print 'usage: main.py [-d,-h|--debug,--help]'
+            print('usage: main.py [-d,-h|--debug,--help]')
             sys.exit()
         elif opt in ('-d', '--debug'):
             debug_mode = True
