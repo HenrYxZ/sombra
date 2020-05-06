@@ -121,9 +121,9 @@ def setup_scene():
     return scene
 
 
-def animate(debug_mode, duration, screen_size, fps, scene):
+def animate(debug_mode, render_function, duration, screen_size, fps, scene):
     # duration in seconds
-    render_function = render_no_aa if debug_mode else render_mp
+    render_function = render_no_aa if debug_mode else render_function
     animation = Animation(duration, screen_size, fps, scene, render_function)
     sphere = scene.objects[0]
     main_camera = scene.cameras[0]
@@ -133,10 +133,13 @@ def animate(debug_mode, duration, screen_size, fps, scene):
 def main(argv):
     debug_mode = False
     animation_mode = False
+    multi_core = False
     try:
-        opts, args = getopt.getopt(argv, "hda", ["help", "debug", "animation"])
+        opts, args = getopt.getopt(
+            argv, "hdam", ["help", "debug", "animation", "multi"]
+        )
     except getopt.GetoptError:
-        print 'usage: main.py [-d,-h,-a|--debug,--help,--animation]'
+        print 'usage: main.py [-d,-h,-a, m|--debug,--help,--animation, --multi]'
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-h', '--help'):
@@ -146,9 +149,20 @@ def main(argv):
             debug_mode = True
         elif opt in ('-a', '--animation'):
             animation_mode = True
+        elif opt in ('-m', '--multi'):
+            multi_core = True
     start = time.time()
     print("Setting up...")
     scene = setup_scene()
+    render_function = render_mp if multi_core else render
+    render_msg = "Rendering at {}x{}".format(WIDTH, HEIGHT)
+    if not debug_mode:
+        render_msg += " with {}x{} AA".format(
+            H_SAMPLES, V_SAMPLES
+        )
+        if multi_core:
+            render_msg += " using multi-core"
+    print(render_msg)
     # Raytrace one image
     # -------------------------------------------------------------------------
     if not animation_mode:
@@ -156,7 +170,7 @@ def main(argv):
         if debug_mode:
             img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
         else:
-            img_arr = render_mp(
+            img_arr = render_function(
                 scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
             )
         img = Image.fromarray(img_arr)
@@ -169,7 +183,7 @@ def main(argv):
         screen_size = (WIDTH, HEIGHT)
         fps = 2 if debug_mode else int(input("Enter fps="))
         log.start_of_animation()
-        animate(debug_mode, duration, screen_size, fps, scene)
+        animate(debug_mode, render_function, duration, screen_size, fps, scene)
         log.end_of_animation()
     # --------------------------------------------------------------------------
     end = time.time()
