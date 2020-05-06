@@ -13,7 +13,7 @@ RGB_CHANNELS = 3
 
 def render_no_aa(scene, camera, HEIGHT=100, WIDTH=100):
     """
-    Render the image for the given scene an camera using raytracing.
+    Render the image for the given scene and camera using raytracing.
 
     Args:
         scene(Scene): The scene that contains objects, cameras and lights.
@@ -57,7 +57,7 @@ def render_no_aa(scene, camera, HEIGHT=100, WIDTH=100):
 
 def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     """
-    Render the image for the given scene an camera using raytracing.
+    Render the image for the given scene and camera using raytracing.
 
     Args:
         scene(Scene): The scene that contains objects, cameras and lights.
