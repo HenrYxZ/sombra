@@ -111,7 +111,7 @@ class Animation:
             current_keyframes = keyframes[i]
             new_scene = self.create_scene_from_keyframes(current_keyframes)
             w, h = self.screen_size
-            print("Rendering frame={}/{}...".format(i, len(keyframes)))
+            print("Rendering frame={}/{}...".format(i, len(keyframes) -1))
             img_arr = self.render(new_scene, camera, h, w)
             img = Image.fromarray(img_arr)
             output_img_filename = "animation_out/{}.jpg".format(i)
