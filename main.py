@@ -13,7 +13,7 @@ from material import Material
 import material
 from normal_map import NormalMap
 from object import Cube, Plane, Sphere, Tetrahedron, Triangle
-from render import render, render_no_aa
+from render import render, render_no_aa, render_mp
 from scene import Scene
 import shaders
 from texture import ImageTexture, SolidImageTexture, Box
@@ -21,17 +21,20 @@ import utils
 from vertex import Vertex
 
 # Width and Height of the image window in pixels
-WIDTH = 280
-HEIGHT = 192
+# WIDTH = 280
+# HEIGHT = 192
+WIDTH = 1280
+HEIGHT = 720
 # Vertical and Horizontal Samples for Random Jitter Anti Aliasing
-V_SAMPLES = 4
-H_SAMPLES = 4
+V_SAMPLES = 3
+H_SAMPLES = 3
 MAX_QUALITY = 95
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
 CHECKERS_TEXTURE_FILENAME = "textures/checkers.png"
 COIN_TEXTURE_FILENAME = "textures/ten pence heads normal.png"
 EARTH_TEXTURE_FILENAME = "textures/earth.jpg"
+EARTH_HD_TEXTURE_FILENAME = "textures/hd_earth.jpg"
 GARAGE_TEXTURE_FILENAME = "textures/garage_1k.jpg"
 HALL_TEXTURE_FILENAME = "textures/music_hall_01.jpg"
 MICKEY_TEXTURE_FILENAME = "textures/mickey.jpg"
@@ -67,7 +70,6 @@ def setup_lights():
 
 
 def setup_objects():
-    default_material = Material()
     # Plane Object
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_n0 = np.array([1, 0, 0], dtype=float)
@@ -96,55 +98,10 @@ def setup_objects():
         material.TYPE_TEXTURED,
         specular=DEFAULT_KS
     )
-    sphere_mtl.add_texture(ImageTexture(EARTH_TEXTURE_FILENAME))
+    sphere_mtl.add_texture(ImageTexture(EARTH_HD_TEXTURE_FILENAME))
     sphere_shader = shaders.TYPE_DIFF_SPECULAR
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    # sphere_p0 = sphere_pos - np.array([sphere_r, sphere_r, sphere_r])
-    # sphere_s = 2 * sphere_r
-    # n0, n1,n2 = sphere.get_orientation()
-    # normal_box = Box(sphere_p0, sphere_s, sphere_s, sphere_s, n0, n1, n2)
-    # normal_img_text = ImageTexture(NORMAL_TEXTURE_FILENAME)
-    # sphere_normal_texture = SolidImageTexture(
-    #     normal_img_text, normal_box
-    # )
-    # sphere.add_normal_map(sphere_normal_texture)
-    # El Mickey Shhiiino
-    # mickey_pos = np.array([-50, 0, 100], dtype=float)
-    # mickey_r = 20.0
-    # mickey_mtl = Material(material.COLOR_BLUE, material.TYPE_TEXTURED)
-    # mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
-    # mickey_p0 = mickey_pos - np.array([mickey_r, mickey_r, mickey_r])
-    # mickey_s = mickey_r * 2
-    # n0 = np.array([0, 0, 1])
-    # n1 = np.array([0, 1, 0])
-    # n2 = np.array([1, 0, 0])
-    # mickey_box = Box(mickey_p0, mickey_s, mickey_s, mickey_s, n0, n1, n2)
-    # mickey_texture = SolidImageTexture(mickey_img_texture, mickey_box)
-    # mickey_mtl.add_texture(mickey_texture)
-    # mickey_shader = shaders.TYPE_DIFF_SPECULAR
-    # mickey = Sphere(mickey_pos, mickey_mtl, mickey_shader, mickey_r)
-    # Triangle
-    # n = np.array([0, 0, -1])
-    # v0 = default_vertex(np.array([-30, -15, 55]), n)
-    # v1 = default_vertex(np.array([30, -15, 55]), n)
-    # v2 = default_vertex(np.array([0, 35, 55]), n)
-    # triangle = Triangle(
-    #     utils.MTL_DIFFUSE_BLUE, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2
-    # )
-    # Tetrahedron
-    # v0 = Vertex(np.array([-30, -10, 80], dtype=float))
-    # v1 = Vertex(np.array([0, 20, 80], dtype=float))
-    # v2 = Vertex(np.array([30, -10, 80], dtype=float))
-    # v3 = Vertex(np.array([0, 0, 60], dtype=float))
-    # tetra_mtl = Material()
-    # tetrahedron = Tetrahedron(
-    #     tetra_mtl, shaders.TYPE_DIFFUSE_COLORS, v0, v1, v2, v3
-    # )
-    # Cube
-    # v1 = Vertex(np.array([-15, -15, 38], dtype=float))
-    # s = 30.0
-    # cube = Cube(default_material, shaders.TYPE_DIFFUSE_COLORS, v1, s)
     return [sphere, plane]
 
 
@@ -166,7 +123,7 @@ def setup_scene():
 
 def animate(debug_mode, duration, screen_size, fps, scene):
     # duration in seconds
-    render_function = render_no_aa if debug_mode else render
+    render_function = render_no_aa if debug_mode else render_mp
     animation = Animation(duration, screen_size, fps, scene, render_function)
     sphere = scene.objects[0]
     main_camera = scene.cameras[0]
@@ -175,10 +132,11 @@ def animate(debug_mode, duration, screen_size, fps, scene):
 
 def main(argv):
     debug_mode = False
+    animation_mode = False
     try:
-        opts, args = getopt.getopt(argv, "hd", ["help", "debug"])
+        opts, args = getopt.getopt(argv, "hda", ["help", "debug", "animation"])
     except getopt.GetoptError:
-        print 'usage: main.py [-d,-h|--debug,--help]'
+        print 'usage: main.py [-d,-h,-a|--debug,--help,--animation]'
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-h', '--help'):
@@ -186,29 +144,33 @@ def main(argv):
             sys.exit()
         elif opt in ('-d', '--debug'):
             debug_mode = True
+        elif opt in ('-a', '--animation'):
+            animation_mode = True
     start = time.time()
     print("Setting up...")
     scene = setup_scene()
     # Raytrace one image
     # -------------------------------------------------------------------------
-    print("Raytracing...")
-    if debug_mode:
-        img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
-    else:
-        img_arr = render(
-            scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
-        )
-    img = Image.fromarray(img_arr)
-    img.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
-    print("Rendered image saved in {}".format(OUTPUT_IMG_FILENAME))
+    if not animation_mode:
+        print("Raytracing...")
+        if debug_mode:
+            img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
+        else:
+            img_arr = render_mp(
+                scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
+            )
+        img = Image.fromarray(img_arr)
+        img.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
+        print("Rendered image saved in {}".format(OUTPUT_IMG_FILENAME))
     # Create an animation
     # --------------------------------------------------------------------------
-    # duration = 4 if debug_mode else float(input("Enter duration="))
-    # screen_size = (WIDTH, HEIGHT)
-    # fps = 2 if debug_mode else int(input("Enter fps="))
-    # log.start_of_animation()
-    # animate(debug_mode, duration, screen_size, fps, scene)
-    # log.end_of_animation()
+    else:
+        duration = 4 if debug_mode else float(input("Enter duration="))
+        screen_size = (WIDTH, HEIGHT)
+        fps = 2 if debug_mode else int(input("Enter fps="))
+        log.start_of_animation()
+        animate(debug_mode, duration, screen_size, fps, scene)
+        log.end_of_animation()
     # --------------------------------------------------------------------------
     end = time.time()
     time_spent = utils.humanize_time(end - start)
