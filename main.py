@@ -21,13 +21,13 @@ import utils
 from vertex import Vertex
 
 # Width and Height of the image window in pixels
-# WIDTH = 280
-# HEIGHT = 192
-WIDTH = 1280
-HEIGHT = 720
+WIDTH = 280
+HEIGHT = 192
+# WIDTH = 1280
+# HEIGHT = 720
 # Vertical and Horizontal Samples for Random Jitter Anti Aliasing
-V_SAMPLES = 3
-H_SAMPLES = 3
+V_SAMPLES = 4
+H_SAMPLES = 4
 MAX_QUALITY = 95
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
