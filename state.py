@@ -5,7 +5,7 @@ class State:
         self.v = v
         self.w = w
         self.m = m
-        self.scale = 1
+        self.scale = scale
 
     def __str__(self):
         return (
