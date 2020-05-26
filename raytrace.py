@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 # Local Modules
 from constants import MAX_COLOR_VALUE, RGB_CHANNELS
 import material
@@ -66,14 +67,16 @@ def compute_color(ph, eye, obj, lights):
     """
     if obj.shader_type == shaders.TYPE_DIFFUSE_NO_LIGHT:
         return obj.material.diffuse
+    # Control colors for barycentric shading
+    dark, light = get_dark_and_light(ph, obj)
+    nh = obj.normal_at(ph)
+    if nh is None:
+        warnings.warn("Normal is 0 for obj: {} at ph: {}".format(obj, ph))
+        return np.zeros(3)
     final_color = np.zeros(RGB_CHANNELS)
     for light in lights:
         l = light.get_l(ph)
-        nh = obj.normal_at(ph)
-        if nh is None:
-            return np.zeros(3)
         # Choose the corresponding shader
-        dark, light = get_dark_and_light(ph, obj)
         color = use_shader_type(
             obj.shader_type, nh, l, eye, obj.material, dark, light
         )
