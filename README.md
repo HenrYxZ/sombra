@@ -1,14 +1,14 @@
-# simple-raytracer
+# Sombra
 
-Simple Raytracer written in pure Python. It's main purpose is to help
+Sombra is simple Raytracer written in pure Python. It's main purpose is to help
 understand how raytracing works with a clean code. If you are looking for an
-efficient raytracer you should probably use something like C++. The equations
-used are from the Image Synthesis class at Texas A&M University taught by
+efficient Raytracer you should probably use something like C++. The equations
+used are taken from the Image Synthesis class at Texas A&M University taught by
 professor Ergun Akleman. 
 
-It creates a raytraced image of a scene with simple objects like spheres and
-planes. It's using a resolution of 280x192px by default and random jitter
-anti-aliasing with 4 samples per axis.
+The main program creates a raytraced image of a scene with simple objects like
+spheres and planes. It's using a resolution of 280x192px by default and random
+jitter anti-aliasing with 4 samples per axis.
 
 ![showcase image](showcase.jpg)
 
@@ -42,16 +42,16 @@ import them into the "_\_\_init\_\_.py_" file of the "_tests_" folder.
 ## Dependencies
 
 You will need to install
-- Python (python 2.7 and 3 are supported)
+- Python (3 and 2.7 are supported)
 
 And external Python modules
 - numpy
 - pillow
 - progress
 
-You can install python modules, for example, by running:
-`python -m pip install numpy pillow progress`
-or running the requirements.txt:
+You can install the required python modules by running:
 `python -m pip install -r requirements.txt`
+or installing them individually:
+`python -m pip install numpy pillow progress`
 
 Developed by Jesús Henríquez
