@@ -68,7 +68,7 @@ def compute_color(ph, eye, obj, lights):
     if obj.shader_type == shaders.TYPE_DIFFUSE_NO_LIGHT:
         return obj.material.diffuse
     # Control colors for barycentric shading
-    dark, light = get_dark_and_light(ph, obj)
+    dark_color, light_color = get_dark_and_light(ph, obj)
     nh = obj.normal_at(ph)
     if nh is None:
         warnings.warn("Normal is 0 for obj: {} at ph: {}".format(obj, ph))
@@ -78,7 +78,7 @@ def compute_color(ph, eye, obj, lights):
         l = light.get_l(ph)
         # Choose the corresponding shader
         color = use_shader_type(
-            obj.shader_type, nh, l, eye, obj.material, dark, light
+            obj.shader_type, nh, l, eye, obj.material, dark_color, light_color
         )
         final_color += color
     # Ensure the colors are between 0 and 255
