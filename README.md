@@ -33,6 +33,10 @@ parameters
 - Environment Sphere Map
 - Animation by running a physics simulation of a moving sphere
 
+## Documentation
+
+You can see the documentation in the [wiki](https://github.com/HenrYxZ/sombra/wiki/Documentation)
+
 ## Testing
 
 To run the tests use unittest in this way `python -m unittest -v tests`.
