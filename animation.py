@@ -1,5 +1,6 @@
 from copy import deepcopy
 import numpy as np
+import os
 from PIL import Image
 
 # Local Modules
@@ -8,8 +9,10 @@ from simulation import SphereBody, Simulation
 from state import State, SystemState
 
 
+ANIM_OUT_DIR = "animation_out"
 MAX_QUALITY = 95
 V0 = np.array([35, 0, 0], dtype=float)
+
 
 class Transform:
     def __init__(self, translate=None, rotate=None, scale=None):
@@ -114,6 +117,8 @@ class Animation:
             print("Rendering frame={}/{}...".format(i, len(keyframes) -1))
             img_arr = self.render(new_scene, camera, h, w)
             img = Image.fromarray(img_arr)
-            output_img_filename = "animation_out/{}.jpg".format(i)
+            if not os.path.exists(ANIM_OUT_DIR):
+                os.mkdir(ANIM_OUT_DIR)
+            output_img_filename = "{}/{}.jpg".format(ANIM_OUT_DIR, i)
             img.save(output_img_filename, quality=MAX_QUALITY)
             print("Rendered image saved in {}".format(output_img_filename))
