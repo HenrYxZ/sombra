@@ -1,4 +1,5 @@
 from copy import deepcopy
+import imageio
 import numpy as np
 import os
 from PIL import Image
@@ -10,6 +11,7 @@ from state import State, SystemState
 
 
 ANIM_OUT_DIR = "animation_out"
+ANIM_VID_FILENAME = ANIM_OUT_DIR + "/animation.mp4"
 MAX_QUALITY = 95
 V0 = np.array([35, 0, 0], dtype=float)
 
@@ -56,6 +58,20 @@ class Animation:
         # This is the render function to use
         self.render = render
 
+    def initialize_simulation(self, sphere):
+        t = 0
+        initial_state = SystemState(t)
+        rigid_bodies = [SphereBody(sphere)]
+        v = V0
+        vx, vy, vz = v[0], v[1], v[2]
+        wz = -1 * ((vx + vy) / sphere.radius)
+        wx = (vz + vy) / sphere.radius
+        wy = 0
+        w = np.array([wx, wy, wz])
+        body_initial_state = State(sphere.position, sphere.rotation, v, w)
+        initial_state.add(body_initial_state)
+        return initial_state, rigid_bodies
+
     def create_keyframes_from_states(self, system_states, rigid_bodies):
         """
         Returns a list on which each element is a list of keyframes for the
@@ -89,36 +105,35 @@ class Animation:
 
     def create(self, sphere, camera):
         print("Creating animation...")
-        t = 0
-        initial_state = SystemState(t)
         time_step = 1.0 / self.fps
-        rigid_bodies = [SphereBody(sphere)]
-        v = V0
-        vx, vy, vz = v[0], v[1], v[2]
-        wz = -1 * ((vx + vy) / sphere.radius)
-        wx = (vz + vy) / sphere.radius
-        wy = 0
-        w = np.array([wx, wy, wz])
-        body_initial_state = State(sphere.position, sphere.rotation, v, w)
-        initial_state.add(body_initial_state)
+        initial_state, rigid_bodies = self.initialize_simulation(sphere)
         simulation = Simulation(
             initial_state, rigid_bodies, self.duration, time_step
         )
-        f = -1 * (v / self.duration)
+        f = -1 * (V0 / self.duration)
         print("Running simulation...")
         system_states = simulation.run(f)
         keyframes = self.create_keyframes_from_states(
             system_states, rigid_bodies
         )
+        # Write video
+        writer = imageio.get_writer(ANIM_VID_FILENAME, fps=self.fps)
         for i in range(len(keyframes)):
+            # Create a new scene using the keyframe and render that scene
             current_keyframes = keyframes[i]
             new_scene = self.create_scene_from_keyframes(current_keyframes)
             w, h = self.screen_size
             print("Rendering frame={}/{}...".format(i, len(keyframes) -1))
             img_arr = self.render(new_scene, camera, h, w)
+            # Append rendered image into video
+            writer.append_data(img_arr)
+            # Write rendered image into image file
             img = Image.fromarray(img_arr)
             if not os.path.exists(ANIM_OUT_DIR):
                 os.mkdir(ANIM_OUT_DIR)
             output_img_filename = "{}/{}.jpg".format(ANIM_OUT_DIR, i)
             img.save(output_img_filename, quality=MAX_QUALITY)
             print("Rendered image saved in {}".format(output_img_filename))
+        writer.close()
+        print("Animation video rendered in {}".format(ANIM_VID_FILENAME))
+
