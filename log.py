@@ -3,13 +3,23 @@ from datetime import datetime
 
 DATETIME_FORMAT = "%H:%M:%S %d-%m-%Y"
 
+def print_datetime(message):
+    now = datetime.now()
+    datetime_str = now.strftime(DATETIME_FORMAT)
+    print("{}: {}".format(message, datetime_str))
 
 def start_of_animation():
-    now = datetime.now()
-    datetime_str = now.strftime(DATETIME_FORMAT)
-    print("Started the animation at: {}".format(datetime_str))
+    message = "Started the animation at"
+    print_datetime(message)
 
 def end_of_animation():
-    now = datetime.now()
-    datetime_str = now.strftime(DATETIME_FORMAT)
-    print("Ended the animation at: {}".format(datetime_str))
+    message = "Finished the animation at"
+    print_datetime(message)
+
+def start_of_raytracing():
+    message = "Started Raytracing at"
+    print_datetime(message)
+
+def end_of_raytracing():
+    message = "Finished Raytracing at"
+    print_datetime(message)

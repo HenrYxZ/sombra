@@ -21,7 +21,7 @@ import utils
 from vertex import Vertex
 
 # Width and Height of the image window in pixels
-WIDTH = 280
+WIDTH = 288
 HEIGHT = 192
 # WIDTH = 1280
 # HEIGHT = 720
@@ -166,6 +166,7 @@ def main(argv):
     # Raytrace one image
     # -------------------------------------------------------------------------
     if not animation_mode:
+        log.start_of_raytracing()
         print("Raytracing...")
         if debug_mode:
             img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
@@ -176,6 +177,7 @@ def main(argv):
         img = Image.fromarray(img_arr)
         img.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
         print("Rendered image saved in {}".format(OUTPUT_IMG_FILENAME))
+        log.end_of_raytracing()
     # Create an animation
     # --------------------------------------------------------------------------
     else:
