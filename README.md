@@ -23,7 +23,7 @@ will not use Anti-Aliasing (-u is for displaying print messages in the console)
 
 - Sphere, Plane and Triangle objects
 - Diffuse, Specular and Border shaders
-- Directional, Point and Spot lights
+- Area, Directional, Point and Spot lights
 - Change Field of View of camera by changing d (distance) and scale x and y
 parameters
 - Anti-Aliasing using Random Jitter
