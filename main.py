@@ -7,7 +7,7 @@ import time
 from animation import Animation
 from camera import Camera
 from env_map import EnvironmentMap
-from light import DirectionalLight, PointLight, SpotLight
+from light import AreaLight, DirectionalLight, PointLight, SpotLight
 import log
 from material import Material
 import material
@@ -66,6 +66,9 @@ def setup_lights():
     # nl = utils.normalize(np.array([0, -0.5, 1]))
     # theta = utils.degree2radians(30)
     # spot_light = SpotLight(light_pos, theta, nl)
+    # Area Light
+    # area_light_pos = np.array([0.0, 25.0, 0.0])
+    # area_light = AreaLight(area_light_pos, 50.0, 30.0)
     return [point_light]
 
 

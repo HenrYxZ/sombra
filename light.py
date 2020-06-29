@@ -1,10 +1,15 @@
 import math
 import numpy as np
 # Local modules
+from constants import DEFAULT_N0, DEFAULT_N1
 import utils
 
 
 MAX_DISTANCE_LIGHT = np.inf
+# Default horizontal and vertical number of samples for area lights
+AREA_LIGHT_M = 6
+AREA_LIGHT_N = 6
+#
 
 
 class Light:
@@ -127,3 +132,66 @@ class SpotLight(Light):
         if np.dot(-1 * l, self.nl) < self.cos_theta:
             l = np.zeros(3)
         return l
+
+
+class AreaLight(Light):
+    """
+    Area Light for a Scene.
+
+    Attributes:
+        position(numpy.array): Center of the area light
+        s0(float): width of area light in world coordinates
+        s1(float): height of area light in world coordinates
+        n0(numpy.array): Unit vector for horizontal direction
+        n1(numpy.array): Unit vector for vertical direction
+        p00(numpy.array): Origin point for area light
+    """
+
+    def __init__(self, position, s0, s1, n0=DEFAULT_N0, n1=DEFAULT_N1):
+        Light.__init__(self, position)
+        self.s0 = s0
+        self.s1 = s1
+        self.n0 = n0
+        self.n1 = n1
+        self.p00 = position - (float(s0) / 2) * n0 - (float(s1) / 2) * n1
+
+    def get_l(self, ph):
+        """
+        Get unit vector l that points to a random sample inside the area from
+            hit point ph.
+
+        Args:
+            ph(numpy.array): 3D point of hit between ray and object
+
+        Returns:
+            numpy.array: unit vector pointing to random sample
+        """
+        r0, r1 = np.random.random_sample(2)
+        x = r0 * self.s0
+        y = r1 * self.s1
+        p = self.p00 + x * self.n0 + y * self.n1
+        l = utils.normalize(p - ph)
+        return l
+
+    def get_samples(self, ph, m=AREA_LIGHT_M, n=AREA_LIGHT_N):
+        """
+        Get unit vectors from light samples to ph.
+
+        Args:
+            ph(numpy.array): 3D point of hit between ray and object
+            m(int): Number of horizontal samples to use
+            n(int): Number of vertical samples to use
+
+        Returns:
+            list of numpy.array: unit vector pointing to samples
+        """
+        samples = []
+        for i in range(m):
+            for j in range(n):
+                r0, r1 = np.random.random_sample(2)
+                x = ((i + r0) / m) * self.s0
+                y = ((j + r1) / n) * self.s1
+                p = self.p00 + x * self.n0 + y * self.n1
+                l = utils.normalize(p - ph)
+                samples.append(l)
+        return samples

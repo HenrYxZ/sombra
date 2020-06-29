@@ -2,6 +2,7 @@ import numpy as np
 import warnings
 # Local Modules
 from constants import MAX_COLOR_VALUE, RGB_CHANNELS
+from light import AreaLight
 import material
 from ray import Ray
 import shaders
@@ -75,12 +76,35 @@ def compute_color(ph, eye, obj, lights):
         return np.zeros(3)
     final_color = np.zeros(RGB_CHANNELS)
     for light in lights:
-        l = light.get_l(ph)
-        # Choose the corresponding shader
-        color = use_shader_type(
-            obj.shader_type, nh, l, eye, obj.material, dark_color, light_color
-        )
-        final_color += color
+        if isinstance(light, AreaLight):
+            # Get color by averaging samples
+            samples = light.get_samples(ph)
+            color = np.zeros(RGB_CHANNELS, dtype=float)
+            for l in samples:
+                color += use_shader_type(
+                    obj.shader_type,
+                    nh,
+                    l,
+                    eye,
+                    obj.material,
+                    dark_color,
+                    light_color
+                )
+            color /= len(samples)
+            final_color += color
+        else:
+            l = light.get_l(ph)
+            # Choose the corresponding shader
+            color = use_shader_type(
+                obj.shader_type,
+                nh,
+                l,
+                eye,
+                obj.material,
+                dark_color,
+                light_color
+            )
+            final_color += color
     # Ensure the colors are between 0 and 255
     final_color /= len(lights)
     final_color = np.clip(final_color, 0, MAX_COLOR_VALUE)
@@ -125,7 +149,7 @@ def raytrace(ray, scene, depth=DEFAULT_RAYTRACER_DEPTH, kr=1):
         np.array: The color for this ray in numpy array of 3 channels
     """
     # Get closest intersection point
-    tmin = np.inf
+    t_min = np.inf
     # The closest object hit by the ray
     obj_h = None
     objects = scene.objects
@@ -133,12 +157,12 @@ def raytrace(ray, scene, depth=DEFAULT_RAYTRACER_DEPTH, kr=1):
     env_map = scene.env_map
     for obj in objects:
         t = ray.intersect(obj)
-        if 0 < t < tmin:
-            tmin = t
+        if 0 < t < t_min:
+            t_min = t
             obj_h = obj
     # There is a hit with an object
     if obj_h:
-        ph = ray.at(tmin)
+        ph = ray.at(t_min)
         eye = utils.normalize(ray.pr - ph)
         color = compute_color(ph, eye, obj_h, lights)
         # Objects to check for occlusion
@@ -151,8 +175,8 @@ def raytrace(ray, scene, depth=DEFAULT_RAYTRACER_DEPTH, kr=1):
         # Reflections
         if obj_h.material.kr > 0 and depth > 0 and kr > MIN_KR:
             n = obj_h.normal_at(ph)
-            C = np.dot(n, eye)
-            r = -1 * eye + 2 * C * n
+            c = np.dot(n, eye)
+            r = -1 * eye + 2 * c * n
             # Adding roughness
             if obj_h.material.roughness > 0:
                 # Random vector with 3 values between [-1, 1]
