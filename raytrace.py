@@ -78,9 +78,10 @@ def compute_color(ph, eye, obj, lights):
     for light in lights:
         if isinstance(light, AreaLight):
             # Get color by averaging samples
-            samples = light.get_samples(ph)
+            samples = light.get_samples()
             color = np.zeros(RGB_CHANNELS, dtype=float)
-            for l in samples:
+            for light_sample in samples:
+                l = utils.normalize(light_sample - ph)
                 color += use_shader_type(
                     obj.shader_type,
                     nh,
@@ -125,9 +126,19 @@ def compute_shadow(ph, objects, lights):
     """
     final_shadow = np.zeros(RGB_CHANNELS)
     for light in lights:
-        l = light.get_l(ph)
-        dist_l = light.get_dist(ph)
-        shadow = shaders.hard_shadow(ph, objects, l, dist_l)
+        if isinstance(light, AreaLight):
+            samples = light.get_samples()
+            shadow = np.zeros(RGB_CHANNELS, dtype=float)
+            for light_sample in samples:
+                diff = light_sample - ph
+                dist_l = np.linalg.norm(diff)
+                l = utils.normalize(diff)
+                shadow += shaders.hard_shadow(ph, objects, l, dist_l)
+            shadow /= len(samples)
+        else:
+            l = light.get_l(ph)
+            dist_l = light.get_dist(ph)
+            shadow = shaders.hard_shadow(ph, objects, l, dist_l)
         final_shadow += shadow
     final_shadow /= len(lights)
     final_shadow = np.clip(final_shadow, 0, MAX_COLOR_VALUE)

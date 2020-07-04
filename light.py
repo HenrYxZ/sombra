@@ -173,17 +173,17 @@ class AreaLight(Light):
         l = utils.normalize(p - ph)
         return l
 
-    def get_samples(self, ph, m=AREA_LIGHT_M, n=AREA_LIGHT_N):
+    def get_samples(self, m=AREA_LIGHT_M, n=AREA_LIGHT_N):
         """
-        Get unit vectors from light samples to ph.
+        Get sample points from the area light dividing the area m horizontally
+        and n vertically and using random jitter.
 
         Args:
-            ph(numpy.array): 3D point of hit between ray and object
             m(int): Number of horizontal samples to use
             n(int): Number of vertical samples to use
 
         Returns:
-            list of numpy.array: unit vector pointing to samples
+            list of numpy.array: sample positions in world space
         """
         samples = []
         for i in range(m):
@@ -192,6 +192,5 @@ class AreaLight(Light):
                 x = ((i + r0) / m) * self.s0
                 y = ((j + r1) / n) * self.s1
                 p = self.p00 + x * self.n0 + y * self.n1
-                l = utils.normalize(p - ph)
-                samples.append(l)
+                samples.append(p)
         return samples

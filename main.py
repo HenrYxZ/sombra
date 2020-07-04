@@ -60,16 +60,20 @@ def setup_lights():
     # Directional Light
     # directional_light = DirectionalLight(np.array([-1, -1, 1]))
     # Point Light
-    light_pos = np.array([0, 50, 50], dtype=float)
-    point_light = PointLight(light_pos)
+    # light_pos = np.array([0, 50, 50], dtype=float)
+    # point_light = PointLight(light_pos)
     # Spot Light
     # nl = utils.normalize(np.array([0, -0.5, 1]))
     # theta = utils.degree2radians(30)
     # spot_light = SpotLight(light_pos, theta, nl)
     # Area Light
-    # area_light_pos = np.array([0.0, 25.0, 0.0])
-    # area_light = AreaLight(area_light_pos, 50.0, 30.0)
-    return [point_light]
+    area_light_pos = np.array([-50, 75.0, 100.0])
+    area_light_n0 = np.array([0.0, 0.0, -1.0])
+    area_light_n1 = utils.normalize(np.array([1.0, 1.0, 0.0]))
+    area_light = AreaLight(
+        area_light_pos, 50.0, 30.0, area_light_n0, area_light_n1
+    )
+    return [area_light]
 
 
 def setup_objects():
@@ -77,7 +81,8 @@ def setup_objects():
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_n0 = np.array([1, 0, 0], dtype=float)
     plane_mtl = Material(
-        material.COLOR_GRAY, material.TYPE_TEXTURED, kr=0.4, roughness=0.05
+        # material.COLOR_GRAY, material.TYPE_TEXTURED, kr=0.4, roughness=0.05
+        material.COLOR_GRAY, material.TYPE_DIFFUSE
     )
     plane_shader = shaders.TYPE_DIFFUSE_COLORS
     plane_normal = np.array([0, 1, 0], dtype=float)
@@ -95,14 +100,14 @@ def setup_objects():
         plane_sy
     )
     # Sphere Object
-    sphere_pos = np.array([-50, 0, 100], dtype=float)
+    sphere_pos = np.array([0, 0, 100], dtype=float)
     sphere_mtl = Material(
         material.COLOR_BLUE,
-        material.TYPE_TEXTURED,
+        material.TYPE_DIFFUSE,
         specular=DEFAULT_KS
     )
     sphere_mtl.add_texture(ImageTexture(EARTH_HD_TEXTURE_FILENAME))
-    sphere_shader = shaders.TYPE_DIFF_SPECULAR
+    sphere_shader = shaders.TYPE_DIFFUSE_COLORS
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
     return [sphere, plane]
@@ -118,9 +123,9 @@ def setup_scene():
     lights = setup_lights()
     objects = setup_objects()
     set_objects_id(objects)
-    env_map = EnvironmentMap(HALL_TEXTURE_FILENAME)
-    scene = Scene(cameras, lights, objects, env_map)
-    # scene = Scene(cameras, lights, objects)
+    # env_map = EnvironmentMap(HALL_TEXTURE_FILENAME)
+    # scene = Scene(cameras, lights, objects, env_map)
+    scene = Scene(cameras, lights, objects)
     return scene
 
 
@@ -142,7 +147,9 @@ def main(argv):
             argv, "hdam", ["help", "debug", "animation", "multi"]
         )
     except getopt.GetoptError:
-        print('usage: main.py [-d,-h,-a, m|--debug,--help,--animation, --multi]')
+        print(
+            'usage: main.py [-d,-h,-a, m|--debug,--help,--animation, --multi]'
+        )
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-h', '--help'):
