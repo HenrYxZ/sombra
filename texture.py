@@ -1,5 +1,7 @@
 import numpy as np
 from PIL import Image
+# Local Modules
+from constants import DEFAULT_N0, DEFAULT_N1, DEFAULT_N2
 
 
 class Texture:
@@ -81,7 +83,9 @@ class ImageTexture(Texture):
 
 
 class Box:
-    def __init__(self, p0, s0, s1, s2, n0, n1, n2):
+    def __init__(
+        self, p0, s0, s1, s2, n0=DEFAULT_N0, n1=DEFAULT_N1, n2=DEFAULT_N2
+    ):
         self.p0 = p0
         self.s0 = s0
         self.s1 = s1
