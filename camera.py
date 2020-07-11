@@ -4,6 +4,23 @@ import utils
 from object import Plane, Sphere
 
 
+class LensParams:
+    """
+    Parameters for the lens. This will be used to create depth of field effect.
+
+    f(float): focal length for depth of field effect (distance from view window
+        to the focal plane)
+    ap_sx(float): horizontal aperture size of the lens (in view window
+        coordinates)
+    ap_sy(float): vertical aperture size of the lens (in view window
+        coordinates)
+    """
+    def __init__(self, f=44, ap_sx=1.3, ap_sy=1.3):
+        self.f = f
+        self.ap_sx = ap_sx
+        self.ap_sy = ap_sy
+
+
 class Camera:
     """
     Camera object.
@@ -18,18 +35,14 @@ class Camera:
     n1(array): unit vector for local coordinate
     n2(array): unit vector for local coordinate
     p00(array): position of the origin of the view window in world coordinates
-    f(float): focal length for depth of field effect
-    ap_sx(float): horizontal aperture size of the lens (in view window
-        coordinates)
-    ap_sy(float): vertical aperture size of the lens (in view window
-        coordinates)
-    m(int): number of horizontal samples for depth of field
-    n(int): number of vertical samples for depth of field
+    lens_params(LensParams): the lens parameters for depth of field
     """
 
     def __init__(
-        # self, position, v_view, v_up, d=18, scale_x=32, scale_y=16
-        self, position, v_view, v_up, d=26, scale_x=35, scale_y=24
+        # self, position, v_view, v_up, d=18, scale_x=32, scale_y=16,
+            # lens_params
+        self, position, v_view, v_up, d=26, scale_x=35, scale_y=24,
+            lens_params=None
     ):
         self.position = position
         self.v_view = v_view
@@ -43,8 +56,9 @@ class Camera:
         # Point in the center of the screen of the camera window
         pc = self.position + self.d * self.n2
         self.p00 = (
-                pc - (self.scale_x / 2) * self.n0 - (self.scale_y / 2) * self.n1
+            pc - (self.scale_x / 2) * self.n0 - (self.scale_y / 2) * self.n1
         )
+        self.lens_params = lens_params
 
     def set_view_coord(self):
         """

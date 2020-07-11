@@ -5,7 +5,7 @@ import sys
 import time
 # Local Modules
 from animation import Animation
-from camera import Camera
+from camera import Camera, LensParams
 from env_map import EnvironmentMap
 from light import AreaLight, DirectionalLight, PointLight, SpotLight
 import log
@@ -13,7 +13,7 @@ from material import Material
 import material
 from normal_map import NormalMap
 from object import Cube, Plane, Sphere, Tetrahedron, Triangle
-from render import render, render_no_aa, render_mp
+from render import render, render_dop, render_no_aa, render_mp
 from scene import Scene
 import shaders
 from texture import ImageTexture, SolidImageTexture, Box
@@ -50,9 +50,15 @@ def default_vertex(p, n):
 
 def setup_cameras():
     main_camera_pos = np.array([0, 0, 0], dtype=float)
-    vview = np.array([0, 0, 1], dtype=float)
-    vup = np.array([0, 1, 0], dtype=float)
-    main_camera = Camera(main_camera_pos, vview, vup)
+    v_view = np.array([0, 0, 1], dtype=float)
+    v_up = np.array([0, 1, 0], dtype=float)
+    d = 26
+    scale_x = 35
+    scale_y = 24
+    lens_params = LensParams()
+    main_camera = Camera(
+        main_camera_pos, v_view, v_up, d, scale_x, scale_y,  lens_params
+    )
     return [main_camera]
 
 
@@ -60,20 +66,20 @@ def setup_lights():
     # Directional Light
     # directional_light = DirectionalLight(np.array([-1, -1, 1]))
     # Point Light
-    # light_pos = np.array([0, 50, 50], dtype=float)
-    # point_light = PointLight(light_pos)
+    light_pos = np.array([0, 50, 0], dtype=float)
+    point_light = PointLight(light_pos)
     # Spot Light
     # nl = utils.normalize(np.array([0, -0.5, 1]))
     # theta = utils.degree2radians(30)
     # spot_light = SpotLight(light_pos, theta, nl)
     # Area Light
-    area_light_pos = np.array([-50, 75.0, 100.0])
-    area_light_n0 = np.array([0.0, 0.0, -1.0])
-    area_light_n1 = utils.normalize(np.array([1.0, 1.0, 0.0]))
-    area_light = AreaLight(
-        area_light_pos, 50.0, 30.0, area_light_n0, area_light_n1
-    )
-    return [area_light]
+    # area_light_pos = np.array([-50, 75.0, 100.0])
+    # area_light_n0 = np.array([0.0, 0.0, -1.0])
+    # area_light_n1 = utils.normalize(np.array([1.0, 1.0, 0.0]))
+    # area_light = AreaLight(
+    #     area_light_pos, 50.0, 30.0, area_light_n0, area_light_n1
+    # )
+    return [point_light]
 
 
 def setup_objects():
@@ -81,8 +87,8 @@ def setup_objects():
     plane_pos = np.array([0, -25, 0], dtype=float)
     plane_n0 = np.array([1, 0, 0], dtype=float)
     plane_mtl = Material(
-        # material.COLOR_GRAY, material.TYPE_TEXTURED, kr=0.4, roughness=0.05
-        material.COLOR_GRAY, material.TYPE_DIFFUSE
+        material.COLOR_GRAY, material.TYPE_TEXTURED, kr=0.4, roughness=0.06
+        # material.COLOR_GRAY, material.TYPE_DIFFUSE
     )
     plane_shader = shaders.TYPE_DIFFUSE_COLORS
     plane_normal = np.array([0, 1, 0], dtype=float)
@@ -103,14 +109,39 @@ def setup_objects():
     sphere_pos = np.array([0, 0, 100], dtype=float)
     sphere_mtl = Material(
         material.COLOR_BLUE,
-        material.TYPE_DIFFUSE,
+        material.TYPE_TEXTURED,
         specular=DEFAULT_KS
     )
     sphere_mtl.add_texture(ImageTexture(EARTH_HD_TEXTURE_FILENAME))
     sphere_shader = shaders.TYPE_DIFFUSE_COLORS
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    return [sphere, plane]
+    # Mickey Sphere
+    sphere_pos = np.array([-30, -5, 75], dtype=float)
+    sphere_mtl = Material(
+        material.COLOR_BLUE,
+        material.TYPE_TEXTURED,
+        specular=DEFAULT_KS
+    )
+    box = Box(sphere_pos - [20, 20, 20], 40, 40, 40)
+    mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
+    sphere_mtl.add_texture(SolidImageTexture(mickey_img_texture, box))
+    sphere_shader = shaders.TYPE_DIFFUSE_COLORS
+    sphere_r = 20.0
+    mickey = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
+    # Gray Sphere
+    sphere_pos = np.array([90, 15, 160], dtype=float)
+    sphere_mtl = Material(
+        material.COLOR_GRAY,
+        material.TYPE_DIFFUSE,
+        specular=DEFAULT_KS,
+        border=0.0,
+        kr=0.7, roughness=0.15
+    )
+    sphere_shader = shaders.TYPE_DIFFUSE_COLORS
+    sphere_r = 40.0
+    gray_sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
+    return [sphere, plane, mickey, gray_sphere]
 
 
 def set_objects_id(objects):
@@ -123,9 +154,9 @@ def setup_scene():
     lights = setup_lights()
     objects = setup_objects()
     set_objects_id(objects)
-    # env_map = EnvironmentMap(HALL_TEXTURE_FILENAME)
-    # scene = Scene(cameras, lights, objects, env_map)
-    scene = Scene(cameras, lights, objects)
+    env_map = EnvironmentMap(HALL_TEXTURE_FILENAME)
+    scene = Scene(cameras, lights, objects, env_map)
+    # scene = Scene(cameras, lights, objects)
     return scene
 
 
@@ -142,18 +173,24 @@ def main(argv):
     debug_mode = False
     animation_mode = False
     multi_core = False
+    # Depth of Field
+    dop_mode = False
     try:
         opts, args = getopt.getopt(
-            argv, "hdam", ["help", "debug", "animation", "multi"]
+            argv, "hdamf", ["help", "debug", "animation", "multi", "dop"]
         )
     except getopt.GetoptError:
         print(
-            'usage: main.py [-d,-h,-a, m|--debug,--help,--animation, --multi]'
+            'usage: main.py [-d,-h,-a,-m,-f|--debug,--help,--animation, '
+            '--multi, --dop]'
         )
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-h', '--help'):
-            print('usage: main.py [-d,-h|--debug,--help]')
+            print(
+                'usage: main.py [-d,-h,-a,-m,-f|--debug,--help,--animation, '
+                '--multi, --dop]'
+            )
             sys.exit()
         elif opt in ('-d', '--debug'):
             debug_mode = True
@@ -161,10 +198,17 @@ def main(argv):
             animation_mode = True
         elif opt in ('-m', '--multi'):
             multi_core = True
+        elif opt in ('-f', '--dop'):
+            dop_mode = True
     start = time.time()
     print("Setting up...")
     scene = setup_scene()
-    render_function = render_mp if multi_core else render
+    if multi_core:
+        render_function = render_mp
+    elif dop_mode:
+        render_function = render_dop
+    else:
+        render_function = render
     render_msg = "Rendering at {}x{}".format(WIDTH, HEIGHT)
     if not debug_mode:
         render_msg += " with {}x{} AA".format(
@@ -172,6 +216,8 @@ def main(argv):
         )
         if multi_core:
             render_msg += " using multi-core"
+        if dop_mode:
+            render_msg += " using depth of field"
     print(render_msg)
     # Raytrace one image
     # -------------------------------------------------------------------------
