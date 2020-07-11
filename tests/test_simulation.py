@@ -1,8 +1,7 @@
 import numpy as np
 import unittest
 # Local Modules
-from simulation import SphereBody, Simulation
-from state import State, SystemState
+from simulation import SphereBody, Simulation, State, SystemState
 
 
 class SimulationTestCase(unittest.TestCase):

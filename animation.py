@@ -5,9 +5,7 @@ import os
 from PIL import Image
 
 # Local Modules
-from render import render, render_no_aa
-from simulation import SphereBody, Simulation
-from state import State, SystemState
+from simulation import SphereBody, Simulation, State, SystemState
 
 
 ANIM_OUT_DIR = "animation_out"
@@ -42,6 +40,40 @@ class KeyFrame:
         self.transform.scale = scale
 
 
+def initialize_simulation(sphere):
+    t = 0
+    initial_state = SystemState(t)
+    rigid_bodies = [SphereBody(sphere)]
+    v = V0
+    vx, vy, vz = v[0], v[1], v[2]
+    wz = -1 * ((vx + vy) / sphere.radius)
+    wx = (vz + vy) / sphere.radius
+    wy = 0
+    w = np.array([wx, wy, wz])
+    body_initial_state = State(sphere.position, sphere.rotation, v, w)
+    initial_state.add(body_initial_state)
+    return initial_state, rigid_bodies
+
+
+def create_keyframes_from_states(system_states, rigid_bodies):
+    """
+    Returns a list on which each element is a list of keyframes for the
+    same frame number.
+    """
+    keyframes = []
+    for i in range(len(system_states)):
+        system_state = system_states[i]
+        current_keyframes = []
+        for j in range(len(system_state.bodies_state)):
+            state = system_state.bodies_state[j]
+            transform = Transform(state.pos, state.rot, state.scale)
+            obj = rigid_bodies[j].obj
+            keyframe = KeyFrame(obj, i, transform)
+            current_keyframes.append(keyframe)
+        keyframes.append(current_keyframes)
+    return keyframes
+
+
 class Animation:
     """
     This has the necessary parameters and functions for creating an
@@ -57,38 +89,6 @@ class Animation:
         self.scene = scene
         # This is the render function to use
         self.render = render
-
-    def initialize_simulation(self, sphere):
-        t = 0
-        initial_state = SystemState(t)
-        rigid_bodies = [SphereBody(sphere)]
-        v = V0
-        vx, vy, vz = v[0], v[1], v[2]
-        wz = -1 * ((vx + vy) / sphere.radius)
-        wx = (vz + vy) / sphere.radius
-        wy = 0
-        w = np.array([wx, wy, wz])
-        body_initial_state = State(sphere.position, sphere.rotation, v, w)
-        initial_state.add(body_initial_state)
-        return initial_state, rigid_bodies
-
-    def create_keyframes_from_states(self, system_states, rigid_bodies):
-        """
-        Returns a list on which each element is a list of keyframes for the
-        same frame number.
-        """
-        keyframes = []
-        for i in range(len(system_states)):
-            system_state = system_states[i]
-            current_keyframes = []
-            for j in range(len(system_state.bodies_state)):
-                state = system_state.bodies_state[j]
-                transform = Transform(state.pos, state.rot, state.scale)
-                obj = rigid_bodies[j].obj
-                keyframe = KeyFrame(obj, i, transform)
-                current_keyframes.append(keyframe)
-            keyframes.append(current_keyframes)
-        return keyframes
 
     def create_scene_from_keyframes(self, keyframes):
         """
@@ -106,14 +106,14 @@ class Animation:
     def create(self, sphere, camera):
         print("Creating animation...")
         time_step = 1.0 / self.fps
-        initial_state, rigid_bodies = self.initialize_simulation(sphere)
+        initial_state, rigid_bodies = initialize_simulation(sphere)
         simulation = Simulation(
             initial_state, rigid_bodies, self.duration, time_step
         )
         f = -1 * (V0 / self.duration)
         print("Running simulation...")
         system_states = simulation.run(f)
-        keyframes = self.create_keyframes_from_states(
+        keyframes = create_keyframes_from_states(
             system_states, rigid_bodies
         )
         # Write video
@@ -123,7 +123,7 @@ class Animation:
             current_keyframes = keyframes[i]
             new_scene = self.create_scene_from_keyframes(current_keyframes)
             w, h = self.screen_size
-            print("Rendering frame={}/{}...".format(i, len(keyframes) -1))
+            print("Rendering frame={}/{}...".format(i, len(keyframes) - 1))
             img_arr = self.render(new_scene, camera, h, w)
             # Append rendered image into video
             writer.append_data(img_arr)
@@ -136,4 +136,3 @@ class Animation:
             print("Rendered image saved in {}".format(output_img_filename))
         writer.close()
         print("Animation video rendered in {}".format(ANIM_VID_FILENAME))
-
