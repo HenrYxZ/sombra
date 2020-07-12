@@ -15,7 +15,7 @@ class LensParams:
     ap_sy(float): vertical aperture size of the lens (in view window
         coordinates)
     """
-    def __init__(self, f=44, ap_sx=1.3, ap_sy=1.3):
+    def __init__(self, f=28, ap_sx=2.6, ap_sy=2.6):
         self.f = f
         self.ap_sx = ap_sx
         self.ap_sy = ap_sy

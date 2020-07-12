@@ -103,7 +103,7 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     """
     output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
     if not scene or not scene.objects or not camera or camera.inside(
-        scene.objects
+            scene.objects
     ):
         print("Cannot generate an image")
         return output
@@ -112,7 +112,7 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     iterations = HEIGHT * WIDTH * total_samples
     step_size = np.ceil((iterations * PERCENTAGE_STEP) / 100).astype('int')
     counter = 0
-    bar = Bar('Raytracing', max=100/PERCENTAGE_STEP)
+    bar = Bar('Raytracing', max=100 / PERCENTAGE_STEP)
     # This is needed to use it in Git Bash
     bar.check_tty = False
     for j in range(HEIGHT):
@@ -172,7 +172,7 @@ def render_mp(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     samples = H_SAMPLES * V_SAMPLES
     # using list comprehension
     pixel_colors = [
-        avg(ray_colors[i:i+samples], samples)
+        avg(ray_colors[i:i + samples], samples)
         for i in range(0, len(ray_colors), samples)
     ]
     n = WIDTH * HEIGHT
@@ -181,7 +181,7 @@ def render_mp(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     return output
 
 
-def render_dop(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
+def render_dof(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=6, H_SAMPLES=6):
     """
     Render the image for the given scene and camera using raytracing with
     depth of field.
@@ -195,7 +195,7 @@ def render_dop(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     """
     output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
     if not scene or not scene.objects or not camera or camera.inside(
-        scene.objects
+            scene.objects
     ):
         print("Cannot generate an image")
         return output
@@ -204,32 +204,38 @@ def render_dop(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     iterations = HEIGHT * WIDTH * total_samples
     step_size = np.ceil((iterations * PERCENTAGE_STEP) / 100).astype('int')
     counter = 0
-    bar = Bar('Raytracing', max=100/PERCENTAGE_STEP)
+    bar = Bar('Raytracing', max=100 / PERCENTAGE_STEP)
     # This is needed to use it in Git Bash
     bar.check_tty = False
     for j in range(HEIGHT):
         for i in range(WIDTH):
             color = np.array([0, 0, 0], dtype=float)
+            lens_sample_offsets = []
+            n0 = camera.n0
+            n1 = camera.n1
             for n in range(V_SAMPLES):
                 for m in range(H_SAMPLES):
-                    # r0, r1, r2, r3 = np.random.random_sample(4)
-                    # x = i + ((float(m) + r2 )/ H_SAMPLES)
-                    # y = HEIGHT - 1 - j + ((float(n) + r3)/ V_SAMPLES)
-                    x = i
-                    y = HEIGHT - 1 - j
+                    r0, r1 = np.random.random_sample(2)
+                    ap_sx = camera.lens_params.ap_sx
+                    ap_sy = camera.lens_params.ap_sy
+                    x_offset = ((r0 - 0.5) * m) / H_SAMPLES * ap_sx
+                    y_offset = ((r1 - 0.5) * n) / V_SAMPLES * ap_sy
+                    lens_sample_offsets.append((x_offset, y_offset))
+            random_start = np.random.random_integers(0, total_samples - 1)
+            for n in range(V_SAMPLES):
+                for m in range(H_SAMPLES):
+                    r0, r1 = np.random.random_sample(2)
+                    x = i + ((float(m) + r0) / H_SAMPLES)
+                    y = HEIGHT - 1 - j + ((float(n) + r1) / V_SAMPLES)
                     # Get x projected in view coord
                     xp = (x / float(WIDTH)) * camera.scale_x
                     # Get y projected in view coord
                     yp = (y / float(HEIGHT)) * camera.scale_y
                     pp = camera.p00 + xp * camera.n0 + yp * camera.n1
                     npe = utils.normalize(pp - camera.position)
-                    # Code for Depth of Field, use sample
-                    r0, r1 = np.random.random_sample(2)
-                    n0 = camera.n0
-                    n1 = camera.n1
-                    ap_sx = camera.lens_params.ap_sx
-                    ap_sy = camera.lens_params.ap_sy
-                    ps = pp + (r0 - 0.5) * ap_sx * n0 + (r1 - 0.5) * ap_sy * n1
+                    sample_idx = n + m * H_SAMPLES - random_start
+                    x_offset, y_offset = lens_sample_offsets[sample_idx]
+                    ps = pp + x_offset * n0 + y_offset * n1
                     fp = pp + npe * camera.lens_params.f
                     director = utils.normalize(fp - ps)
                     ray = Ray(ps, director)

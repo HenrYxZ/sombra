@@ -13,7 +13,7 @@ from material import Material
 import material
 from normal_map import NormalMap
 from object import Cube, Plane, Sphere, Tetrahedron, Triangle
-from render import render, render_dop, render_no_aa, render_mp
+from render import render, render_dof, render_no_aa, render_mp
 from scene import Scene
 import shaders
 from texture import ImageTexture, SolidImageTexture, Box
@@ -26,8 +26,8 @@ HEIGHT = 192
 # WIDTH = 1280
 # HEIGHT = 720
 # Vertical and Horizontal Samples for Random Jitter Anti Aliasing
-V_SAMPLES = 4
-H_SAMPLES = 4
+V_SAMPLES = 6
+H_SAMPLES = 6
 MAX_QUALITY = 95
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
@@ -174,10 +174,10 @@ def main(argv):
     animation_mode = False
     multi_core = False
     # Depth of Field
-    dop_mode = False
+    dof_mode = False
     try:
         opts, args = getopt.getopt(
-            argv, "hdamf", ["help", "debug", "animation", "multi", "dop"]
+            argv, "hdamf", ["help", "debug", "animation", "multi", "dof"]
         )
     except getopt.GetoptError:
         print(
@@ -198,15 +198,15 @@ def main(argv):
             animation_mode = True
         elif opt in ('-m', '--multi'):
             multi_core = True
-        elif opt in ('-f', '--dop'):
-            dop_mode = True
+        elif opt in ('-f', '--dof'):
+            dof_mode = True
     start = time.time()
     print("Setting up...")
     scene = setup_scene()
     if multi_core:
         render_function = render_mp
-    elif dop_mode:
-        render_function = render_dop
+    elif dof_mode:
+        render_function = render_dof
     else:
         render_function = render
     render_msg = "Rendering at {}x{}".format(WIDTH, HEIGHT)
@@ -216,7 +216,7 @@ def main(argv):
         )
         if multi_core:
             render_msg += " using multi-core"
-        if dop_mode:
+        if dof_mode:
             render_msg += " using depth of field"
     print(render_msg)
     # Raytrace one image
