@@ -6,6 +6,7 @@ import time
 # Local Modules
 from animation import Animation
 from camera import Camera, LensParams
+from constants import MAX_QUALITY
 from env_map import EnvironmentMap
 from light import AreaLight, DirectionalLight, PointLight, SpotLight
 import log
@@ -26,9 +27,8 @@ HEIGHT = 192
 # WIDTH = 1280
 # HEIGHT = 720
 # Vertical and Horizontal Samples for Random Jitter Anti Aliasing
-V_SAMPLES = 6
-H_SAMPLES = 6
-MAX_QUALITY = 95
+V_SAMPLES = 4
+H_SAMPLES = 4
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
 CHECKERS_TEXTURE_FILENAME = "textures/checkers.png"
@@ -66,20 +66,20 @@ def setup_lights():
     # Directional Light
     # directional_light = DirectionalLight(np.array([-1, -1, 1]))
     # Point Light
-    light_pos = np.array([0, 50, 0], dtype=float)
-    point_light = PointLight(light_pos)
+    # light_pos = np.array([0, 50, 0], dtype=float)
+    # point_light = PointLight(light_pos)
     # Spot Light
     # nl = utils.normalize(np.array([0, -0.5, 1]))
     # theta = utils.degree2radians(30)
     # spot_light = SpotLight(light_pos, theta, nl)
     # Area Light
-    # area_light_pos = np.array([-50, 75.0, 100.0])
-    # area_light_n0 = np.array([0.0, 0.0, -1.0])
-    # area_light_n1 = utils.normalize(np.array([1.0, 1.0, 0.0]))
-    # area_light = AreaLight(
-    #     area_light_pos, 50.0, 30.0, area_light_n0, area_light_n1
-    # )
-    return [point_light]
+    area_light_pos = np.array([-50, 75.0, 100.0])
+    area_light_n0 = np.array([0.0, 0.0, -1.0])
+    area_light_n1 = utils.normalize(np.array([1.0, 1.0, 0.0]))
+    area_light = AreaLight(
+        area_light_pos, 50.0, 30.0, area_light_n0, area_light_n1
+    )
+    return [area_light]
 
 
 def setup_objects():

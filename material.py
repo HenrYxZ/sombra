@@ -6,6 +6,7 @@ TYPE_TEXTURED = "textured"
 # when rendering the final image
 COLOR_BLUE = np.array([10, 10, 230], dtype=float)
 COLOR_GRAY = np.array([135, 135, 135], dtype=float)
+COLOR_GREEN = np.array([10, 230, 10], dtype=float)
 
 
 class Material:

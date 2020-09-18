@@ -64,9 +64,9 @@ class RayTestCase(unittest.TestCase):
         t = self.ray.intersect(plane)
         self.assertEqual(t, -1)
 
-
     def test_at(self):
         self.assertTrue(np.array_equal(self.ray.at(2), np.array([0, 0, 3])))
+
 
 if __name__ == '__main__':
     unittest.main()

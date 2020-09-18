@@ -2,7 +2,7 @@ import numpy as np
 # Local modules
 from ray import Ray
 
-TYPE_DIFFUSE_NO_LIGHT = "diffuse_no_light"
+TYPE_FLAT = "flat"
 TYPE_DIFFUSE_LIGHT = "diffuse_light"
 TYPE_DIFFUSE_COLORS = "diffuse_colors"
 TYPE_DIFF_SPECULAR = "diffuse_with_specular"

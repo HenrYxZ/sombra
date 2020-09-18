@@ -1,6 +1,6 @@
 import numpy as np
 # Local modules
-from constants import DEFAULT_N0, DEFAULT_N1, DEFAULT_N2
+from constants import DEFAULT_N0, DEFAULT_N1, DEFAULT_N2, NO_INTERSECTION
 from normal_map import NormalMap
 import utils
 
@@ -26,8 +26,8 @@ class Object:
         self.ID = None
         self.normal_map = None
 
-    def set_id(self, id):
-        self.ID = id
+    def set_id(self, idx):
+        self.ID = idx
 
     def normal_at(self, p):
         """
@@ -113,14 +113,13 @@ class Sphere(Object):
         Get the perpendicular unit vectors n0, n1, n2 that define the
         orientation of this object
         """
-        n0 = np.array([1, 0, 0])
-        n1 = np.array([0, 1, 0])
-        n2 = np.array([0, 0, 1])
         # Only work with rotation around x by now
+        n0 = DEFAULT_N0
+        n1 = DEFAULT_N1
         if self.rotation[2] != 0.0:
             n0 = self.rotate_z(n0)
             n1 = self.rotate_z(n1)
-        return n0, n1, n2
+        return n0, n1, DEFAULT_N2
 
     def uvmap(self, p):
         """
@@ -150,6 +149,15 @@ class Sphere(Object):
         v = 0.5 - np.arcsin(y) / np.pi
         v = 1 - v
         return u, v
+
+    def intersect_sphere_np(self, pr, nr):
+        pc = self.position
+        dif = pr - pc
+        b = np.dot(nr, dif)
+        c = np.dot(dif, dif) - self.radius ** 2
+        discriminant = b ** 2 - c
+        t = -1 * b - np.sqrt(discriminant)
+        return np.where(b > 0 or discriminant < 0, NO_INTERSECTION, t)
 
 
 class Plane(Object):
@@ -216,9 +224,9 @@ class Triangle(Object):
         self.v0 = v0
         self.v1 = v1
         self.v2 = v2
-        A = np.cross(v1.position - v0.position, v2.position - v1.position) / 2
-        self.area = np.linalg.norm(A)
-        self.n = A / self.area
+        a_v = np.cross(v1.position - v0.position, v2.position - v1.position) / 2
+        self.area = np.linalg.norm(a_v)
+        self.n = a_v / self.area
 
     def __str__(self):
         return "v0: {}\nv1: {}\nv2: {}".format(
@@ -235,10 +243,10 @@ class Triangle(Object):
         Returns:
             (float, float): Barycentric coordinates s and t for point ph
         """
-        A1 = np.cross(ph - self.v0.position, self.v2.position - ph) / 2
-        A2 = np.cross(ph - self.v1.position, self.v0.position - ph) / 2
-        s = np.dot(self.n, A1) / self.area
-        t = np.dot(self.n, A2) / self.area
+        a_v_1 = np.cross(ph - self.v0.position, self.v2.position - ph) / 2
+        a_v_2 = np.cross(ph - self.v1.position, self.v0.position - ph) / 2
+        s = np.dot(self.n, a_v_1) / self.area
+        t = np.dot(self.n, a_v_2) / self.area
         return s, t
 
     def is_inside(self, p):
@@ -324,6 +332,7 @@ class Tetrahedron(Object):
 
     def get_triangles(self):
         return [self.tr0, self.tr1, self.tr2, self.tr3]
+
 
 # THIS IS NOT WORKING
 class Cube(Object):

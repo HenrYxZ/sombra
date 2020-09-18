@@ -66,7 +66,7 @@ def compute_color(ph, eye, obj, lights):
     Returns:
         np.array: The color for this ray in numpy array of 3 channels
     """
-    if obj.shader_type == shaders.TYPE_DIFFUSE_NO_LIGHT:
+    if obj.shader_type == shaders.TYPE_FLAT:
         return obj.material.diffuse
     # Control colors for barycentric shading
     dark_color, light_color = get_dark_and_light(ph, obj)
@@ -124,6 +124,8 @@ def compute_shadow(ph, objects, lights):
     Returns:
         np.array: The shadow for this ray in numpy array of 3 channels
     """
+    if not lights:
+        return np.ones(RGB_CHANNELS) * MAX_COLOR_VALUE
     final_shadow = np.zeros(RGB_CHANNELS)
     for light in lights:
         if isinstance(light, AreaLight):
