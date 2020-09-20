@@ -3,6 +3,7 @@ Example that generates an image of a plane with a texture and no lighting.
 """
 import numpy as np
 from PIL import Image
+import os.path
 
 # Local Modules
 from camera import Camera
@@ -17,7 +18,8 @@ import utils
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 300
-OUTPUT_IMG_FILENAME = "examples_out/3_textured_plane.jpg"
+EXAMPLES_OUT_DIR = "examples_out"
+OUTPUT_IMG_FILENAME = "{}/3_textured_plane.jpg".format(EXAMPLES_OUT_DIR)
 
 
 def set_camera():
@@ -39,9 +41,9 @@ def set_scene():
     # n0 vector of the plane (vector lying in the plane)
     n0 = np.array([1.0, 0.0, 0.0])
     # Scale for the texture in x and y
-    sx = 100
-    sy = 100
-    plane = Plane(pos, mat, shaders.TYPE_FLAT, n, n0)
+    sx = 4
+    sy = 4
+    plane = Plane(pos, mat, shaders.TYPE_FLAT, n, n0, sx, sy)
     cameras = [set_camera()]
     return Scene(cameras, [], [plane])
 
@@ -51,6 +53,8 @@ def main():
     main_camera = scene.get_main_camera()
     screen = render_no_aa(scene, main_camera, SCREEN_HEIGHT, SCREEN_WIDTH)
     img_output = Image.fromarray(screen)
+    if not os.path.exists(EXAMPLES_OUT_DIR):
+        os.mkdir(EXAMPLES_OUT_DIR)
     img_output.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
 
 
