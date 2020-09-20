@@ -56,6 +56,7 @@ def main():
     if not os.path.exists(EXAMPLES_OUT_DIR):
         os.mkdir(EXAMPLES_OUT_DIR)
     img_output.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
+    print(f"Output image created in : {OUTPUT_IMG_FILENAME}")
 
 
 if __name__ == '__main__':
