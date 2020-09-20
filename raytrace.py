@@ -18,7 +18,7 @@ MIN_KR = 0.05
 DEFAULT_RAYTRACER_DEPTH = 2
 
 
-def get_dark_and_light(ph, obj):
+def get_material_color(ph, obj):
     if obj.material.material_type == material.TYPE_DIFFUSE:
         color = obj.material.diffuse
     else:
@@ -28,6 +28,11 @@ def get_dark_and_light(ph, obj):
         else:
             # Case for solid image texture
             color = obj.material.texture.get_color(ph)
+    return color
+
+
+def get_dark_and_light(ph, obj):
+    color = get_material_color(ph, obj)
     dark = DARK_VALUE * color
     light = LIGHT_VALUE * color
     return dark, light
@@ -67,7 +72,8 @@ def compute_color(ph, eye, obj, lights):
         np.array: The color for this ray in numpy array of 3 channels
     """
     if obj.shader_type == shaders.TYPE_FLAT:
-        return obj.material.diffuse
+        color = get_material_color(ph, obj)
+        return color
     # Control colors for barycentric shading
     dark_color, light_color = get_dark_and_light(ph, obj)
     nh = obj.normal_at(ph)
