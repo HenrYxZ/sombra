@@ -18,7 +18,7 @@ import utils
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 300
-EXAMPLES_OUT_DIR = "examples_out"
+EXAMPLES_OUT_DIR = "../examples_out"
 OUTPUT_IMG_FILENAME = "{}/3_textured_plane.jpg".format(EXAMPLES_OUT_DIR)
 
 
@@ -34,7 +34,7 @@ def set_camera():
 def set_scene():
     pos = np.array([0.0, 0.0, 0])
     mat = Material(material_type=TYPE_TEXTURED)
-    texture = ImageTexture("textures/checkers.png")
+    texture = ImageTexture("../textures/checkers.png")
     mat.add_texture(texture)
     # Normal of the plane
     n = np.array([0.0, 1.0, 0.0])
