@@ -14,7 +14,7 @@ from material import Material
 import material
 from normal_map import NormalMap
 from object import Cube, Plane, Sphere, Tetrahedron, Triangle
-from render import render, render_dof, render_no_aa, render_mp
+from render import render_aa, render_dof, render, render_mp
 from scene import Scene
 import shaders
 from texture import ImageTexture, SolidImageTexture, Box
@@ -123,7 +123,7 @@ def setup_objects():
         material.TYPE_TEXTURED,
         specular=DEFAULT_KS
     )
-    box = Box(sphere_pos - [20, 20, 20], 40, 40, 40)
+    box = Box(sphere_pos, 40, 40, 40)
     mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
     sphere_mtl.add_texture(SolidImageTexture(mickey_img_texture, box))
     sphere_shader = shaders.TYPE_DIFFUSE_COLORS
@@ -162,7 +162,7 @@ def setup_scene():
 
 def animate(debug_mode, render_function, duration, screen_size, fps, scene):
     # duration in seconds
-    render_function = render_no_aa if debug_mode else render_function
+    render_function = render if debug_mode else render_function
     animation = Animation(duration, screen_size, fps, scene, render_function)
     sphere = scene.objects[0]
     main_camera = scene.cameras[0]
@@ -208,7 +208,7 @@ def main(argv):
     elif dof_mode:
         render_function = render_dof
     else:
-        render_function = render
+        render_function = render_aa
     render_msg = "Rendering at {}x{}".format(WIDTH, HEIGHT)
     if not debug_mode:
         render_msg += " with {}x{} AA".format(
@@ -225,7 +225,7 @@ def main(argv):
         log.start_of_raytracing()
         print("Raytracing...")
         if debug_mode:
-            img_arr = render_no_aa(scene, scene.cameras[0], HEIGHT, WIDTH)
+            img_arr = render(scene, scene.cameras[0], HEIGHT, WIDTH)
         else:
             img_arr = render_function(
                 scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES

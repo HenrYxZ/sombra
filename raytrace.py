@@ -6,16 +6,17 @@ from light import AreaLight
 import material
 from ray import Ray
 import shaders
-from texture import ImageTexture
+from texture import ImageTexture, SolidImageTexture
 import utils
 
 DARK_VALUE = np.array([15, 15, 15], dtype=float) / MAX_COLOR_VALUE
 LIGHT_VALUE = np.array([240, 240, 240], dtype=float) / MAX_COLOR_VALUE
 # Constant of specular reflection
 KR = 0.3
+# Reflection coefficient
 MIN_KR = 0.05
 # Allow two reflection/refraction recursions
-DEFAULT_RAYTRACER_DEPTH = 2
+MAX_DEPTH = 2
 
 
 def get_material_color(ph, obj):
@@ -25,9 +26,10 @@ def get_material_color(ph, obj):
         if isinstance(obj.material.texture, ImageTexture):
             u, v = obj.uvmap(ph)
             color = obj.material.texture.get_color(u, v)
-        else:
-            # Case for solid image texture
+        elif isinstance(obj.material.texture, SolidImageTexture):
             color = obj.material.texture.get_color(ph)
+        else:
+            color = np.zeros(RGB_CHANNELS)
     return color
 
 
@@ -38,7 +40,16 @@ def get_dark_and_light(ph, obj):
     return dark, light
 
 
-def use_shader_type(shader_type, nh, l, eye, mtl, dark, light):
+def get_caustic(obj, ph):
+    if obj.material.illumination_map:
+        u, v = obj.uvmap(ph)
+        caustic = obj.material.illumination_map.get_interpolated_color(u, v)
+    else:
+        return None
+    return caustic
+
+
+def use_shader_type(shader_type, nh, l, eye, mtl, dark, light, caustic):
     ks = mtl.specular
     thickness = mtl.border
     if shader_type == shaders.TYPE_DIFFUSE_LIGHT:
@@ -53,6 +64,8 @@ def use_shader_type(shader_type, nh, l, eye, mtl, dark, light):
         color = shaders.diffuse_specular_border(
             nh, l, eye, dark, light, ks, thickness
         )
+    elif shader_type == shaders.TYPE_LIGHT_MAP:
+        color = shaders.light_map(nh, l, dark, light, caustic)
     else:
         color = np.zeros(RGB_CHANNELS)
     return color
@@ -80,6 +93,7 @@ def compute_color(ph, eye, obj, lights):
     if nh is None:
         warnings.warn("Normal is 0 for obj: {} at ph: {}".format(obj, ph))
         return np.zeros(3)
+    caustic = get_caustic(obj, ph)
     final_color = np.zeros(RGB_CHANNELS)
     for light in lights:
         if isinstance(light, AreaLight):
@@ -95,7 +109,8 @@ def compute_color(ph, eye, obj, lights):
                     eye,
                     obj.material,
                     dark_color,
-                    light_color
+                    light_color,
+                    caustic
                 )
             color /= len(samples)
             final_color += color
@@ -109,7 +124,8 @@ def compute_color(ph, eye, obj, lights):
                 eye,
                 obj.material,
                 dark_color,
-                light_color
+                light_color,
+                caustic
             )
             final_color += color
     # Ensure the colors are between 0 and 255
@@ -153,7 +169,7 @@ def compute_shadow(ph, objects, lights):
     return final_shadow
 
 
-def raytrace(ray, scene, depth=DEFAULT_RAYTRACER_DEPTH, kr=1):
+def raytrace(ray, scene, kr=1, depth=0):
     """
     Trace the ray to the closest intersection point with an object and get the
     color at that point.
@@ -161,8 +177,8 @@ def raytrace(ray, scene, depth=DEFAULT_RAYTRACER_DEPTH, kr=1):
     Args:
         ray(Ray): The ray to be traced
         scene(Scene): This object contains things like objects, lights, etc
-        depth(int): How many sub iterations of raytrace will accept
         kr(float): How much this raytrace will reflect (used for recursion)
+        depth(int): How many bounces this trace has
 
     Returns:
         np.array: The color for this ray in numpy array of 3 channels
@@ -192,7 +208,7 @@ def raytrace(ray, scene, depth=DEFAULT_RAYTRACER_DEPTH, kr=1):
             color.astype(float) * (shadow.astype(float) / MAX_COLOR_VALUE)
         ).round()
         # Reflections
-        if obj_h.material.kr > 0 and depth > 0 and kr > MIN_KR:
+        if obj_h.material.kr > 0 and kr > MIN_KR:
             n = obj_h.normal_at(ph)
             c = np.dot(n, eye)
             r = -1 * eye + 2 * c * n

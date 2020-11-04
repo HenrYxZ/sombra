@@ -16,7 +16,7 @@ class NormalMap:
             color = self.texture.get_color(u, v)
         else:
             color = self.texture.get_color(p)
-        r, g, b = color
+        r, g, b = color[:3]
         # x and y will be from [-1 to 1] and z from [0 to 1]
         x = 2 * (r / np.float(MAX_COLOR_VALUE)) - 1
         y = 2 * (g / np.float(MAX_COLOR_VALUE)) - 1

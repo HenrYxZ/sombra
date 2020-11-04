@@ -4,9 +4,12 @@ TYPE_DIFFUSE = "diffuse"
 TYPE_TEXTURED = "textured"
 # Color values are not in uint8 so just make sure to clip everything to uint8
 # when rendering the final image
-COLOR_BLUE = np.array([10, 10, 230], dtype=float)
-COLOR_GRAY = np.array([135, 135, 135], dtype=float)
-COLOR_GREEN = np.array([10, 230, 10], dtype=float)
+COLOR_DARK_GRAY = np.array([64, 64, 64])
+COLOR_GRAY = np.array([135, 135, 135])
+COLOR_LIGHT_GRAY = np.array([211, 211, 211])
+COLOR_GREEN = np.array([65, 230, 65])
+COLOR_RED = np.array([230, 80, 80])
+COLOR_BLUE = np.array([70, 70, 230])
 
 
 class Material:
@@ -23,6 +26,8 @@ class Material:
         kr(float): parameter for how much the surface reflects (between 0 - 1)
         ior(float): parameter for index of refraction (between 0 - 1)
         roughness(float): parameter for how smooth is the surface of reflection
+        illumination_map(IlluminationTexture): an illumination map object for
+            backwards raytracing
     """
     def __init__(
         self,
@@ -42,6 +47,10 @@ class Material:
         self.ior = ior
         self.texture = None
         self.roughness = roughness
+        self.illumination_map = None
 
     def add_texture(self, texture):
         self.texture = texture
+
+    def add_illumination_map(self, texture):
+        self.illumination_map = texture

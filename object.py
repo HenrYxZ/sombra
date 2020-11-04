@@ -190,7 +190,8 @@ class Plane(Object):
 
     def uvmap(self, p):
         """
-        Map this point into texture coordinates u, v.
+        Map this point into texture coordinates u, v. Position will be in the
+        center of the texture and not in the bottom left of the texture.
 
         Args:
             p(numpy.array): Point inside this object that will be transformed
@@ -199,7 +200,9 @@ class Plane(Object):
         Returns:
             tuple: Point (u, v) in texture coordinates
         """
-        dif_vector = p - self.position
+        # bottom left corner of the plane
+        p00 = self.position - (self.sx * self.n0) / 2 - (self.sy * self.n1) / 2
+        dif_vector = p - p00
         u = np.dot(dif_vector, self.n0) / self.sx
         v = np.dot(dif_vector, self.n1) / self.sy
         return u, v

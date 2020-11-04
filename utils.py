@@ -31,7 +31,7 @@ def humanize_time(secs):
     """
     mins, secs = divmod(secs, 60)
     hours, mins = divmod(mins, 60)
-    return '%02d:%02d:%02f' % (hours, mins, secs)
+    return '%02d:%02d:%02d' % (hours, mins, secs)
 
 
 def degree2radians(degrees):
@@ -43,6 +43,41 @@ def random_unit_vector():
     v = np.random.random_sample(3)
     v_unit = normalize(v)
     return v_unit
+
+
+def rotate_x(v, theta):
+    rot_mat = np.array([
+        [1, 0, 0],
+        [0, np.cos(theta), -np.sin(theta)],
+        [0, np.sin(theta), np.cos(theta)]
+    ])
+    rotated_v = np.dot(rot_mat, v)
+    return rotated_v
+
+
+def blerp(img_arr, x, y):
+    # Interpolate values of pixel neighborhood of x and y
+    i = int(np.round(x))
+    j = int(np.round(y))
+    # But not in the borders
+    height, width, _ = img_arr.shape
+    if i == 0 or j == 0 or i == width or j == height:
+        if i == width:
+            i -= 1
+        if j == height:
+            j -= 1
+        return img_arr[j][i]
+    # t and s are interpolation parameters that go from 0 to 1
+    t = x - i + 0.5
+    s = y - j + 0.5
+    # Bilinear interpolation
+    color = (
+        img_arr[j - 1][i - 1] * (1 - t) * (1 - s)
+        + img_arr[j - 1][i] * t * (1 - s)
+        + img_arr[j][i - 1] * (1 - t) * s
+        + img_arr[j][i] * t * s
+    )
+    return color
 
 
 class Timer:

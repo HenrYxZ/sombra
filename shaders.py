@@ -7,6 +7,7 @@ TYPE_DIFFUSE_LIGHT = "diffuse_light"
 TYPE_DIFFUSE_COLORS = "diffuse_colors"
 TYPE_DIFF_SPECULAR = "diffuse_with_specular"
 TYPE_DIFF_SPEC_BORDER = "diffuse_specular_border"
+TYPE_LIGHT_MAP = "light_map"
 COLOR_FOR_LIGHT = np.array([255, 255, 255], dtype=float)
 COLOR_FOR_BORDER = np.array([185, 185, 185], dtype=float)
 SHADOW_STRENGTH = 0.87
@@ -138,4 +139,22 @@ def hard_shadow(ph, objects, l, dist_l):
     # Use SHADOW_STRENGTH = 0 for no shadows and 1 for hard shadows
     shadow_coef *= max(0.0, min(SHADOW_STRENGTH, 1.0))
     color = COLOR_FOR_LIGHT * (1 - shadow_coef) + shadow_color * shadow_coef
+    return color
+
+
+def light_map(n, l, dark, light, caustic):
+    """
+    Shader calculation for a normal and a light vector and light and dark
+    colors.
+    Args:
+        n(ndarray): Unit normal vector
+        l(ndarray): Unit vector in the direction to the light
+        dark(ndarray): RGB dark color
+        light(ndarray): RGB light color
+        caustic(ndarray): Caustic contribution vector
+    Returns:
+        ndarray: The calculated color (RGB)
+    """
+    surface_color = diffuse_colors(n, l, dark, light)
+    color = surface_color + caustic
     return color

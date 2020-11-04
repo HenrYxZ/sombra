@@ -1,7 +1,7 @@
 import math
 import numpy as np
 # Local modules
-from constants import DEFAULT_N0, DEFAULT_N1
+from constants import DEFAULT_N0, DEFAULT_N1, MAX_COLOR_VALUE, RGB_CHANNELS
 import utils
 
 
@@ -22,6 +22,9 @@ class Light:
 
     def __init__(self, position):
         self.position = position
+        # TEMPORARY
+        self.color = np.ones(RGB_CHANNELS) * MAX_COLOR_VALUE
+        self.nl = DEFAULT_N0
 
     def get_dist(self, ph):
         """

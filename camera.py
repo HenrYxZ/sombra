@@ -83,7 +83,10 @@ class Camera:
         pass
 
     def tilt(self, degrees):
-        pass
+        theta = utils.degree2radians(degrees)
+        self.v_view = utils.rotate_x(self.v_view, theta)
+        self.v_up = utils.rotate_x(self.v_up, theta)
+        self.set_view_coord()
 
     def inside(self, objects):
         """

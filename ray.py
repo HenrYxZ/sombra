@@ -1,6 +1,32 @@
 import numpy as np
 # Local Modules
 from object import Cube, Plane, Sphere, Tetrahedron, Triangle
+import utils
+
+
+rng = np.random.default_rng()
+
+
+def reflect_ray(n, eye, ph, roughness, diffuse=False):
+    if diffuse:
+        phi = rng.random() * 2 * np.pi
+        z = rng.random()
+        theta = np.arccos(z)
+        x = np.sin(theta) * np.cos(phi)
+        y = np.sin(theta) * np.sin(phi)
+        z = np.cos(theta)
+        nr = np.array([x, y, z])
+        reflected_ray = Ray(ph, nr)
+    else:
+        c = np.dot(n, eye)
+        r = -1 * eye + 2 * c * n
+        # Adding roughness
+        if roughness > 0:
+            # Random vector with 3 values between [-1, 1]
+            random_vector = 2 * np.random.random_sample(3) - 1
+            r = utils.normalize(r + roughness ** 2 * random_vector)
+        reflected_ray = Ray(ph, utils.normalize(r))
+    return reflected_ray
 
 
 class Ray:

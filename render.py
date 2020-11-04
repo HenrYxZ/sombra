@@ -23,7 +23,24 @@ def avg(colors, samples):
     return total_sum / samples
 
 
-def create_rays(camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
+def create_rays(camera, height, width):
+    rays = []
+    for j in range(height):
+        for i in range(width):
+            x = i
+            y = height - 1 - j
+            # Get x projected in view coord
+            xp = (x / float(width)) * camera.scale_x
+            # Get y projected in view coord
+            yp = (y / float(height)) * camera.scale_y
+            pp = camera.p00 + xp * camera.n0 + yp * camera.n1
+            npe = utils.normalize(pp - camera.position)
+            ray = Ray(pp, npe)
+            rays.append(ray)
+    return rays
+
+
+def create_rays_aa(camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     rays = []
     for j in range(HEIGHT):
         for i in range(WIDTH):
@@ -46,7 +63,7 @@ def create_rays(camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     return rays
 
 
-def render_no_aa(scene, camera, HEIGHT=100, WIDTH=100):
+def render(scene, camera, HEIGHT=100, WIDTH=100):
     """
     Render the image for the given scene and camera using raytracing.
 
@@ -90,7 +107,7 @@ def render_no_aa(scene, camera, HEIGHT=100, WIDTH=100):
     return output
 
 
-def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
+def render_aa(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     """
     Render the image for the given scene and camera using raytracing.
 
@@ -141,7 +158,40 @@ def render(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     return output
 
 
-def render_mp(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
+def render_mp(scene, camera, height, width):
+    """
+    Render the image for the given scene and camera using raytracing in multi-
+    processors.
+    Args:
+        scene(Scene): The scene that contains objects, cameras and lights.
+        camera(Camera): The camera that is rendering this image.
+    Returns:
+        numpy.array: The pixels with the raytraced colors.
+    """
+    output = np.zeros((height, width, RGB_CHANNELS), dtype=np.uint8)
+    if not scene or not scene.objects or not camera or camera.inside(
+        scene.objects
+    ):
+        print("Cannot generate an image")
+        return output
+    print("Creating rays...")
+    rays = create_rays(camera, height, width)
+    pool = mp.Pool(mp.cpu_count())
+    print("Shooting rays...")
+    ray_colors = pool.map(
+        raytrace_mp_wrapper, [(ray, scene) for ray in rays]
+    )
+    pool.close()
+    print("Arranging pixels...")
+    for j in range(height):
+        for i in range(width):
+            output[j][i] = ray_colors[i + j * width]
+    return output
+
+
+def render_aa_mp(
+        scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4
+):
     """
     Render the image for the given scene and camera using raytracing in multi-
     processors.
@@ -160,7 +210,7 @@ def render_mp(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
         print("Cannot generate an image")
         return output
     print("Creating rays...")
-    rays = create_rays(camera, HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES)
+    rays = create_rays_aa(camera, HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES)
     pool = mp.Pool(mp.cpu_count())
     print("Shooting rays...")
     ray_colors = pool.map(
@@ -244,6 +294,60 @@ def render_dof(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=6, H_SAMPLES=6):
                     counter += 1
                     if counter % step_size == 0:
                         bar.next()
+            output[j][i] = color.round().astype(np.uint8)
+    bar.finish()
+    return output
+
+
+def render_aa_t(
+        scene, camera, func, HEIGHT=100, WIDTH=100, V_SAMPLES=4,
+        H_SAMPLES=4
+):
+    """
+    Render the image for the given scene and camera using a template function.
+
+    Args:
+        scene(Scene): The scene that contains objects, cameras and lights.
+        camera(Camera): The camera that is rendering this image.
+
+    Returns:
+        numpy.array: The pixels with the raytraced colors.
+    """
+    output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
+    if not scene or not scene.objects or not camera or camera.inside(
+            scene.objects
+    ):
+        print("Cannot generate an image")
+        return output
+    total_samples = H_SAMPLES * V_SAMPLES
+    # This is for showing progress %
+    iterations = HEIGHT * WIDTH
+    step_size = np.ceil((iterations * PERCENTAGE_STEP) / 100).astype('int')
+    counter = 0
+    bar = Bar('Rendering', max=100 / PERCENTAGE_STEP)
+    # This is needed to use it in Git Bash
+    bar.check_tty = False
+    for j in range(HEIGHT):
+        for i in range(WIDTH):
+            color = np.array([0, 0, 0], dtype=float)
+            for n in range(V_SAMPLES):
+                for m in range(H_SAMPLES):
+                    r0, r1 = np.random.random_sample(2)
+                    # Floats x, y inside the image plane grid
+                    x = i + ((float(m) + r0) / H_SAMPLES)
+                    y = HEIGHT - 1 - j + ((float(n) + r1) / V_SAMPLES)
+                    # Get x projected in view coord
+                    xp = (x / float(WIDTH)) * camera.scale_x
+                    # Get y projected in view coord
+                    yp = (y / float(HEIGHT)) * camera.scale_y
+                    pp = camera.p00 + xp * camera.n0 + yp * camera.n1
+                    npe = utils.normalize(pp - camera.position)
+                    ray = Ray(pp, npe)
+
+                    color += func(ray, scene) / float(total_samples)
+            counter += 1
+            if counter % step_size == 0:
+                bar.next()
             output[j][i] = color.round().astype(np.uint8)
     bar.finish()
     return output

@@ -10,7 +10,7 @@ from camera import Camera
 from constants import MAX_QUALITY
 from material import Material, TYPE_TEXTURED
 from object import Plane
-from render import render_no_aa
+from render import render
 from scene import Scene
 from texture import ImageTexture
 import shaders
@@ -51,7 +51,7 @@ def set_scene():
 def main():
     scene = set_scene()
     main_camera = scene.get_main_camera()
-    screen = render_no_aa(scene, main_camera, SCREEN_HEIGHT, SCREEN_WIDTH)
+    screen = render(scene, main_camera, SCREEN_HEIGHT, SCREEN_WIDTH)
     img_output = Image.fromarray(screen)
     if not os.path.exists(EXAMPLES_OUT_DIR):
         os.mkdir(EXAMPLES_OUT_DIR)

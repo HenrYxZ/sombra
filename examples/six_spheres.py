@@ -11,14 +11,14 @@ from constants import RGB_CHANNELS, MAX_QUALITY
 from light import DirectionalLight
 from material import Material, COLOR_BLUE
 from object import Sphere
-from render import render_no_aa
+from render import render
 from scene import Scene
 import shaders
 import utils
 
 SCREEN_WIDTH = 300
 SCREEN_HEIGHT = 200
-EXAMPLES_OUT_DIR = "examples_out"
+EXAMPLES_OUT_DIR = "../examples_out"
 OUTPUT_IMG_FILENAME = f"{EXAMPLES_OUT_DIR}/4_six_spheres.jpg"
 
 
@@ -55,7 +55,7 @@ def main():
     # Rendering
     timer = utils.Timer()
     timer.start()
-    screen = render_no_aa(scene, main_camera, SCREEN_HEIGHT, SCREEN_WIDTH)
+    screen = render(scene, main_camera, SCREEN_HEIGHT, SCREEN_WIDTH)
     timer.stop()
     # ------------------------------------------------------------------------
     print(f"Total time spent rendering: {timer}")
