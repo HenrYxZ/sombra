@@ -75,8 +75,8 @@ def render(scene, camera, HEIGHT=100, WIDTH=100):
         numpy.array: The pixels with the raytraced colors.
     """
     output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
-    if not scene or not scene.objects or not camera or camera.inside(
-            scene.objects
+    if not scene or scene.is_empty() or not camera or camera.inside(
+        scene.objects
     ):
         print("Cannot generate an image")
         return output
@@ -119,8 +119,8 @@ def render_aa(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
         numpy.array: The pixels with the raytraced colors.
     """
     output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
-    if not scene or not scene.objects or not camera or camera.inside(
-            scene.objects
+    if not scene or scene.is_empty or not camera or camera.inside(
+        scene.objects
     ):
         print("Cannot generate an image")
         return output
@@ -169,7 +169,7 @@ def render_mp(scene, camera, height, width):
         numpy.array: The pixels with the raytraced colors.
     """
     output = np.zeros((height, width, RGB_CHANNELS), dtype=np.uint8)
-    if not scene or not scene.objects or not camera or camera.inside(
+    if not scene or scene.is_empty() or not camera or camera.inside(
         scene.objects
     ):
         print("Cannot generate an image")
@@ -204,8 +204,8 @@ def render_aa_mp(
         numpy.array: The pixels with the raytraced colors.
     """
     output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
-    if not scene or not scene.objects or not camera or camera.inside(
-            scene.objects
+    if not scene or scene.is_empty() or not camera or camera.inside(
+        scene.objects
     ):
         print("Cannot generate an image")
         return output
@@ -244,7 +244,7 @@ def render_dof(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=6, H_SAMPLES=6):
         numpy.array: The pixels with the raytraced colors.
     """
     output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
-    if not scene or not scene.objects or not camera or camera.inside(
+    if not scene or scene.is_empty() or not camera or camera.inside(
             scene.objects
     ):
         print("Cannot generate an image")
@@ -314,8 +314,8 @@ def render_aa_t(
         numpy.array: The pixels with the raytraced colors.
     """
     output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
-    if not scene or not scene.objects or not camera or camera.inside(
-            scene.objects
+    if not scene or scene.is_empty() or not camera or camera.inside(
+        scene.objects
     ):
         print("Cannot generate an image")
         return output

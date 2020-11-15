@@ -14,15 +14,28 @@ def normalize(arr):
     Normalize a vector using numpy.
 
     Args:
-        arr(darray): Input vector
+        arr(ndarray): Input vector
 
     Returns:
-        darray: Normalized input vector
+        ndarray: Normalized input vector
     """
     norm = np.linalg.norm(arr)
     if norm == 0:
         return arr
     return arr / norm
+
+
+def distance(p1, p2):
+    """
+    Get the distance between points p1 and p2
+    Args:
+        p1(ndarray): Point 1
+        p2(ndarray): Point 2
+    Returns:
+         float: Distance
+    """
+    dist = np.linalg.norm(p1 - p2)
+    return dist
 
 
 def humanize_time(secs):

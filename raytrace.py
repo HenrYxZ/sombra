@@ -231,5 +231,9 @@ def raytrace(ray, scene, kr=1, depth=0):
         # Use unit director vector of ray for the Env Map
         color = env_map.get_color(ray.nr)
         return color
+    elif scene.sky_dome:
+        color = scene.sky_dome.in_scattering(ray)
+        rgb_color = color * MAX_COLOR_VALUE
+        return rgb_color
     else:
         return np.zeros(3)

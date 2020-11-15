@@ -2,7 +2,7 @@ import numpy as np
 import unittest
 # Local Modules
 from ray import Ray
-from object import Plane, Sphere
+from object import HollowSphere, Plane, Sphere
 
 SHADER_TYPE = "mockup_shader_type"
 
@@ -39,6 +39,32 @@ class RayTestCase(unittest.TestCase):
         material = None
         radius = 0.4
         sphere = Sphere(sphere_position, material, SHADER_TYPE, radius)
+        t = self.ray.intersect(sphere)
+        self.assertEqual(t, -1)
+
+    def test_intersect_hollow_sphere(self):
+        # case there is intersection
+        position = np.array([0, 0, 0])
+        material = None
+        radius = 3
+        sphere = HollowSphere(position, material, SHADER_TYPE, radius)
+        t = self.ray.intersect(sphere)
+        self.assertEqual(t, 2)
+        # cases object is behind
+        position = np.array([0, 0, -4])
+        radius = 4
+        sphere = HollowSphere(position, material, SHADER_TYPE, radius)
+        t = self.ray.intersect(sphere)
+        self.assertEqual(t, -1)
+        position = np.array([3, 24, -1])
+        radius = 0.4
+        sphere = HollowSphere(position, material, SHADER_TYPE, radius)
+        t = self.ray.intersect(sphere)
+        self.assertEqual(t, -1)
+        # case is not in the ray line
+        position = np.array([-3.3, 12.6, 5.2])
+        radius = 0.4
+        sphere = HollowSphere(position, material, SHADER_TYPE, radius)
         t = self.ray.intersect(sphere)
         self.assertEqual(t, -1)
 

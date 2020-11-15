@@ -160,6 +160,17 @@ class Sphere(Object):
         return np.where(b > 0 or discriminant < 0, NO_INTERSECTION, t)
 
 
+class HollowSphere(Sphere):
+    def normal_at(self, p):
+        # This doesn't validate that p is in the surface
+        if self.normal_map:
+            return self.normal_map.get_normal(p)
+        return -super().physical_normal_at(p)
+
+    def physical_normal_at(self, p):
+        return -super().physical_normal_at(p)
+
+
 class Plane(Object):
     """
     Represent a Plane object to be used in a scene.

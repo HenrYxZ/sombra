@@ -1,6 +1,6 @@
 import numpy as np
 # Local Modules
-from object import Cube, Plane, Sphere, Tetrahedron, Triangle
+from object import *
 import utils
 
 
@@ -84,6 +84,21 @@ class Ray:
         t = -1 * b - np.sqrt(discriminant)
         return t
 
+    def intersect_hollow_sphere(self, hollow_sphere):
+        """
+        Find t of intersection to a sphere, -1 means no intersection
+        """
+        # Sphere center point
+        pc = hollow_sphere.position
+        dif = self.pr - pc
+        b = np.dot(self.nr, dif)
+        c = np.dot(dif, dif) - hollow_sphere.radius ** 2
+        discriminant = b ** 2 - c
+        if discriminant < 0:
+            return -1
+        t = -1 * b + np.sqrt(discriminant)
+        return t
+
     def intersect_triangle(self, triangle):
         ray_t = self.intersect_plane(triangle)
         p_in_plane = self.at(ray_t)
@@ -107,7 +122,9 @@ class Ray:
         """
         Find t of intersection, -1 value means no intersection.
         """
-        if isinstance(obj, Sphere):
+        if isinstance(obj, HollowSphere):
+            return self.intersect_hollow_sphere(obj)
+        elif isinstance(obj, Sphere):
             return self.intersect_sphere(obj)
         elif isinstance(obj, Plane):
             return self.intersect_plane(obj)
