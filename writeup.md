@@ -1,75 +1,60 @@
-# Project 3 Global Illumination
+# Assignment 4 Atmospheric Light Scattering
 
 ## Introduction
 
-I implemented **pathtracing** and **backwards raytracing** (light raytracing) using Python and some utilities libraries.
-To run the program install the requirements following the readme and then run:
+I implemented a script that generates an image of a sky using atmospheric light scattering, using Ray casting with Python and some utilities libraries.
+(Pillow for image creation, numpy for numeric arrays).
+To run the program install the requirements:
 
-`$ python example_pathtracer.py`
+`$ python -m pip install -r requirements.txt`
 
-## Light Raytracing
+Then run:
 
-I followed the paper called Backwards Raytracing from 1986. I have a point light in the ceiling and rays are shot downwards to an imaginary plane that covers the floor of the room.
+`$ python run_example.py atmosphere`
 
-I created a transport_light function which takes a ray, scene, light intensity and depth. So the ray is intersected with the objects of the scene.
-At the min hit point:
+## How it works
 
-- if the surface is diffuse
-    - and is the first recursion level stop
-    - if the depth is more than 1, store the intensity in the light map at the uv for that ph (hit point)
-- if it's reflective/specular bounce and shoot another ray with transport_light
+Atmospheric Light Scattering with rays works by shooting the rays like normal raytracing but intersecting with the atmosphere.
+If the point of intersection is B and camera is A, we sample points along the segment between A and B. Each point has some density (the density increases near the
+surface of the planet and decreases going higher) which models the amounts of particles at that altitude. Particles like Nitrogen or other gases in the atmosphere,
+scatter the light that comes from the sun to the camera. That can be modeled with the Rayleigh Scattering equation.
 
-### Examples of Light Maps
+For each sample along A to B, another segment is created from the sample point P to the direction where the sun comes from and the intersection of the atmosphere,
+call that point C. That segment is also sampled to calculate the light coming from the sun that is scattered along. With that information one can calculate the
+light for the point P.
 
-This are some of the generated light maps. Resolution 1024x1024.
+For getting the total light at a point there is the optical depth that is the integration of density along the segment. We do that by making the sum of samples and
+multiplying the segment that each sample has, just like one would sample the integral of a function by adding multiple columns that fall bellow the function.
 
-![light map](examples_out/5_illumination_map_5.jpg)
-This is the 4th plane
+I did by looking at the information in Chapter 16 of GPU Gems 2 - [link](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-16-accurate-atmospheric-scattering)
 
-![light map](examples_out/5_illumination_map_6.jpg)
-This is the 5th plane
+And this video tutorial, but the code here didn't gave me good results - [link](https://www.youtube.com/watch?v=DxfEbulyFcY)
 
-## Path Tracing
+## Equations
 
-I'm using paths with a sort of Russian Roulette, I followed some of the instructions from the rendering class of prof. Ramamoorthi
+- **Phase Function**: Determines a factor of light going to the direction of the camera
+- **Out Scatter Equation**: How much light is scattered along the segment (wavelenght dependent)
+- **In Scatter Equation**: How much light comes in along the segment (wavelenght dependent)
 
-https://cseweb.ucsd.edu/~viscomp/classes/cse168/sp20/schedule.html
+## The Code
 
-1. First I get the surface color for the hit point using the light and checking for occlusion.
-2. I have a weight parameter in the recursive pathtrace function which updates in each call, by multiplying the *kr* of the surface. This means that the weight will be decreasing with each bounce.
-3. Play Russian Roulette. If the random number is less than `1 - weight` stop. That means that with each bounce the probability of stopping increases. If this is the bounce number 5 stop no matter what, I did this because other projects where doing the same and it had good results.
-4. If continue, reflect the ray and call pathtrace with that ray. If the surface is reflective the reflected ray only gets a little of variation, if the surface is diffuse the reflected ray is a random ray in the hemisphere.
-5. For gathering the color samples of at the moment of calling pathtrace in the reflected ray this equation is applied.
-
- ```python
-final_color = (1 - kr) * surface_color + kr * pathtrace(
-    reflected_ray, scene, depth, current_level + 1, weight
-)
- ```
+The script is in *examples/atmosphere.py*. I defined a class SkyDome in *sky.py* that has all the logic for calculating light at a ray.
+All the equations are defined in that class.
 
 ## Results
 
-Images where rendered in resolution 600x400px.
+I'm rendering a 600x400 image in about 1min 30secs in a 8-core processor using multithread.
+This is using 10 samples for sun rays and 10 for view rays. My results were not good, I think it is an issue with color. I get values that don't go, from 0 to 1.
+And I clip them, but there I don't know exactly how to interpret them. There is also the problem of what should I use as the Illumination coming from the sun.
+I tried using (1, 1, 1) and [1289, 1395, 1234] which is actual luminance from NASA for wavelengths R, G, B.
 
-![light raytracing](examples_out/light_raytracing.jpg)
+This is my result assuming RGB color:
 
-Light raytracing takes about 1 min, this was rendered with raytracing
+![atmosphere colorful](examples_out/6_atmosphere_colorful.jpg)
 
-![raytracer](examples_out/raytracing.jpg)
+This is my result transforming the color from I to XYZ with Color Matching and then from XYZ to sRGB with matrix:
 
-Raytracing takes about 1 min without anti-aliasing
-
-![pathtracing 1spp](examples_out/pathtracing_1spp.jpg)
-
-Path Tracing with 1 path per pixel takes about 3 min
-
-![pathtracing 9spp](examples_out/pathtracing_9spp.jpg)
-
-Path Tracing using 9 paths per pixel takes about 16 min it seems like using kr=0.3 and deciding to only give that amount of contribution to bounces is not enough to see color bleeding.
-
-![pathtracing 16spp](examples_out/5_pathtracing.jpg)
-
-Path Tracing using 16 paths per pixel, I changed the planes to be lighter and kr for diffuse to 0.4 but still can't see much color bleeding. For specular though, the reflections in the sphere come from the bounces in that path. Took 31 min to render in a single core.
+![atmosphere](examples_out/6_atmosphere.jpg)
 
 
 Jesús Henríquez

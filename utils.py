@@ -2,6 +2,7 @@ import numpy as np
 import time
 
 # Local imports
+import constants
 from material import Material
 import material
 
@@ -91,6 +92,35 @@ def blerp(img_arr, x, y):
         + img_arr[j][i] * t * s
     )
     return color
+
+
+def color_matching(color):
+    xyz = np.zeros(3)
+    # Exception for color in RGB
+    if len(color) == 3:
+        new_color_matching = np.array([
+            constants.COLOR_MATCHING[constants.RGB_INDEX[0]],
+            constants.COLOR_MATCHING[constants.RGB_INDEX[1]],
+            constants.COLOR_MATCHING[constants.RGB_INDEX[2]]
+        ])
+        for i in range(len(color)):
+            intensity = color[i]
+            xyz[0] += intensity * new_color_matching[i][1]
+            xyz[1] += intensity * new_color_matching[i][2]
+            xyz[2] += intensity * new_color_matching[i][3]
+    else:
+        for i in range(len(color)):
+            intensity = color[i]
+            xyz[0] += intensity * constants.COLOR_MATCHING[i][1]
+            xyz[1] += intensity * constants.COLOR_MATCHING[i][2]
+            xyz[2] += intensity * constants.COLOR_MATCHING[i][3]
+    return xyz
+
+
+def xyz_to_rgb(color):
+    rgb_color = np.matmul(constants.XYZ_TO_RGB, color)
+    rgb_color = np.clip(rgb_color, 0, 1)
+    return rgb_color
 
 
 class Timer:

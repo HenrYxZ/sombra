@@ -80,7 +80,7 @@ class DirectionalLight(Light):
         Returns:
             numpy.array: unit vector pointing to the light
         """
-        l = utils.normalize(-1 * self.position)
+        l = utils.normalize(-self.position)
         return l
 
 

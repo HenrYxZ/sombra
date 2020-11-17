@@ -233,7 +233,10 @@ def raytrace(ray, scene, kr=1, depth=0):
         return color
     elif scene.sky_dome:
         color = scene.sky_dome.in_scattering(ray)
-        rgb_color = color * MAX_COLOR_VALUE
+        xyz = utils.color_matching(color)
+        xyz = np.clip(xyz, 0, 1)
+        rgb_color = utils.xyz_to_rgb(xyz)
+        rgb_color *= MAX_COLOR_VALUE
         return rgb_color
     else:
         return np.zeros(3)

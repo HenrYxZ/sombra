@@ -9,12 +9,12 @@ import utils
 EARTH_RADIUS = 6378 * 1000
 DEFAULT_CENTER = np.array([0, -EARTH_RADIUS, 0])
 DEFAULT_ATMOSPHERE_HEIGHT = EARTH_RADIUS * 0.025
-DEFAULT_SUN_DIRECTION = utils.normalize(np.array([-0.1, 0.2, 1]))
+DEFAULT_SUN_DIRECTION = utils.normalize(np.array([0, 0.15, 1]))
 DEFAULT_AVG_DENSITY_HEIGHT = 0.25 * DEFAULT_ATMOSPHERE_HEIGHT
-IN_SCATTER_SAMPLES = 5
-OPTICAL_DEPTH_SAMPLES = 5
+IN_SCATTER_SAMPLES = 10
+OPTICAL_DEPTH_SAMPLES = 10
 COLOR_CHANNELS = 3
-WAVE_LENGTHS = np.array([700, 530, 440])
+WAVE_LENGTHS = np.array([650, 510, 445])
 SCATTERING_SCALE = 1
 SCATTERING_COEFFICIENTS = (1 / np.power(WAVE_LENGTHS, 4)) * SCATTERING_SCALE
 DENSITY_FALLOFF = 4
@@ -58,11 +58,11 @@ class SkyDome:
 
     def density_at_point(self, p):
         height = utils.distance(p, self.center) - self.radius
-        # normalized_height = height / self.atmosphere_height
-        # density = np.exp(-normalized_height * DENSITY_FALLOFF) * (
-        #         1 - normalized_height
-        # )
-        density = np.exp(-height / self.avg_density_height)
+        normalized_height = height / self.atmosphere_height
+        density = np.exp(-normalized_height * DENSITY_FALLOFF) * (
+                1 - normalized_height
+        )
+        # density = np.exp(-height / self.avg_density_height)
         return density
 
     def optical_depth(
@@ -107,9 +107,6 @@ class SkyDome:
                 current_density * np.exp(-(out_sun + out_view)) * distance
             ) * self.phase_function(sun_ray.nr, -r.nr)
         light = SUN_COLOR * SCATTERING_COEFFICIENTS * transmittance
-        min_component = np.min(light)
-        max_component = np.max(light)
-        light = light - min_component / (max_component - min_component)
         return light
 
     def light_at_ray(self, r, view_samples=IN_SCATTER_SAMPLES):
@@ -141,5 +138,7 @@ class SkyDome:
             segment_size = (dist_to_atmosphere / view_samples) * randoms[i]
             sample_density = self.density_at_point(sample_point)
             light += sample_density * segment_size * transmittance
-        light = light * SCATTERING_COEFFICIENTS / self.radius
+        light *= SCATTERING_COEFFICIENTS
+        light /= self.radius
+        light = np.clip(light, 0, 1)
         return light
