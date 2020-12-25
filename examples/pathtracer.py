@@ -27,7 +27,7 @@ OUT_DIR = "../examples_out"
 OUTPUT_IMG_FILENAME = f"{OUT_DIR}/5_pathtracing.jpg"
 NORMAL_MAP_FILENAME = "textures/4483-normal.jpg"
 debug = False
-MICKEY_FILENAME = "../textures/mickey.jpg"
+MICKEY_FILENAME = "textures/mickey.jpg"
 
 
 def create_cube(objects):
@@ -149,8 +149,8 @@ def main():
         V_SAMPLES = 1
         H_SAMPLES = 1
     else:
-        V_SAMPLES = 4
-        H_SAMPLES = 4
+        V_SAMPLES = 8
+        H_SAMPLES = 8
     timer = utils.Timer()
     timer.start()
     print("Running pathtracer")

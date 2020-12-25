@@ -8,6 +8,8 @@ def main(argv):
         examples.flat_sphere.main()
     elif "flat_shading_scene" in argv:
         examples.flat_shading_scene.main()
+    elif "pathtracer" in argv:
+        examples.pathtracer.main()
     elif "atmosphere" in argv:
         examples.atmosphere.main()
 
