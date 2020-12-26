@@ -74,8 +74,8 @@ def render_sky(scene, camera, HEIGHT=100, WIDTH=100):
 
 def set_camera():
     camera_pos = np.array([0.0, 1.74, 0.0])
-    v_view = np.array([0.0, 0.0, 1.0])
-    v_up = np.array([0.0, 1.0, 0.0])
+    v_view = np.array(utils.normalize([0.0, 1.0, 2.0]))
+    v_up = np.array([0.0, 1.0, 0])
     return Camera(camera_pos, v_view, v_up, d=2.5, scale_x=3, scale_y=2)
 
 
