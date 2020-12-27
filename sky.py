@@ -14,7 +14,6 @@ DEFAULT_SUN_DIRECTION = utils.normalize(np.array([0, 1, 0]))
 DEFAULT_AVG_DENSITY_HEIGHT = 0.25 * DEFAULT_ATMOSPHERE_HEIGHT
 IN_SCATTER_SAMPLES = 10
 OPTICAL_DEPTH_SAMPLES = 10
-# COLOR_CHANNELS = 3
 COLOR_CHANNELS = 7
 WAVE_LENGTHS = np.array([650, 510, 445])
 SCATTERING_SCALE = 1
@@ -115,37 +114,3 @@ class SkyDome:
             SUNLIGHT * SCATTERING_COEFFICIENTS * transmittance
         )
         return light
-
-    # def light_at_ray(self, r, view_samples=IN_SCATTER_SAMPLES):
-    #     # make samples along the ray
-    #     # get contribution of each sample
-    #     # Create one random number between 0 and 1 for each sample point
-    #     light = np.zeros(COLOR_CHANNELS)
-    #     randoms = np.random.random_sample(view_samples)
-    #     dist_to_atmosphere = r.intersect(self.atmosphere_obj)
-    #     for i in range(view_samples):
-    #         distance = (dist_to_atmosphere / view_samples) * (i + randoms[i])
-    #         sample_point = r.at(distance)
-    #         sun_ray = Ray(sample_point, self.sun_direction)
-    #         t_to_atmosphere = sun_ray.intersect(self.atmosphere_obj)
-    #         t_to_planet = sun_ray.intersect(self.planet_obj)
-    #         if 0 < t_to_planet < t_to_atmosphere:
-    #             continue
-    #         sun_ray_optical_depth = self.optical_depth(
-    #             sun_ray.pr, sun_ray.nr, t_to_atmosphere
-    #         )
-    #         view_ray_optical_depth = self.optical_depth(
-    #             sample_point, -r.nr, distance
-    #         )
-    #         transmittance = np.exp(
-    #             -(sun_ray_optical_depth + view_ray_optical_depth)
-    #             * SCATTERING_COEFFICIENTS
-    #         )
-    #         # Size for the segment of this function to be used for integration
-    #         segment_size = (dist_to_atmosphere / view_samples) * randoms[i]
-    #         sample_density = self.density_at_point(sample_point)
-    #         light += sample_density * segment_size * transmittance
-    #     light *= SCATTERING_COEFFICIENTS
-    #     light /= self.radius
-    #     light = np.clip(light, 0, 1)
-    #     return light
