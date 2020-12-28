@@ -1,5 +1,6 @@
 import getopt
 import numpy as np
+import os
 from PIL import Image
 import sys
 import time
@@ -14,7 +15,7 @@ from material import Material
 import material
 from normal_map import NormalMap
 from object import Cube, Plane, Sphere, Tetrahedron, Triangle
-from render import render_aa, render_dof, render, render_mp
+from render import render_aa, render_dof, render, render_mp, render_aa_mp
 from scene import Scene
 import shaders
 from texture import ImageTexture, SolidImageTexture, Box
@@ -27,8 +28,8 @@ HEIGHT = 192
 # WIDTH = 1280
 # HEIGHT = 720
 # Vertical and Horizontal Samples for Random Jitter Anti Aliasing
-V_SAMPLES = 4
-H_SAMPLES = 4
+V_SAMPLES = 3
+H_SAMPLES = 3
 DEFAULT_KS = 0.8
 DEFAULT_THICKNESS = 0.7
 CHECKERS_TEXTURE_FILENAME = "textures/checkers.png"
@@ -73,12 +74,12 @@ def setup_lights():
     # theta = utils.degree2radians(30)
     # spot_light = SpotLight(light_pos, theta, nl)
     # Area Light
-    area_light_pos = np.array([-50, 75.0, 100.0])
-    area_light_n0 = np.array([0.0, 0.0, -1.0])
-    area_light_n1 = utils.normalize(np.array([1.0, 1.0, 0.0]))
-    area_light = AreaLight(
-        area_light_pos, 50.0, 30.0, area_light_n0, area_light_n1
-    )
+    area_light_pos = np.array([0, 100, 0.0])
+    area_light_n0 = np.array([1.0, 0.0, 0.0])
+    area_light_n1 = utils.normalize(np.array([0.0, 1.0, 0.0]))
+    sx = 18
+    sy = 18
+    area_light = AreaLight(area_light_pos, sx, sy, area_light_n0, area_light_n1)
     return [area_light]
 
 
@@ -106,7 +107,7 @@ def setup_objects():
         plane_sy
     )
     # Sphere Object
-    sphere_pos = np.array([0, 0, 100], dtype=float)
+    sphere_pos = np.array([-50, 0, 100], dtype=float)
     sphere_mtl = Material(
         material.COLOR_BLUE,
         material.TYPE_TEXTURED,
@@ -116,32 +117,33 @@ def setup_objects():
     sphere_shader = shaders.TYPE_DIFFUSE_COLORS
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    # Mickey Sphere
-    sphere_pos = np.array([-30, -5, 75], dtype=float)
-    sphere_mtl = Material(
-        material.COLOR_BLUE,
-        material.TYPE_TEXTURED,
-        specular=DEFAULT_KS
-    )
-    box = Box(sphere_pos, 40, 40, 40)
-    mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
-    sphere_mtl.add_texture(SolidImageTexture(mickey_img_texture, box))
-    sphere_shader = shaders.TYPE_DIFFUSE_COLORS
-    sphere_r = 20.0
-    mickey = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    # Gray Sphere
-    sphere_pos = np.array([90, 15, 160], dtype=float)
-    sphere_mtl = Material(
-        material.COLOR_GRAY,
-        material.TYPE_DIFFUSE,
-        specular=DEFAULT_KS,
-        border=0.0,
-        kr=0.7, roughness=0.15
-    )
-    sphere_shader = shaders.TYPE_DIFFUSE_COLORS
-    sphere_r = 40.0
-    gray_sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    return [sphere, plane, mickey, gray_sphere]
+    # # Mickey Sphere
+    # sphere_pos = np.array([-30, -5, 75], dtype=float)
+    # sphere_mtl = Material(
+    #     material.COLOR_BLUE,
+    #     material.TYPE_TEXTURED,
+    #     specular=DEFAULT_KS
+    # )
+    # box = Box(sphere_pos, 40, 40, 40)
+    # mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
+    # sphere_mtl.add_texture(SolidImageTexture(mickey_img_texture, box))
+    # sphere_shader = shaders.TYPE_DIFFUSE_COLORS
+    # sphere_r = 20.0
+    # mickey = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
+    # # Gray Sphere
+    # sphere_pos = np.array([90, 15, 160], dtype=float)
+    # sphere_mtl = Material(
+    #     material.COLOR_GRAY,
+    #     material.TYPE_DIFFUSE,
+    #     specular=DEFAULT_KS,
+    #     border=0.0,
+    #     kr=0.7, roughness=0.15
+    # )
+    # sphere_shader = shaders.TYPE_DIFFUSE_COLORS
+    # sphere_r = 40.0
+    # gray_sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
+    # return [sphere, plane, mickey, gray_sphere]
+    return [sphere, plane]
 
 
 def set_objects_id(objects):
@@ -204,9 +206,14 @@ def main(argv):
     print("Setting up...")
     scene = setup_scene()
     if multi_core:
-        render_function = render_mp
+        if debug_mode:
+            render_function = render_mp
+        else:
+            render_function = render_aa_mp
     elif dof_mode:
         render_function = render_dof
+    elif debug_mode:
+        render_function = render
     else:
         render_function = render_aa
     render_msg = "Rendering at {}x{}".format(WIDTH, HEIGHT)
@@ -214,10 +221,10 @@ def main(argv):
         render_msg += " with {}x{} AA".format(
             H_SAMPLES, V_SAMPLES
         )
-        if multi_core:
-            render_msg += " using multi-core"
         if dof_mode:
             render_msg += " using depth of field"
+    if multi_core:
+        render_msg += f" using {os.cpu_count()} cores"
     print(render_msg)
     # Raytrace one image
     # -------------------------------------------------------------------------
@@ -225,7 +232,7 @@ def main(argv):
         log.start_of_raytracing()
         print("Raytracing...")
         if debug_mode:
-            img_arr = render(scene, scene.cameras[0], HEIGHT, WIDTH)
+            img_arr = render_function(scene, scene.cameras[0], HEIGHT, WIDTH)
         else:
             img_arr = render_function(
                 scene, scene.cameras[0], HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
