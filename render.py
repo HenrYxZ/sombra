@@ -119,7 +119,7 @@ def render_aa(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
         numpy.array: The pixels with the raytraced colors.
     """
     output = np.zeros((HEIGHT, WIDTH, RGB_CHANNELS), dtype=np.uint8)
-    if not scene or scene.is_empty or not camera or camera.inside(
+    if not scene or scene.is_empty() or not camera or camera.inside(
         scene.objects
     ):
         print("Cannot generate an image")
@@ -216,7 +216,6 @@ def render_aa_mp(
     ray_colors = pool.map(
         raytrace_mp_wrapper, [(ray, scene) for ray in rays]
     )
-    print(ray_colors[:8])
     pool.close()
     print("Arranging pixels...")
     samples = H_SAMPLES * V_SAMPLES
