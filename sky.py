@@ -15,13 +15,8 @@ DEFAULT_AVG_DENSITY_HEIGHT = 0.25 * DEFAULT_ATMOSPHERE_HEIGHT
 IN_SCATTER_SAMPLES = 10
 OPTICAL_DEPTH_SAMPLES = 10
 COLOR_CHANNELS = 7
-WAVE_LENGTHS = np.array([650, 510, 445])
-SCATTERING_SCALE = 1
-SCATTERING_COEFFICIENTS = (
-    1 / np.power(RAINBOW_WAVELENGHTS, 4)
-) * SCATTERING_SCALE
+SCATTERING_COEFFICIENTS = np.power(RAINBOW_WAVELENGHTS, -4)
 DENSITY_FALLOFF = 4
-SUN_COLOR = np.array([1289, 1395, 1234])
 
 
 class SkyDome:
@@ -61,23 +56,23 @@ class SkyDome:
 
     def density_at_point(self, p):
         height = utils.distance(p, self.center) - self.radius
-        normalized_height = height / self.atmosphere_height
-        density = np.exp(-normalized_height * DENSITY_FALLOFF) * (
-            1 - normalized_height
-        )
-        # density = np.exp(-height / self.avg_density_height)
+        # normalized_height = height / self.atmosphere_height
+        # density = np.exp(-normalized_height * DENSITY_FALLOFF) * (
+        #     1 - normalized_height
+        # )
+        density = np.exp(-height / self.avg_density_height)
         return density
 
     def optical_depth(
         self, p, direction, distance, num_samples=OPTICAL_DEPTH_SAMPLES
     ):
         optical_depth = 0
-        segment_distance = (distance / num_samples)
+        step_size = distance / num_samples
         for i in range(num_samples):
-            current_distance = i * segment_distance
+            current_distance = i * step_size
             sample_point = p + direction * current_distance
             sample_density = self.density_at_point(sample_point)
-            optical_depth += sample_density * segment_distance
+            optical_depth += sample_density * step_size
         return optical_depth
 
     def out_scattering(
@@ -90,8 +85,9 @@ class SkyDome:
     def in_scattering(self, r, view_samples=IN_SCATTER_SAMPLES):
         dist_to_atmosphere = r.intersect(self.atmosphere_obj)
         transmittance = 0
+        step_size = dist_to_atmosphere / view_samples
         for i in range(view_samples):
-            distance = (dist_to_atmosphere / view_samples) * i
+            distance = step_size * i
             sample_point = r.at(distance)
             sun_ray = Ray(sample_point, self.sun_direction)
             t_to_atmosphere = sun_ray.intersect(self.atmosphere_obj)
@@ -105,10 +101,9 @@ class SkyDome:
                 sample_point, -r.nr, distance
             )
             current_density = self.density_at_point(sample_point)
-            segment_distance = dist_to_atmosphere / view_samples
             transmittance += (
-                current_density * np.exp(-(out_sun + out_view))
-                * segment_distance
+                current_density * np.exp(-(out_sun + out_view)) * step_size
+                * self.phase_function(sun_ray.nr, -r.nr)
             )
         light = (
             SUNLIGHT * SCATTERING_COEFFICIENTS * transmittance

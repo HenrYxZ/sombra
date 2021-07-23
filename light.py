@@ -7,8 +7,8 @@ import utils
 
 MAX_DISTANCE_LIGHT = np.inf
 # Default horizontal and vertical number of samples for area lights
-AREA_LIGHT_M = 6
-AREA_LIGHT_N = 6
+AREA_LIGHT_M = 8
+AREA_LIGHT_N = 8
 #
 
 

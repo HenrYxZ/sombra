@@ -10,7 +10,7 @@ TYPE_DIFF_SPEC_BORDER = "diffuse_specular_border"
 TYPE_LIGHT_MAP = "light_map"
 COLOR_FOR_LIGHT = np.array([255, 255, 255], dtype=float)
 COLOR_FOR_BORDER = np.array([185, 185, 185], dtype=float)
-SHADOW_STRENGTH = 0.87
+SHADOW_STRENGTH = 0.9
 
 
 def diffuse_light(n, l):

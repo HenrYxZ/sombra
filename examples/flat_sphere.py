@@ -9,12 +9,14 @@ from camera import Camera
 from constants import RGB_CHANNELS, MAX_QUALITY
 from material import Material, COLOR_BLUE
 from object import Sphere
+from render import render
 from scene import Scene
 import shaders
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 300
-OUTPUT_IMG_FILENAME = "1_flat_sphere.jpg"
+OUTPUT_DIR = "examples_out"
+OUTPUT_IMG_FILENAME = f"{OUTPUT_DIR}/1_flat_sphere.jpg"
 
 
 def set_camera():
@@ -36,9 +38,10 @@ def set_scene():
 def main():
     scene = set_scene()
     main_camera = scene.get_main_camera()
-    screen = np.zeros([SCREEN_HEIGHT, SCREEN_WIDTH, RGB_CHANNELS])
+    screen = render(scene, main_camera, SCREEN_HEIGHT, SCREEN_WIDTH)
     img_output = Image.fromarray(screen)
     img_output.save(OUTPUT_IMG_FILENAME, quality=MAX_QUALITY)
+    print(f"Image saved in {OUTPUT_IMG_FILENAME}")
 
 
 if __name__ == '__main__':
