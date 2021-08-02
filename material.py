@@ -10,6 +10,7 @@ COLOR_LIGHT_GRAY = np.array([211, 211, 211])
 COLOR_GREEN = np.array([65, 230, 65])
 COLOR_RED = np.array([230, 80, 80])
 COLOR_BLUE = np.array([70, 70, 230])
+COLOR_WHITE = np.array([245, 245, 245])
 
 
 class Material:

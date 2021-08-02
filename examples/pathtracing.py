@@ -1,5 +1,5 @@
 """
-Example that generates an image of a sphere with a flat color (no lighting).
+Example that generates an image of a path-traced scene.
 """
 import numpy as np
 from PIL import Image
@@ -8,21 +8,20 @@ import os.path
 # Local Modules
 from camera import Camera
 from constants import MAX_QUALITY, DEFAULT_N0, DEFAULT_N1, DEFAULT_N2
-from light import PointLight, SpotLight
+from light import PointLight
 from light_raytracing import backward_raytracing
 from material import Material
 from object import Plane, Sphere
 from pathtracer import pathtrace
-from raytrace import raytrace
-from render import render, render_mp, render_aa, render_aa_mp, render_aa_t
+from render import render_aa_t
 from scene import Scene
 import shaders
 from texture import Box, IlluminationTexture, ImageTexture, SolidImageTexture
 import utils
 import material
 
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 400
+SCREEN_WIDTH = 300
+SCREEN_HEIGHT = 200
 OUT_DIR = "../examples_out"
 OUTPUT_IMG_FILENAME = f"{OUT_DIR}/5_pathtracing.jpg"
 NORMAL_MAP_FILENAME = "textures/4483-normal.jpg"
@@ -46,8 +45,8 @@ def create_cube(objects):
     ns = [n0, -n0, n2, -n2, n1, -n1]
     n0s = [n1, n1, n0, n0, n0, n0]
     colors = [
-        material.COLOR_GREEN, material.COLOR_RED, material.COLOR_GRAY,
-        material.COLOR_GRAY, material.COLOR_GRAY, material.COLOR_GRAY
+        material.COLOR_GREEN, material.COLOR_RED, material.COLOR_WHITE,
+        material.COLOR_WHITE, material.COLOR_WHITE, material.COLOR_WHITE
     ]
     for i in range(6):
         mtl = Material(colors[i])
@@ -97,7 +96,9 @@ def set_scene():
     # Mickey sphere
     radius = 0.4
     pos = np.array([-0.4, radius, 1.5])
-    mtl = Material(material_type=material.TYPE_TEXTURED, specular=0.5)
+    mtl = Material(
+        material_type=material.TYPE_TEXTURED, specular=0.5, roughness=0.3
+    )
     shader_type = shaders.TYPE_DIFF_SPECULAR
     texture = ImageTexture(MICKEY_FILENAME)
     box_size = 1.8 * radius
@@ -119,26 +120,26 @@ def main():
     main_camera = scene.get_main_camera()
     # ------------------------------------------------------------------------
     # Illuminate
-    timer = utils.Timer()
-    timer.start()
-    LIGHT_SCREEN_WIDTH = 1024
-    LIGHT_SCREEN_HEIGHT = 1024
-    # n0 = np.array([0, 0, -1])
-    # n1 = utils.normalize(np.array([1, 1, 0]))
-    n0 = DEFAULT_N0
-    n1 = DEFAULT_N2
-    backward_raytracing(
-        scene, scene.lights[0], LIGHT_SCREEN_WIDTH, LIGHT_SCREEN_HEIGHT, n0, n1
-    )
-    timer.stop()
-    print(f"Total time spent illuminating: {timer}")
-    for i in range(len(scene.objects)):
-        obj = scene.objects[i]
-        if obj.material.illumination_map:
-            map = obj.material.illumination_map.data
-            img_output = Image.fromarray(map)
-            filename = f"{OUT_DIR}/5_illumination_map_{i}.jpg"
-            img_output.save(filename, quality=MAX_QUALITY)
+    # timer = utils.Timer()
+    # timer.start()
+    # LIGHT_SCREEN_WIDTH = 1024
+    # LIGHT_SCREEN_HEIGHT = 1024
+    # # n0 = np.array([0, 0, -1])
+    # # n1 = utils.normalize(np.array([1, 1, 0]))
+    # n0 = DEFAULT_N0
+    # n1 = DEFAULT_N2
+    # backward_raytracing(
+    #    scene, scene.lights[0], LIGHT_SCREEN_WIDTH, LIGHT_SCREEN_HEIGHT, n0, n1
+    # )
+    # timer.stop()
+    # print(f"Total time spent illuminating: {timer}")
+    # for i in range(len(scene.objects)):
+    #     obj = scene.objects[i]
+    #     if obj.material.illumination_map:
+    #         map = obj.material.illumination_map.data
+    #         img_output = Image.fromarray(map)
+    #         filename = f"{OUT_DIR}/5_illumination_map_{i}.jpg"
+    #         img_output.save(filename, quality=MAX_QUALITY)
     # Load saved illumination maps
     # for i in range(2, 8):
     #     filename = f"5_illumination_map_{i}.jpg"
@@ -149,8 +150,8 @@ def main():
         V_SAMPLES = 1
         H_SAMPLES = 1
     else:
-        V_SAMPLES = 8
-        H_SAMPLES = 8
+        V_SAMPLES = 5
+        H_SAMPLES = 5
     timer = utils.Timer()
     timer.start()
     print("Running pathtracer")

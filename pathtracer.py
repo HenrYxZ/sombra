@@ -57,10 +57,12 @@ def pathtrace(ray, scene, depth=DEFAULT_MAX_DEPTH, current_level=0, weight=1):
             return surface_color
         # Continue
         diffuse = obj_h.material.kr == 0
+        nr = obj_h.normal_at(ph)
         reflected_ray = reflect_ray(
-            obj_h.normal_at(ph), eye, ph, obj_h.material.roughness, diffuse
+            nr, eye, ph, obj_h.material.roughness, diffuse
         )
-        final_color = (1 - kr) * surface_color + kr * pathtrace(
+        cos_theta = np.dot(nr, reflected_ray.nr)
+        final_color = surface_color + kr * cos_theta * pathtrace(
             reflected_ray, scene, depth, current_level + 1, weight
         )
         return final_color

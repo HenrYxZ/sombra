@@ -4,18 +4,10 @@ from object import *
 import utils
 
 
-rng = np.random.default_rng()
-
-
 def reflect_ray(n, eye, ph, roughness, diffuse=False):
     if diffuse:
-        phi = rng.random() * 2 * np.pi
-        z = rng.random()
-        theta = np.arccos(z)
-        x = np.sin(theta) * np.cos(phi)
-        y = np.sin(theta) * np.sin(phi)
-        z = np.cos(theta)
-        nr = np.array([x, y, z])
+        # nr is a random vector in the hemisphere with r=1
+        nr = utils.random_hemisphere(n)
         reflected_ray = Ray(ph, nr)
     else:
         c = np.dot(n, eye)

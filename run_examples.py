@@ -9,7 +9,7 @@ def main(argv):
     elif "flat_shading_scene" in argv:
         examples.flat_shading_scene.main()
     elif "pathtracer" in argv:
-        examples.pathtracer.main()
+        examples.pathtracing.main()
     elif "atmosphere" in argv:
         examples.atmosphere.main()
 

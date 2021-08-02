@@ -8,6 +8,7 @@ import material
 
 
 MTL_DIFFUSE_BLUE = Material(material.COLOR_BLUE, material.TYPE_DIFFUSE)
+rng = np.random.default_rng()
 
 
 def normalize(arr):
@@ -67,6 +68,28 @@ def rotate_x(v, theta):
     ])
     rotated_v = np.dot(rot_mat, v)
     return rotated_v
+
+
+def random_hemisphere(v):
+    """
+    Create a new random vector around the hemisphere in the given vector.
+    Using y-axis as up.
+    Args:
+        v: a vector
+
+    Returns:
+        ndarray: a new vector
+    """
+    n1 = normalize(v)
+    n0 = normalize(np.cross(n1, np.array([0.0, 0.0, 1.0])))
+    n2 = normalize(np.cross(n0, n1))
+    phi = rng.random() * 2 * np.pi
+    y = rng.random()
+    theta = np.arccos(y)
+    x = np.sin(theta) * np.cos(phi)
+    z = np.sin(theta) * np.sin(phi)
+    new_vector = x * n0 + y * n1 + z * n2
+    return new_vector
 
 
 def blerp(img_arr, x, y):
