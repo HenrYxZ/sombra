@@ -65,7 +65,7 @@ def setup_cameras():
 
 def setup_lights():
     # Directional Light
-    # directional_light = DirectionalLight(np.array([-1, -1, 1]))
+    directional_light = DirectionalLight(np.array([-1, -1, 1]))
     # Point Light
     # light_pos = np.array([0, 50, 0], dtype=float)
     # point_light = PointLight(light_pos)
@@ -74,13 +74,13 @@ def setup_lights():
     # theta = utils.degree2radians(30)
     # spot_light = SpotLight(light_pos, theta, nl)
     # Area Light
-    area_light_pos = np.array([0, 100, 0.0])
-    area_light_n0 = np.array([1.0, 0.0, 0.0])
-    area_light_n1 = utils.normalize(np.array([0.0, 1.0, 0.0]))
-    sx = 18
-    sy = 18
-    area_light = AreaLight(area_light_pos, sx, sy, area_light_n0, area_light_n1)
-    return [area_light]
+    # area_light_pos = np.array([0, 100, 0.0])
+    # area_light_n0 = np.array([1.0, 0.0, 0.0])
+    # area_light_n1 = utils.normalize(np.array([0.0, 1.0, 0.0]))
+    # sx = 18
+    # sy = 18
+    # area_light = AreaLight(area_light_pos, sx, sy, area_light_n0, area_light_n1)
+    return [directional_light]
 
 
 def setup_objects():
