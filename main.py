@@ -15,7 +15,8 @@ from material import Material
 import material
 from normal_map import NormalMap
 from object import Cube, Plane, Sphere, Tetrahedron, Triangle
-from render import render_aa, render_dof, render, render_mp, render_aa_mp
+from render import render_aa, render_dof, render, render_mp, render_aa_mp, \
+    render_aa_mp_unordered
 from scene import Scene
 import shaders
 from texture import ImageTexture, SolidImageTexture, Box
@@ -209,7 +210,7 @@ def main(argv):
         if debug_mode:
             render_function = render_mp
         else:
-            render_function = render_aa_mp
+            render_function = render_aa_mp_unordered
     elif dof_mode:
         render_function = render_dof
     elif debug_mode:

@@ -15,6 +15,11 @@ RGB_CHANNELS = 3
 def raytrace_mp_wrapper(args):
     return raytrace(*args)
 
+def raytrace_unordered_wrapper(args):
+    ray, i, j, w, scene = args
+    color = raytrace(ray, scene)
+    weighted_color = color * w
+    return (weighted_color, i, j)
 
 def avg(colors, samples):
     total_sum = np.zeros(3)
@@ -48,9 +53,9 @@ def create_rays_aa(camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
                 for m in range(H_SAMPLES):
                     x = i + (float(m) / H_SAMPLES) + (random() / H_SAMPLES)
                     y = (
-                            HEIGHT - 1 - j
-                            + (float(n) / V_SAMPLES)
-                            + (random() / V_SAMPLES)
+                        HEIGHT - 1 - j
+                        + (float(n) / V_SAMPLES)
+                        + (random() / V_SAMPLES)
                     )
                     # Get x projected in view coord
                     xp = (x / float(WIDTH)) * camera.scale_x
@@ -60,6 +65,33 @@ def create_rays_aa(camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
                     npe = utils.normalize(pp - camera.position)
                     ray = Ray(pp, npe)
                     rays.append(ray)
+    return rays
+
+
+def create_rays_aa_with_pos(
+    camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4
+):
+    rays = []
+    # weight for each ray
+    w = 1 / (V_SAMPLES * H_SAMPLES)
+    for j in range(HEIGHT):
+        for i in range(WIDTH):
+            for n in range(V_SAMPLES):
+                for m in range(H_SAMPLES):
+                    x = i + (float(m) / H_SAMPLES) + (random() / H_SAMPLES)
+                    y = (
+                        HEIGHT - 1 - j
+                        + (float(n) / V_SAMPLES)
+                        + (random() / V_SAMPLES)
+                    )
+                    # Get x projected in view coord
+                    xp = (x / float(WIDTH)) * camera.scale_x
+                    # Get y projected in view coord
+                    yp = (y / float(HEIGHT)) * camera.scale_y
+                    pp = camera.p00 + xp * camera.n0 + yp * camera.n1
+                    npe = utils.normalize(pp - camera.position)
+                    ray = Ray(pp, npe)
+                    rays.append([ray, i, j, w])
     return rays
 
 
@@ -227,6 +259,51 @@ def render_aa_mp(
     n = WIDTH * HEIGHT
     pixels_2d = [pixel_colors[i:i + WIDTH] for i in range(0, n, WIDTH)]
     output = np.asarray(pixels_2d).round().astype(np.uint8)
+    return output
+
+
+def render_aa_mp_unordered(
+    scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4
+):
+    """
+    Render the image for the given scene and camera using raytracing in multi-
+    processors unordered with random-jittering anti-aliasing.
+
+    Args:
+        scene(Scene): The scene that contains objects, cameras and lights.
+        camera(Camera): The camera that is rendering this image.
+
+    Returns:
+        numpy.array: The pixels with the raytraced colors.
+    """
+    output = np.zeros([HEIGHT, WIDTH, RGB_CHANNELS], dtype=np.uint8)
+    n = HEIGHT * WIDTH * V_SAMPLES * H_SAMPLES
+    if not scene or scene.is_empty() or not camera or camera.inside(
+        scene.objects
+    ):
+        print("Cannot generate an image")
+        return output
+    print("Creating rays...")
+    rays_with_pos = create_rays_aa_with_pos(
+        camera, HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
+    )
+    threads_count = mp.cpu_count()
+    pool = mp.Pool(threads_count)
+    print("Shooting rays...")
+    ray_colors = pool.imap_unordered(
+        raytrace_unordered_wrapper, [
+            (ray, i, j, w, scene) for ray, i, j, w in rays_with_pos
+        ], chunksize=n//threads_count
+    )
+    pool.close()
+    # Put the colors in a float buffer first, then pass to uint8
+    buffer = np.zeros([HEIGHT, WIDTH, RGB_CHANNELS])
+    for color, i, j in ray_colors:
+        buffer[j][i] += color
+    print("Arranging pixels...")
+    for j in range(HEIGHT):
+        for i in range(WIDTH):
+            output[j][i] = buffer[j][i].round()
     return output
 
 
