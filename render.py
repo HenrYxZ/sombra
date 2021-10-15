@@ -12,15 +12,6 @@ PERCENTAGE_STEP = 1
 RGB_CHANNELS = 3
 
 
-def raytrace_mp_wrapper(args):
-    return raytrace(*args)
-
-def raytrace_unordered_wrapper(args):
-    ray, i, j, w, scene = args
-    color = raytrace(ray, scene)
-    weighted_color = color * w
-    return (weighted_color, i, j)
-
 def avg(colors, samples):
     total_sum = np.zeros(3)
     for color in colors:
@@ -68,31 +59,56 @@ def create_rays_aa(camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     return rays
 
 
-def create_rays_aa_with_pos(
-    camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4
-):
-    rays = []
-    # weight for each ray
-    w = 1 / (V_SAMPLES * H_SAMPLES)
-    for j in range(HEIGHT):
-        for i in range(WIDTH):
-            for n in range(V_SAMPLES):
-                for m in range(H_SAMPLES):
-                    x = i + (float(m) / H_SAMPLES) + (random() / H_SAMPLES)
-                    y = (
-                        HEIGHT - 1 - j
-                        + (float(n) / V_SAMPLES)
-                        + (random() / V_SAMPLES)
-                    )
-                    # Get x projected in view coord
-                    xp = (x / float(WIDTH)) * camera.scale_x
-                    # Get y projected in view coord
-                    yp = (y / float(HEIGHT)) * camera.scale_y
-                    pp = camera.p00 + xp * camera.n0 + yp * camera.n1
-                    npe = utils.normalize(pp - camera.position)
-                    ray = Ray(pp, npe)
-                    rays.append([ray, i, j, w])
-    return rays
+def create_ray_aa(camera, height, width, v_samples, h_samples, pixel_pos):
+    """
+    Create a new ray for the given camera and screen position with random
+    jiterring anti-aliasing sampling.
+
+    Args:
+        camera(Camera): Camera from where the ray is shot.
+        height(int): Height of the screen in pixels.
+        width(int): Width of the screen in pixels.
+        v_samples(int): Number of samples for a pixel in the vertical axis.
+        h_samples(int): Number of samples for a pixel in the horizontal axis.
+        pixel_pos(tuple): Position of a pixel sample with j, i, n, m.
+
+    Returns:
+        Ray: The ray for the given camera and screen position.
+    """
+    j, i, n, m = pixel_pos
+    x = i + float(m) / h_samples + random() / h_samples
+    y = height - 1 - j + float(n) / v_samples + random() / v_samples
+    # Get x projected in view coord
+    xp = (x / width) * camera.scale_x
+    # Get y projected in view coord
+    yp = (y / height) * camera.scale_y
+    pp = camera.p00 + xp * camera.n0 + yp * camera.n1
+    npe = utils.normalize(pp - camera.position)
+    ray = Ray(pp, npe)
+    return ray
+
+
+def raytrace_mp_wrapper(args):
+    return raytrace(*args)
+
+
+def raytrace_unordered_wrapper(args):
+    # index refers to the scanline index of a pixel
+    index, height, width, v_samples, h_samples, camera, scene = args
+    num_samples = v_samples * h_samples
+    color = np.zeros(RGB_CHANNELS)
+    for n in range(v_samples):
+        for m in range(h_samples):
+            i = index % width
+            j = index // width
+            pixel_sample_pos = j, i, n, m
+            ray = create_ray_aa(
+                camera, height, width, v_samples, h_samples, pixel_sample_pos
+            )
+            sample_color = raytrace(ray, scene)
+            color += sample_color / num_samples
+    color = color.round().astype(np.uint8)
+    return (index, color)
 
 
 def render(scene, camera, HEIGHT=100, WIDTH=100):
@@ -277,33 +293,29 @@ def render_aa_mp_unordered(
         numpy.array: The pixels with the raytraced colors.
     """
     output = np.zeros([HEIGHT, WIDTH, RGB_CHANNELS], dtype=np.uint8)
-    n = HEIGHT * WIDTH * V_SAMPLES * H_SAMPLES
+    n = HEIGHT * WIDTH
     if not scene or scene.is_empty() or not camera or camera.inside(
         scene.objects
     ):
         print("Cannot generate an image")
         return output
-    print("Creating rays...")
-    rays_with_pos = create_rays_aa_with_pos(
-        camera, HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES
-    )
     threads_count = mp.cpu_count()
     pool = mp.Pool(threads_count)
-    print("Shooting rays...")
     ray_colors = pool.imap_unordered(
-        raytrace_unordered_wrapper, [
-            (ray, i, j, w, scene) for ray, i, j, w in rays_with_pos
-        ], chunksize=n//threads_count
+        raytrace_unordered_wrapper,
+        [
+            (
+                index, HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES, camera, scene
+            ) for index in range(n)
+        ],
+        chunksize=n//threads_count
     )
     pool.close()
-    # Put the colors in a float buffer first, then pass to uint8
-    buffer = np.zeros([HEIGHT, WIDTH, RGB_CHANNELS])
-    for color, i, j in ray_colors:
-        buffer[j][i] += color
-    print("Arranging pixels...")
-    for j in range(HEIGHT):
-        for i in range(WIDTH):
-            output[j][i] = buffer[j][i].round()
+    print("Shooting rays...")
+    for index, color in ray_colors:
+        i = index % WIDTH
+        j = index // WIDTH
+        output[j][i] = color
     return output
 
 
