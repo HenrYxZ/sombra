@@ -128,13 +128,13 @@ def render(scene, camera, HEIGHT=100, WIDTH=100):
     ):
         print("Cannot generate an image")
         return output
-    # This is for showing progress %
     iterations = HEIGHT * WIDTH
-    step_size = np.ceil((iterations * PERCENTAGE_STEP) / 100).astype('int')
-    counter = 0
-    bar = Bar('Raytracing', max=100 / PERCENTAGE_STEP)
-    # This is needed to use it in Git Bash
-    bar.check_tty = False
+    bar = Bar(
+        'Raytracing',
+        max=iterations,
+        suffix='%(percent)d%% [%(elapsed_td)s / %(eta_td)s]',
+        check_tty=False
+    )
     for j in range(HEIGHT):
         for i in range(WIDTH):
             x = i
@@ -148,9 +148,7 @@ def render(scene, camera, HEIGHT=100, WIDTH=100):
             ray = Ray(pp, npe)
             color = raytrace(ray, scene)
             output[j][i] = color.round().astype(np.uint8)
-            counter += 1
-            if counter % step_size == 0:
-                bar.next()
+            bar.next()
     bar.finish()
     return output
 
@@ -175,11 +173,12 @@ def render_aa(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
     total_samples = H_SAMPLES * V_SAMPLES
     # This is for showing progress %
     iterations = HEIGHT * WIDTH * total_samples
-    step_size = np.ceil((iterations * PERCENTAGE_STEP) / 100).astype('int')
-    counter = 0
-    bar = Bar('Raytracing', max=100 / PERCENTAGE_STEP)
-    # This is needed to use it in Git Bash
-    bar.check_tty = False
+    bar = Bar(
+        'Raytracing',
+        max=iterations,
+        suffix='%(percent)d%% [%(elapsed_td)s / %(eta_td)s]',
+        check_tty=False
+    )
     for j in range(HEIGHT):
         for i in range(WIDTH):
             color = np.array([0, 0, 0], dtype=float)
@@ -196,11 +195,8 @@ def render_aa(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=4, H_SAMPLES=4):
                     pp = camera.p00 + xp * camera.n0 + yp * camera.n1
                     npe = utils.normalize(pp - camera.position)
                     ray = Ray(pp, npe)
-
                     color += raytrace(ray, scene) / float(total_samples)
-                    counter += 1
-                    if counter % step_size == 0:
-                        bar.next()
+                    bar.next()
             output[j][i] = color.round().astype(np.uint8)
     bar.finish()
     return output
@@ -338,13 +334,13 @@ def render_dof(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=6, H_SAMPLES=6):
         print("Cannot generate an image")
         return output
     total_samples = H_SAMPLES * V_SAMPLES
-    # This is for showing progress %
     iterations = HEIGHT * WIDTH * total_samples
-    step_size = np.ceil((iterations * PERCENTAGE_STEP) / 100).astype('int')
-    counter = 0
-    bar = Bar('Raytracing', max=100 / PERCENTAGE_STEP)
-    # This is needed to use it in Git Bash
-    bar.check_tty = False
+    bar = Bar(
+        'Raytracing',
+        max=iterations,
+        suffix='%(percent)d%% [%(elapsed_td)s / %(eta_td)s]',
+        check_tty=False
+    )
     for j in range(HEIGHT):
         for i in range(WIDTH):
             color = np.array([0, 0, 0], dtype=float)
@@ -379,9 +375,7 @@ def render_dof(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=6, H_SAMPLES=6):
                     ray = Ray(ps, director)
 
                     color += raytrace(ray, scene) / float(total_samples)
-                    counter += 1
-                    if counter % step_size == 0:
-                        bar.next()
+                    bar.next()
             output[j][i] = color.round().astype(np.uint8)
     bar.finish()
     return output
@@ -410,11 +404,12 @@ def render_aa_t(
     total_samples = H_SAMPLES * V_SAMPLES
     # This is for showing progress %
     iterations = HEIGHT * WIDTH
-    step_size = np.ceil((iterations * PERCENTAGE_STEP) / 100).astype('int')
-    counter = 0
-    bar = Bar('Rendering', max=100 / PERCENTAGE_STEP)
-    # This is needed to use it in Git Bash
-    bar.check_tty = False
+    bar = Bar(
+        'Raytracing',
+        max=iterations,
+        suffix='%(percent)d%% [%(elapsed_td)s / %(eta_td)s]',
+        check_tty=False
+    )
     for j in range(HEIGHT):
         for i in range(WIDTH):
             color = np.array([0, 0, 0], dtype=float)
@@ -433,9 +428,7 @@ def render_aa_t(
                     ray = Ray(pp, npe)
 
                     color += func(ray, scene) / float(total_samples)
-            counter += 1
-            if counter % step_size == 0:
-                bar.next()
+            bar.next()
             output[j][i] = color.round().astype(np.uint8)
     bar.finish()
     return output
