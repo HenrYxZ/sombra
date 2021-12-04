@@ -201,7 +201,7 @@ def raytrace(ray, scene, kr=1, depth=0):
         eye = utils.normalize(ray.pr - ph)
         color = compute_color(ph, eye, obj_h, lights)
         # Objects to check for occlusion
-        objects_to_check = [obj for obj in objects]
+        objects_to_check = objects.copy()
         objects_to_check.remove(obj_h)
         shadow = compute_shadow(ph, objects_to_check, lights)
         final_color = (
