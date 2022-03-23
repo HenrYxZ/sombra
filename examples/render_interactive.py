@@ -18,10 +18,10 @@ from texture import ImageTexture
 import shaders
 import utils
 
-WIDTH = 400
-HEIGHT = 300
-H_SAMPLES = 3
-V_SAMPLES = 3
+WIDTH = 288
+HEIGHT = 192
+H_SAMPLES = 1
+V_SAMPLES = 1
 
 
 screen = np.zeros(
@@ -66,42 +66,31 @@ camera = scene.get_main_camera()
 
 
 def render(_):
-    if not scene or scene.is_empty() or not camera or camera.inside(
-        scene.objects
-    ):
-        print("Cannot generate an image")
+    global j
+    if j == HEIGHT:
+        bar.finish()
+        pyglet.clock.unschedule(render)
         return
-    total_samples = H_SAMPLES * V_SAMPLES
-    # This is for showing progress %
-    iterations = HEIGHT * WIDTH
-    bar = Bar(
-        'Raytracing',
-        max=iterations,
-        suffix='%(percent)d%% [%(elapsed_td)s / %(eta_td)s]',
-        check_tty=False
-    )
-    for j in range(HEIGHT):
-        for i in range(WIDTH):
-            color = np.array([0, 0, 0], dtype=float)
-            for n in range(V_SAMPLES):
-                for m in range(H_SAMPLES):
-                    r0, r1 = np.random.random_sample(2)
-                    # Floats x, y inside the image plane grid
-                    x = i + ((float(m) + r0) / H_SAMPLES)
-                    y = HEIGHT - 1 - j + ((float(n) + r1) / V_SAMPLES)
-                    # Get x projected in view coord
-                    xp = (x / float(WIDTH)) * camera.scale_x
-                    # Get y projected in view coord
-                    yp = (y / float(HEIGHT)) * camera.scale_y
-                    pp = camera.p00 + xp * camera.n0 + yp * camera.n1
-                    npe = utils.normalize(pp - camera.position)
-                    ray = Ray(pp, npe)
-                    color += raytrace(ray, scene) / float(total_samples)
-            bar.next()
-            screen[j][i] = color.round().astype(np.uint8)
-        draw()
-    bar.finish()
-
+    for i in range(WIDTH):
+        color = np.array([0, 0, 0], dtype=float)
+        for n in range(V_SAMPLES):
+            for m in range(H_SAMPLES):
+                r0, r1 = np.random.random_sample(2)
+                # Floats x, y inside the image plane grid
+                x = i + ((float(m) + r0) / H_SAMPLES)
+                y = HEIGHT - 1 - j + ((float(n) + r1) / V_SAMPLES)
+                # Get x projected in view coord
+                xp = (x / float(WIDTH)) * camera.scale_x
+                # Get y projected in view coord
+                yp = (y / float(HEIGHT)) * camera.scale_y
+                pp = camera.p00 + xp * camera.n0 + yp * camera.n1
+                npe = utils.normalize(pp - camera.position)
+                ray = Ray(pp, npe)
+                color += raytrace(ray, scene) / float(total_samples)
+        bar.next()
+        screen[j][i] = color.round().astype(np.uint8)
+    j += 1
+    draw()
 
 
 def draw():
@@ -111,6 +100,17 @@ def draw():
     image_data.set_data(IMG_FORMAT, pitch, data)
     image_data.blit(0, 0)
 
+
 if __name__ == '__main__':
-    pyglet.clock.schedule_once(render, 0.1)
+    total_samples = H_SAMPLES * V_SAMPLES
+    # This is for showing progress %
+    iterations = HEIGHT * WIDTH
+    bar = Bar(
+        'Raytracing',
+        max=iterations,
+        suffix='%(percent)d%% [%(elapsed_td)s / %(eta_td)s]',
+        check_tty=False
+    )
+    j = 0
+    pyglet.clock.schedule(render)
     pyglet.app.run()
