@@ -12,6 +12,8 @@ def main(argv):
         examples.pathtracing.main()
     elif "atmosphere" in argv:
         examples.atmosphere.main()
+    elif "render_interactive" in argv:
+        examples.render_interactive.main()
 
 
 if __name__ == '__main__':

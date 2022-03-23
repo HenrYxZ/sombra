@@ -181,7 +181,7 @@ def raytrace(ray, scene, kr=1, depth=0):
         depth(int): How many bounces this trace has
 
     Returns:
-        np.array: The color for this ray in numpy array of 3 channels
+        np.array: The color for this ray in numpy array of 3 channels in float
     """
     # Get closest intersection point
     t_min = np.inf

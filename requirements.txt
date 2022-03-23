@@ -3,3 +3,4 @@ imageio-ffmpeg
 numpy
 Pillow
 progress
+pyglet
