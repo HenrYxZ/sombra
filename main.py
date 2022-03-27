@@ -90,6 +90,7 @@ def setup_objects():
     plane_n0 = np.array([1, 0, 0], dtype=float)
     plane_mtl = Material(
         material.COLOR_GRAY, material.TYPE_TEXTURED, kr=0.4, roughness=0.06
+        # material.COLOR_GRAY, material.TYPE_TEXTURED, roughness=0.06
         # material.COLOR_GRAY, material.TYPE_DIFFUSE
     )
     plane_shader = shaders.TYPE_DIFFUSE_COLORS
@@ -118,33 +119,33 @@ def setup_objects():
     sphere_shader = shaders.TYPE_DIFFUSE_COLORS
     sphere_r = 25.0
     sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    # # Mickey Sphere
-    # sphere_pos = np.array([-30, -5, 75], dtype=float)
-    # sphere_mtl = Material(
-    #     material.COLOR_BLUE,
-    #     material.TYPE_TEXTURED,
-    #     specular=DEFAULT_KS
-    # )
-    # box = Box(sphere_pos, 40, 40, 40)
-    # mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
-    # sphere_mtl.add_texture(SolidImageTexture(mickey_img_texture, box))
-    # sphere_shader = shaders.TYPE_DIFFUSE_COLORS
-    # sphere_r = 20.0
-    # mickey = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    # # Gray Sphere
-    # sphere_pos = np.array([90, 15, 160], dtype=float)
-    # sphere_mtl = Material(
-    #     material.COLOR_GRAY,
-    #     material.TYPE_DIFFUSE,
-    #     specular=DEFAULT_KS,
-    #     border=0.0,
-    #     kr=0.7, roughness=0.15
-    # )
-    # sphere_shader = shaders.TYPE_DIFFUSE_COLORS
-    # sphere_r = 40.0
-    # gray_sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
-    # return [sphere, plane, mickey, gray_sphere]
-    return [sphere, plane]
+    # Mickey Sphere
+    sphere_pos = np.array([-30, -5, 75], dtype=float)
+    sphere_mtl = Material(
+        material.COLOR_BLUE,
+        material.TYPE_TEXTURED,
+        specular=DEFAULT_KS
+    )
+    box = Box(sphere_pos, 40, 40, 40)
+    mickey_img_texture = ImageTexture(MICKEY_TEXTURE_FILENAME)
+    sphere_mtl.add_texture(SolidImageTexture(mickey_img_texture, box))
+    sphere_shader = shaders.TYPE_DIFFUSE_COLORS
+    sphere_r = 20.0
+    mickey = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
+    # Gray Sphere
+    sphere_pos = np.array([90, 15, 160], dtype=float)
+    sphere_mtl = Material(
+        material.COLOR_GRAY,
+        material.TYPE_DIFFUSE,
+        specular=DEFAULT_KS,
+        border=0.0,
+        kr=0.7, roughness=0.15
+    )
+    sphere_shader = shaders.TYPE_DIFFUSE_COLORS
+    sphere_r = 40.0
+    gray_sphere = Sphere(sphere_pos, sphere_mtl, sphere_shader, sphere_r)
+    return [sphere, plane, mickey, gray_sphere]
+    # return [sphere, plane]
 
 
 def set_objects_id(objects):

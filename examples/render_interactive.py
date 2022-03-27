@@ -5,6 +5,8 @@ import numpy as np
 from progress.bar import Bar
 import pyglet
 import os.path
+from PIL import Image
+import pyglet.window.key as key
 
 # Local Modules
 from camera import Camera
@@ -13,21 +15,24 @@ from material import Material, TYPE_TEXTURED
 from object import Plane
 from ray import Ray
 from raytrace import raytrace
+from render import create_ray_aa
 from scene import Scene
 from texture import ImageTexture
 import shaders
 import utils
 
+from main import setup_cameras, setup_scene
+
 WIDTH = 288
 HEIGHT = 192
-H_SAMPLES = 1
-V_SAMPLES = 1
+H_SAMPLES = 3
+V_SAMPLES = 3
 
 
 screen = np.zeros(
     [HEIGHT, WIDTH, RGB_CHANNELS], dtype=np.uint8
 )
-IMG_FORMAT = 'rgb'
+IMG_FORMAT = 'RGB'
 pitch = WIDTH * RGB_CHANNELS
 image_data = pyglet.image.ImageData(
     WIDTH, HEIGHT, IMG_FORMAT, screen.tobytes(), pitch
@@ -61,31 +66,37 @@ def set_scene():
     return Scene(cameras, [], [plane])
 
 
-scene = set_scene()
+# scene = set_scene()
+# camera = set_camera()
+scene = setup_scene()
 camera = scene.get_main_camera()
+camera.position = np.array([-15, 0, -5])
+camera.set_view_coord()
+
+pause = True
 
 
 def render(_):
     global j
+    if pause:
+        return
     if j == HEIGHT:
         bar.finish()
         pyglet.clock.unschedule(render)
+        # Save image in file
+        img = Image.fromarray(screen)
+        img_filename = "examples_out/interactive.jpg"
+        img.save(img_filename, quality=MAX_QUALITY)
+        print(f"Image saved in {img_filename}")
         return
     for i in range(WIDTH):
         color = np.array([0, 0, 0], dtype=float)
         for n in range(V_SAMPLES):
             for m in range(H_SAMPLES):
-                r0, r1 = np.random.random_sample(2)
-                # Floats x, y inside the image plane grid
-                x = i + ((float(m) + r0) / H_SAMPLES)
-                y = HEIGHT - 1 - j + ((float(n) + r1) / V_SAMPLES)
-                # Get x projected in view coord
-                xp = (x / float(WIDTH)) * camera.scale_x
-                # Get y projected in view coord
-                yp = (y / float(HEIGHT)) * camera.scale_y
-                pp = camera.p00 + xp * camera.n0 + yp * camera.n1
-                npe = utils.normalize(pp - camera.position)
-                ray = Ray(pp, npe)
+                pixel_pos = (j, i, n, m)
+                ray = create_ray_aa(
+                    camera, HEIGHT, WIDTH, V_SAMPLES, H_SAMPLES, pixel_pos
+                )
                 color += raytrace(ray, scene) / float(total_samples)
         bar.next()
         screen[j][i] = color.round().astype(np.uint8)
@@ -100,8 +111,15 @@ def draw():
     image_data.set_data(IMG_FORMAT, pitch, data)
     image_data.blit(0, 0)
 
+@window.event
+def on_key_press(symbol, _):
+    global pause
+    if symbol == key.SPACE:
+        pause = not pause
+
 
 if __name__ == '__main__':
+    print("Press SPACE to start")
     total_samples = H_SAMPLES * V_SAMPLES
     # This is for showing progress %
     iterations = HEIGHT * WIDTH
