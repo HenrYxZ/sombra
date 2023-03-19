@@ -8,17 +8,14 @@ class LensParams:
     """
     Parameters for the lens. This will be used to create depth of field effect.
 
-    f(float): focal length for depth of field effect (distance from view window
+    f (float): focal length for depth of field effect (distance from view window
         to the focal plane)
-    ap_sx(float): horizontal aperture size of the lens (in view window
-        coordinates)
-    ap_sy(float): vertical aperture size of the lens (in view window
-        coordinates)
+    ap (float): aperture of the camera, the radius of the circle from which to
+        sample random points
     """
-    def __init__(self, f=28, ap_sx=1.8, ap_sy=1.8):
+    def __init__(self, f=28.0, ap=1.5):
         self.f = f
-        self.ap_sx = ap_sx
-        self.ap_sy = ap_sy
+        self.ap = ap
 
 
 class Camera:
@@ -34,7 +31,7 @@ class Camera:
     n0(array): unit vector for local coordinate
     n1(array): unit vector for local coordinate
     n2(array): unit vector for local coordinate
-    p00(array): position of the origin of the view window in world coordinates
+    p00(array): position of the origin of the view window in world's coordinates
     lens_params(LensParams): the lens parameters for depth of field
     """
 
@@ -62,7 +59,7 @@ class Camera:
 
     def set_view_coord(self):
         """
-        This are the unit vectors that form the view coordinates of the camera.
+        These are the unit vectors that form the view coordinates of the camera.
         Including the starting point of the view window on world coordinates.
         This information allows for projecting a point in the camera window
         into the world coordinates.

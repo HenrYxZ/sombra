@@ -1,7 +1,7 @@
 import multiprocessing as mp
 import numpy as np
 from progress.bar import Bar
-from random import random
+from random import random, shuffle
 
 # Local Modules
 import utils
@@ -347,15 +347,23 @@ def render_dof(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=6, H_SAMPLES=6):
             lens_sample_offsets = []
             n0 = camera.n0
             n1 = camera.n1
+
+            # Generate random offsets inside the camera aperture
             for n in range(V_SAMPLES):
                 for m in range(H_SAMPLES):
+                    ap = camera.lens_params.ap
+                    # Use random samples from a unit circle
                     r0, r1 = np.random.random_sample(2)
-                    ap_sx = camera.lens_params.ap_sx
-                    ap_sy = camera.lens_params.ap_sy
-                    x_offset = ((r0 - 0.5) * m) / H_SAMPLES * ap_sx
-                    y_offset = ((r1 - 0.5) * n) / V_SAMPLES * ap_sy
+                    while r0 ** 2 + r1 ** 2 > 1:
+                        # repeat until you get a sample that is inside a circle
+                        # of radius 1
+                        r0, r1 = np.random.random_sample(2)
+                    x_offset = ((r0 - 0.5) * m) / H_SAMPLES * ap
+                    y_offset = ((r1 - 0.5) * n) / V_SAMPLES * ap
                     lens_sample_offsets.append((x_offset, y_offset))
-            random_start = np.random.random_integers(0, total_samples - 1)
+            shuffle(lens_sample_offsets)
+
+            # Shoot rays for sub-samples
             for n in range(V_SAMPLES):
                 for m in range(H_SAMPLES):
                     r0, r1 = np.random.random_sample(2)
@@ -367,8 +375,9 @@ def render_dof(scene, camera, HEIGHT=100, WIDTH=100, V_SAMPLES=6, H_SAMPLES=6):
                     yp = (y / float(HEIGHT)) * camera.scale_y
                     pp = camera.p00 + xp * camera.n0 + yp * camera.n1
                     npe = utils.normalize(pp - camera.position)
-                    sample_idx = n + m * H_SAMPLES - random_start
-                    x_offset, y_offset = lens_sample_offsets[sample_idx]
+
+                    # Randomly offset ray
+                    x_offset, y_offset = lens_sample_offsets.pop()
                     ps = pp + x_offset * n0 + y_offset * n1
                     fp = pp + npe * camera.lens_params.f
                     director = utils.normalize(fp - ps)
