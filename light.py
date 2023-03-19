@@ -17,7 +17,7 @@ class Light:
     Light for a Scene.
 
     Attributes:
-        position(numpy.array): 3D position of the light
+        position (numpy.array): 3D position of the light
     """
 
     def __init__(self, position):
@@ -31,7 +31,7 @@ class Light:
         Get distance from the light to the point ph.
 
         Args:
-            ph(numpy.array): 3D point of hit between ray and object
+            ph (numpy.array): 3D point of hit between ray and object
 
         Returns:
             float: distance from the light to the point ph
@@ -44,7 +44,7 @@ class Light:
         Get unit vector l that points to the light from hit point ph.
 
         Args:
-            ph(numpy.array): 3D point of hit between ray and object
+            ph (numpy.array): 3D point of hit between ray and object
 
         Returns:
             numpy.array: unit vector pointing to the light
@@ -63,7 +63,7 @@ class DirectionalLight(Light):
         Get distance from the light to the point ph.
 
         Args:
-            ph(numpy.array): 3D point of hit between ray and object
+            ph (numpy.array): 3D point of hit between ray and object
 
         Returns:
             float: distance from the light to the point ph
@@ -75,7 +75,7 @@ class DirectionalLight(Light):
         Get unit vector l that points to the light from hit point ph.
 
         Args:
-            ph(numpy.array): 3D point of hit between ray and object
+            ph (numpy.array): 3D point of hit between ray and object
 
         Returns:
             numpy.array: unit vector pointing to the light
@@ -94,7 +94,7 @@ class PointLight(Light):
         Get unit vector l that points to the light from hit point ph.
 
         Args:
-            ph(numpy.array): 3D point of hit between ray and object
+            ph (numpy.array): 3D point of hit between ray and object
 
         Returns:
             numpy.array: unit vector pointing to the light
@@ -108,10 +108,10 @@ class SpotLight(Light):
     Spot Light for a Scene.
 
     Attributes:
-        position(numpy.array): 3D position of the light
-        theta(float): The angle for directional light in radians
-        nl(numpy.array): Unit vector in the direction of the spot light
-        cos_theta(float): Value for cos(theta), used for calculations
+        position (numpy.array): 3D position of the light
+        theta (float): The angle for directional light in radians
+        nl (numpy.array): Unit vector in the direction of the spot light
+        cos_theta (float): Value for cos(theta), used for calculations
     """
 
     def __init__(self, position, theta=0, nl=None):
@@ -125,7 +125,7 @@ class SpotLight(Light):
         Get unit vector l that points to the light from hit point ph.
 
         Args:
-            ph(numpy.array): 3D point of hit between ray and object
+            ph (numpy.array): 3D point of hit between ray and object
 
         Returns:
             numpy.array: unit vector pointing to the light, 0 if outside cone
@@ -142,12 +142,12 @@ class AreaLight(Light):
     Area Light for a Scene.
 
     Attributes:
-        position(numpy.array): Center of the area light
-        s0(float): width of area light in world coordinates
-        s1(float): height of area light in world coordinates
-        n0(numpy.array): Unit vector for horizontal direction
-        n1(numpy.array): Unit vector for vertical direction
-        p00(numpy.array): Origin point for area light
+        position (numpy.array): Center of the area light
+        s0 (float): width of area light in world coordinates
+        s1 (float): height of area light in world coordinates
+        n0 (numpy.array): Unit vector for horizontal direction
+        n1 (numpy.array): Unit vector for vertical direction
+        p00 (numpy.array): Origin point for area light
     """
 
     def __init__(self, position, s0, s1, n0=DEFAULT_N0, n1=DEFAULT_N1):
@@ -164,7 +164,7 @@ class AreaLight(Light):
             hit point ph.
 
         Args:
-            ph(numpy.array): 3D point of hit between ray and object
+            ph (numpy.array): 3D point of hit between ray and object
 
         Returns:
             numpy.array: unit vector pointing to random sample
@@ -182,8 +182,8 @@ class AreaLight(Light):
         and n vertically and using random jitter.
 
         Args:
-            m(int): Number of horizontal samples to use
-            n(int): Number of vertical samples to use
+            m (int): Number of horizontal samples to use
+            n (int): Number of vertical samples to use
 
         Returns:
             list of numpy.array: sample positions in world space

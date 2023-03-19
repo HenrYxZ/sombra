@@ -7,7 +7,7 @@ used are taken from the Image Synthesis class at Texas A&M University taught by
 professor Ergun Akleman. 
 
 The main program creates a raytraced image of a scene with simple objects like
-spheres and planes. It's using a resolution of 280x192px by default and random
+spheres and planes. It's using a resolution of 288x192px by default and random
 jitter anti-aliasing with 4 samples per axis.
 
 ![showcase image](showcase.jpg)
@@ -18,6 +18,12 @@ jitter anti-aliasing with 4 samples per axis.
 - Run `python -u main.py` or `python -u main.py -d` to use _debug mode_ which
 will not use Anti-Aliasing (-u is for displaying print messages in the console)
 - The output image will be stored in the project folder
+- (Optional Parameters)
+  - `python -u main.py -h` or `python -u main.py --help` will display the available commands
+  - `python -u main.py -d` or `python -u main.py --debug` for image without anti-aliasing (would be much faster)
+  - `python -u main.py -m` or `python -u main.py --multi` will use multi-threading
+  - `python -u main.py -a` or `python -u main.py --animation` will create an 8 seconds animation
+  - `python -u main.py -f` or `python -u main.py --dof` will use Depth of Field to simulate camera focus
 
 ## Features
 
@@ -25,13 +31,14 @@ will not use Anti-Aliasing (-u is for displaying print messages in the console)
 - Diffuse, Specular and Border shaders
 - Area, Directional, Point and Spot lights
 - Change Field of View of camera by changing d (distance) and scale x and y
-parameters
+parameters of the projection view window
 - Anti-Aliasing using Random Jitter
 - Reflection by setting Ks value to materials
 - Image textures
 - Normal Maps
 - Environment Sphere Map
 - Animation by running a physics simulation of a moving sphere
+- Multi-Threading
 
 ## Documentation
 
@@ -46,7 +53,7 @@ import them into the "_\_\_init\_\_.py_" file of the "_tests_" folder.
 ## Dependencies
 
 You will need to install
-- Python (3 and 2.7 are supported)
+- Python
 
 And external Python modules
 - numpy

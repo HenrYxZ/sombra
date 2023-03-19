@@ -4,7 +4,6 @@ Example that uses the pyglet module to display the image as it renders
 import numpy as np
 from progress.bar import Bar
 import pyglet
-import os.path
 from PIL import Image
 import pyglet.window.key as key
 
@@ -13,7 +12,6 @@ from camera import Camera
 from constants import RGB_CHANNELS, MAX_QUALITY
 from material import Material, TYPE_TEXTURED
 from object import Plane
-from ray import Ray
 from raytrace import raytrace
 from render import create_ray_aa
 from scene import Scene
@@ -21,7 +19,7 @@ from texture import ImageTexture
 import shaders
 import utils
 
-from main import setup_cameras, setup_scene
+from main import setup_scene
 
 WIDTH = 288
 HEIGHT = 192
@@ -110,6 +108,7 @@ def draw():
     data = np.flipud(screen).tobytes()
     image_data.set_data(IMG_FORMAT, pitch, data)
     image_data.blit(0, 0)
+
 
 @window.event
 def on_key_press(symbol, _):
